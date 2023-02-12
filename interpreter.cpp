@@ -332,7 +332,7 @@ void interpreter::run() {
                     break;
                 case direction::southwest:
                 case direction::east:
-                    m_direction = direction::northeast;
+                    m_direction = direction::southeast;
                     break;
                 case direction::northeast:
                     m_direction = direction::southwest;
