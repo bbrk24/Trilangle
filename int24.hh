@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <compare>
+#include <cwchar>
 
 #ifndef INT24_C
 struct int24_t {
@@ -11,7 +12,10 @@ struct int24_t {
     constexpr explicit int24_t(int32_t x) noexcept : value(x) {}
     constexpr explicit int24_t(wint_t x) noexcept : value(x) {}
 
-    constexpr explicit operator char() const noexcept {
+    constexpr explicit operator wchar_t() const noexcept {
+        return (wchar_t)value;
+    }
+    constexpr operator int32_t() const noexcept {
         return value;
     }
 
@@ -19,6 +23,4 @@ struct int24_t {
 };
 
 #define INT24_C(x) int24_t{ INT32_C(x) }
-#define INT24_MIN INT24_C(-0x800000)
-#define INT24_MAX INT24_C( 0x7fffff)
 #endif

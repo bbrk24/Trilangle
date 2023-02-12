@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <vector>
 #include <string>
+#include <cstdio>
 
 constexpr int24_t INVALID_CHAR{ 0xfffd };
 
@@ -15,7 +16,6 @@ int24_t parse_unichar(FuncType getbyte) {
     size_t buf_max = 4;
     for (size_t i = 0; i < buf_max; ++i) {
         int c = getbyte();
-        buf[i] = (unsigned char)c;
 
         if (c == EOF) {
             if (i == 0) {
@@ -25,7 +25,7 @@ int24_t parse_unichar(FuncType getbyte) {
             }
         }
 
-
+        buf[i] = (unsigned char)c;
         if (i != 0 && (buf[i] & 0xc0) != 0x80) {
             return INVALID_CHAR;
         }

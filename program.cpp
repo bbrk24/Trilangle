@@ -16,7 +16,7 @@ program::program(const string& source) : m_code(parse_utf8(source)), m_side_leng
         m_code.begin(),
         m_code.end(),
         [](int24_t c) {
-            return c != ' ' && c != '\n';
+            return c != (int24_t)' ' && c != (int24_t)'\n';
         }
     );
     m_code.erase(iter, m_code.end());

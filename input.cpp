@@ -2,7 +2,6 @@
 #include "string_processing.hh"
 #include <iostream>
 #include <fstream>
-#include <cstdio>
 
 using std::cerr;
 using std::endl;
