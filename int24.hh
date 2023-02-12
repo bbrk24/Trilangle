@@ -20,6 +20,35 @@ struct int24_t {
     }
 
     auto operator<=>(const int24_t&) const = default;
+
+    int24_t& operator+=(int24_t rhs) noexcept {
+        value += rhs.value;
+        return *this;
+    }
+    int24_t& operator-=(int24_t rhs) noexcept {
+        value -= rhs.value;
+        return *this;
+    }
+    int24_t& operator*=(int24_t rhs) noexcept {
+        value *= rhs.value;
+        return *this;
+    }
+    int24_t& operator%=(int24_t rhs) noexcept {
+        value %= rhs.value;
+        return *this;
+    }
+    int24_t& operator&=(int24_t rhs) noexcept {
+        value &= rhs.value;
+        return *this;
+    }
+    int24_t& operator/=(int24_t rhs) noexcept {
+        value /= rhs.value;
+        return *this;
+    }
+
+    int24_t operator~() const noexcept {
+        return int24_t{ ~value };
+    }
 };
 
 #define INT24_C(x) int24_t{ INT32_C(x) }
