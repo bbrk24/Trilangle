@@ -1,10 +1,10 @@
-#include "input.hh"
 #include "interpreter.hh"
 #include <iostream>
 
 int main(int argc, char** argv) {
-    program p(readfile(argc, argv));
-    interpreter i(p);
+    flags f{ 0 };
+    program p(parse_args(argc, argv, f));
+    interpreter i(p, f);
 
     i.run();
 }

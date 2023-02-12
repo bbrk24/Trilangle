@@ -1,7 +1,12 @@
 #include "interpreter.hh"
 #include <iostream>
 
-interpreter::interpreter(const program& p) noexcept : m_program(p), m_coords{ 0, 0 }, m_stack(), m_direction(direction::southwest) { }
+interpreter::interpreter(const program& p, flags f) noexcept :
+	m_program(p),
+	m_coords{ 0, 0 },
+	m_stack(),
+	m_direction(direction::southwest),
+	m_flags(f) { }
 
 void interpreter::advance() noexcept {
 	switch (m_direction) {
@@ -74,7 +79,9 @@ void interpreter::advance() noexcept {
 void interpreter::run() {
 	for (size_t i = 0; i <= m_program.side_length() * (m_program.side_length() + 1) / 2; ++i) {
 		int24_t op = m_program.at(m_coords.first, m_coords.second);
-		std::cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
+		if (m_flags.debug) {
+			std::cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
+		}
 		std::wcout << (wchar_t)op << std::endl;
 		advance();
 	}

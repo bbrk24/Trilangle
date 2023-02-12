@@ -2,6 +2,7 @@
 #include "string_processing.hh"
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 using std::cerr;
 using std::endl;
@@ -22,23 +23,32 @@ static inline string read_istream(std::istream& stream) {
     return retval;
 }
 
-string readfile(int argc, char** argv) {
-    switch (argc) {
-        case 1:
-            return read_istream(std::cin);
-        case 2: {
-            std::ifstream f_input(argv[1], std::ios_base::in);
+string parse_args(int argc, char** argv, flags& f) noexcept {
+    char* filename = nullptr;
 
-            if (f_input.is_open()) {
-                return read_istream(f_input);
+    for (int i = 1; i < argc; ++i) {
+        if (argv[i][0] == '-') {
+            if (!strcmp(argv[i], "-d")) {
+                f.debug = 1;
             } else {
-                cerr << "File could not be opened for reading: " << argv[1] << endl;
-                exit(1);
+                cerr << "Unrecognized flag: " << argv[i] << endl;
             }
+        } else {
+            filename = argv[i];
         }
-        default:
-            cerr << "Too many arguments." << endl;
+    }
+
+    if (filename == nullptr) {
+        return read_istream(std::cin);
+    } else {
+        std::ifstream f_input(filename, std::ios_base::in);
+
+        if (f_input.is_open()) {
+            return read_istream(f_input);
+        } else {
+            cerr << "File could not be opened for reading: " << filename << endl;
             exit(1);
+        }
     }
 }
 
