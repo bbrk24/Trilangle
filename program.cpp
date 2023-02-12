@@ -35,7 +35,7 @@ program::program(const string& source) : m_code(parse_utf8(source)), m_side_leng
 }
 
 int24_t program::at(size_t row, size_t column) const {
-    assert(row <= m_side_length && column <= row);
+    assert(row < m_side_length && column <= row);
 
     size_t idx = triangular(row) + column;
     return m_code[idx];

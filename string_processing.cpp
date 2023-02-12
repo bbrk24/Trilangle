@@ -10,7 +10,7 @@ vector<int24_t> parse_utf8(const std::string& s) noexcept {
 
     do {
         vec.push_back(
-            parse_unichar<int>([&]() {
+            parse_unichar([&]() {
                 if (iter == s.end()) {
                     return EOF;
                 } else {

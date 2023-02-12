@@ -53,6 +53,6 @@ int24_t getunichar() noexcept {
 
     return int24_t(c);
 #else
-    return parse_unichar<int>(getchar);
+    return parse_unichar(getchar);
 #endif
 }

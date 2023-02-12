@@ -1,8 +1,7 @@
 #include <cstdint>
-
-#ifndef INT24_C
 #include <compare>
 
+#ifndef INT24_C
 struct int24_t {
     int32_t value : 24;
 
@@ -20,4 +19,6 @@ struct int24_t {
 };
 
 #define INT24_C(x) int24_t{ INT32_C(x) }
+#define INT24_MIN INT24_C(-0x800000)
+#define INT24_MAX INT24_C( 0x7fffff)
 #endif
