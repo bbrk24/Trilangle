@@ -45,6 +45,14 @@ struct int24_t {
         value /= rhs.value;
         return *this;
     }
+    int24_t& operator|=(int24_t rhs) noexcept {
+        value |= rhs.value;
+        return *this;
+    }
+    int24_t& operator^=(int24_t rhs) noexcept {
+        value ^= rhs.value;
+        return *this;
+    }
 
     int24_t operator~() const noexcept {
         return int24_t{ ~value };

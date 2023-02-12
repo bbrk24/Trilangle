@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cinttypes>
+#include <random>
 
 using std::cerr;
 using std::endl;
@@ -86,11 +87,15 @@ void interpreter::advance() noexcept {
 }
 
 void interpreter::run() {
-    for (size_t i = 0; i <= m_program.side_length() * (m_program.side_length() + 1) / 2; ++i) {
+    std::default_random_engine reng(std::move(std::random_device())());
+    std::uniform_int_distribution<int32_t> rdist(-0x800000, 0x7fffff);
+
+    while (true) {
         int24_t op = m_program.at(m_coords.first, m_coords.second);
         if (m_flags.debug) {
             std::cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
             std::wcout << (wchar_t)op << endl;
+            [[maybe_unused]] int _ = getchar();
         }
 
         switch (op) {
@@ -126,11 +131,230 @@ void interpreter::run() {
                 m_stack.back() %= top;
                 break;
             }
-            // BSN and MIR
-            case PSH: {
+            case MIR_EW:
+                switch (m_direction) {
+                    case direction::southwest:
+                        m_direction = direction::northwest;
+                        break;
+                    case direction::northwest:
+                        m_direction = direction::southwest;
+                        break;
+                    case direction::northeast:
+                        m_direction = direction::southeast;
+                        break;
+                    case direction::southeast:
+                        m_direction = direction::northeast;
+                        break;
+                }
+                break;
+            case MIR_NS:
+                switch (m_direction) {
+                    case direction::southwest:
+                        m_direction = direction::southeast;
+                        break;
+                    case direction::northwest:
+                        m_direction = direction::northeast;
+                        break;
+                    case direction::northeast:
+                        m_direction = direction::northwest;
+                        break;
+                    case direction::southeast:
+                        m_direction = direction::southwest;
+                        break;
+                    case direction::west:
+                        m_direction = direction::east;
+                        break;
+                    case direction::east:
+                        m_direction = direction::west;
+                        break;
+                }
+                break;
+            case MIR_NESW:
+                switch (m_direction) {
+                    case direction::west:
+                        m_direction = direction::southeast;
+                        break;
+                    case direction::southeast:
+                        m_direction = direction::east;
+                        break;
+                    case direction::east:
+                        m_direction = direction::northwest;
+                        break;
+                    case direction::northwest:
+                        m_direction = direction::west;
+                        break;
+                }
+                break;
+            case MIR_NWSE:
+                switch (m_direction) {
+                case direction::west:
+                    m_direction = direction::northwest;
+                    break;
+                case direction::northwest:
+                    m_direction = direction::east;
+                    break;
+                case direction::east:
+                    m_direction = direction::southwest;
+                    break;
+                case direction::southwest:
+                    m_direction = direction::east;
+                    break;
+                }
+                break;
+            case BNG_E:
+                switch (m_direction) {
+                    case direction::west:
+                        if (m_stack.back() < 0) {
+                            m_direction = direction::southwest;
+                        } else {
+                            m_direction = direction::northwest;
+                        }
+                        break;
+                    case direction::northeast:
+                    case direction::southeast:
+                        m_direction = direction::east;
+                        break;
+                    case direction::east:
+                        m_direction = direction::west;
+                        break;
+                    case direction::southwest:
+                        m_direction = direction::northeast;
+                        break;
+                    case direction::northwest:
+                        m_direction = direction::southeast;
+                        break;
+                }
+                break;
+            case BNG_W:
+                switch (m_direction) {
+                    case direction::east:
+                        if (m_stack.back() < 0) {
+                            m_direction = direction::northeast;
+                        } else {
+                            m_direction = direction::southeast;
+                        }
+                        break;
+                    case direction::northwest:
+                    case direction::southwest:
+                        m_direction = direction::west;
+                        break;
+                    case direction::west:
+                        m_direction = direction::east;
+                        break;
+                    case direction::southeast:
+                        m_direction = direction::northwest;
+                        break;
+                    case direction::northeast:
+                        m_direction = direction::southwest;
+                        break;
+                }
+                break;
+            case BNG_NE:
+                switch (m_direction) {
+                    case direction::southwest:
+                        if (m_stack.back() < 0) {
+                            m_direction = direction::southeast;
+                        } else {
+                            m_direction = direction::west;
+                        }
+                        break;
+                    case direction::northwest:
+                    case direction::east:
+                        m_direction = direction::northeast;
+                        break;
+                    case direction::northeast:
+                        m_direction = direction::southwest;
+                        break;
+                    case direction::west:
+                        m_direction = direction::east;
+                        break;
+                    case direction::southeast:
+                        m_direction = direction::northwest;
+                        break;
+                }
+                break;
+            case BNG_SW:
+                switch (m_direction) {
+                    case direction::northeast:
+                        if (m_stack.back() < 0) {
+                            m_direction = direction::northwest;
+                        } else {
+                            m_direction = direction::east;
+                        }
+                        break;
+                    case direction::southeast:
+                    case direction::west:
+                        m_direction = direction::southwest;
+                        break;
+                    case direction::northwest:
+                        m_direction = direction::southeast;
+                        break;
+                    case direction::east:
+                        m_direction = direction::west;
+                        break;
+                    case direction::southwest:
+                        m_direction = direction::northeast;
+                        break;
+                }
+                break;
+            case BNG_NW:
+                switch (m_direction) {
+                    case direction::southeast:
+                        if (m_stack.back() < 0) {
+                            m_direction = direction::east;
+                        } else {
+                            m_direction = direction::southwest;
+                        }
+                        break;
+                    case direction::northeast:
+                    case direction::west:
+                        m_direction = direction::southwest;
+                        break;
+                    case direction::northwest:
+                        m_direction = direction::southeast;
+                        break;
+                    case direction::east:
+                        m_direction = direction::west;
+                        break;
+                    case direction::southwest:
+                        m_direction = direction::northeast;
+                        break;
+                }
+                break;
+            case BNG_SE:
+                switch (m_direction) {
+                case direction::northwest:
+                    if (m_stack.back() < 0) {
+                        m_direction = direction::west;
+                    } else {
+                        m_direction = direction::northeast;
+                    }
+                    break;
+                case direction::southwest:
+                case direction::east:
+                    m_direction = direction::northeast;
+                    break;
+                case direction::northeast:
+                    m_direction = direction::southwest;
+                    break;
+                case direction::west:
+                    m_direction = direction::east;
+                    break;
+                case direction::southeast:
+                    m_direction = direction::northwest;
+                    break;
+                }
+                break;
+            case PSC: {
                 advance();
                 int24_t next = m_program.at(m_coords.first, m_coords.second);
                 m_stack.push_back(next);
+                break;
+            }
+            case PSI: {
+                advance();
+                int24_t next = m_program.at(m_coords.first, m_coords.second);
+                m_stack.emplace_back(next - '0');
                 break;
             }
             case POP:
@@ -150,7 +374,18 @@ void interpreter::run() {
                 m_stack.back() &= top;
                 break;
             }
-            // IOR and XOR
+            case IOR: {
+                int24_t top = m_stack.back();
+                m_stack.pop_back();
+                m_stack.back() |= top;
+                break;
+            }
+            case XOR: {
+                int24_t top = m_stack.back();
+                m_stack.pop_back();
+                m_stack.back() ^= top;
+                break;
+            }
             case NOT:
                 m_stack.back() = ~m_stack.back();
                 break;
@@ -188,6 +423,12 @@ void interpreter::run() {
                 m_stack.push_back(m_stack[i]);
                 break;
             }
+            case DUP:
+                m_stack.push_back(m_stack.back());
+                break;
+            case RND:
+                m_stack.emplace_back(rdist(reng));
+                break;
             case 0xfffd:
                 cerr << "Unicode replacement character (U+FFFD) detected in source. Please check encoding." << endl;
                 exit(1);
