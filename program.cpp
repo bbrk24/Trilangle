@@ -1,4 +1,5 @@
 #include "program.hh"
+#include "string_processing.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -8,7 +9,7 @@ static inline size_t triangular(size_t n) {
     return n * (n + 1) / 2;
 }
 
-program::program(const string& source) : m_code(source.begin(), source.end()), m_side_length(0) {
+program::program(const string& source) : m_code(parse_utf8(source)), m_side_length(0) {
     // remove all whitespace
 
     auto iter = std::stable_partition(

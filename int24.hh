@@ -10,6 +10,7 @@ struct int24_t {
     constexpr int24_t(char x) noexcept : value(x) {}
     constexpr int24_t(unsigned char x) noexcept : value(x) {}
     constexpr explicit int24_t(int32_t x) noexcept : value(x) {}
+    constexpr explicit int24_t(wint_t x) noexcept : value(x) {}
 
     constexpr explicit operator char() const noexcept {
         return value;

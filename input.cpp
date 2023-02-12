@@ -1,4 +1,5 @@
 #include "input.hh"
+#include "string_processing.hh"
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -50,35 +51,8 @@ int24_t getunichar() noexcept {
         return INT24_C(-1);
     }
 
-    return { c };
+    return int24_t(c);
 #else
-    unsigned char buf[4];
-
-    for (size_t i = 0; i < 4; ++i) {
-        int c = getchar();
-        if (c == EOF) {
-            return INT24_C(-1);
-        }
-        buf[i] = c & 0xff;
-        if (buf[i] < 0x80) {
-            break;
-        }
-    }
-
-    if (buf[0] < 0x80) {
-        return buf[0];
-    }
-
-    switch (buf[0] & 0xf0) {
-        case 0xc0:
-        case 0xd0:
-            return int24_t(((buf[0] & 0x1f) << 6) | (buf[1] & 0x3f));
-        case 0xe0:
-            return int24_t(((buf[0] & 0x0f) << 12) | ((buf[1] & 0x3f) << 6) | (buf[2] & 0x3f));
-        case 0xf0:
-            return int24_t(((buf[0] & 0x07) << 18) | ((buf[1] & 0x3f) << 12) | ((buf[2] & 0x3f) << 6) | (buf[3] & 0x3f));
-        default:
-            return INT24_C(0xfffd);
-    }
+    return parse_unichar<int>(getchar);
 #endif
 }
