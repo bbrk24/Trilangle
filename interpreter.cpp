@@ -390,7 +390,7 @@ void interpreter::run() {
                 m_stack.back() = ~m_stack.back();
                 break;
             case GTC:
-                m_stack.push_back(parse_unichar(getchar));
+                m_stack.push_back(getunichar());
                 break;
             case PTC:
                 std::wcout << (wchar_t)m_stack.back();
