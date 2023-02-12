@@ -416,7 +416,7 @@ void interpreter::run() {
             case SKP:
                 advance();
                 break;
-            case LEA: {
+            case IDX: {
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 size_t i = m_stack.size() - top - 1;
@@ -428,6 +428,9 @@ void interpreter::run() {
                 break;
             case RND:
                 m_stack.emplace_back(rdist(reng));
+                break;
+            case EXP:
+                m_stack.back() = int24_t{ 1 << m_stack.back() };
                 break;
             case 0xfffd:
                 cerr << "Unicode replacement character (U+FFFD) detected in source. Please check encoding." << endl;
