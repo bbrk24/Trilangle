@@ -38,4 +38,5 @@ enum opcodes : int32_t {
     DUP = '2', // duplicate
     RND = '$', // random
     EXP = 'e', // exponential
+    SWP = 'S', // swap
 };

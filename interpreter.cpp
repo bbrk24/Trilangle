@@ -432,6 +432,11 @@ void interpreter::run() {
             case EXP:
                 m_stack.back() = int24_t{ 1 << m_stack.back() };
                 break;
+            case SWP: {
+                size_t i = m_stack.size() - 2;
+                std::swap(m_stack[i], m_stack[i + 1]);
+                break;
+            }
             case 0xfffd:
                 cerr << "Unicode replacement character (U+FFFD) detected in source. Please check encoding." << endl;
                 exit(1);

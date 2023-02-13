@@ -89,13 +89,14 @@ Triagony has twelve numeric instructions that operate purely on the stack. In no
 
 ### Stack-oriented instructions
 
-There are a few instructions that operate on the stack directly. Most obvious are the push and pop instructions, but there's also an indexing function.
+There are a few instructions that operate on the stack directly.
 
 - `"` (PSC): push the Unicode value of the next character hit by the IP.
 - `'` (PSI): push the integer value of the next character hit by the IP. This currently works by subtracting the value of '0' from the Unicode value of the character.
 - `,` (POP): pop and discard the value on top of the stack.
 - `2` (DUP): copy and push the top value on the stack.
 - `j` (IDX): pop the value on top of the stack and use it as an index for the rest of the stack. If the value popped is _i_, this instruction pushes a copy of the _i_-th value from the top of the stack (zero-indexed).
+- `S` (SWP): swap the top two values of the stack.
 
 ### I/O instructions
 
