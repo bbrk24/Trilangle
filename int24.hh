@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <compare>
 #include <cwchar>
 
 #ifndef INT24_C
@@ -19,42 +18,47 @@ struct int24_t {
         return value;
     }
 
-    auto operator<=>(const int24_t&) const = default;
+    constexpr bool operator!=(const int24_t& other) const noexcept {
+        return this->value != other.value;
+    }
+    constexpr bool operator<(const int24_t& other) const noexcept {
+        return this->value < other.value;
+    }
 
-    int24_t& operator+=(int24_t rhs) noexcept {
+    constexpr int24_t& operator+=(int24_t rhs) noexcept {
         value += rhs.value;
         return *this;
     }
-    int24_t& operator-=(int24_t rhs) noexcept {
+    constexpr int24_t& operator-=(int24_t rhs) noexcept {
         value -= rhs.value;
         return *this;
     }
-    int24_t& operator*=(int24_t rhs) noexcept {
+    constexpr int24_t& operator*=(int24_t rhs) noexcept {
         value *= rhs.value;
         return *this;
     }
-    int24_t& operator%=(int24_t rhs) noexcept {
+    constexpr int24_t& operator%=(int24_t rhs) noexcept {
         value %= rhs.value;
         return *this;
     }
-    int24_t& operator&=(int24_t rhs) noexcept {
+    constexpr int24_t& operator&=(int24_t rhs) noexcept {
         value &= rhs.value;
         return *this;
     }
-    int24_t& operator/=(int24_t rhs) noexcept {
+    constexpr int24_t& operator/=(int24_t rhs) noexcept {
         value /= rhs.value;
         return *this;
     }
-    int24_t& operator|=(int24_t rhs) noexcept {
+    constexpr int24_t& operator|=(int24_t rhs) noexcept {
         value |= rhs.value;
         return *this;
     }
-    int24_t& operator^=(int24_t rhs) noexcept {
+    constexpr int24_t& operator^=(int24_t rhs) noexcept {
         value ^= rhs.value;
         return *this;
     }
 
-    int24_t operator~() const noexcept {
+    constexpr int24_t operator~() const noexcept {
         return int24_t{ ~value };
     }
 };

@@ -8,6 +8,15 @@
 #include <cinttypes>
 #include <random>
 
+#ifdef __has_cpp_attribute
+#if __has_cpp_attribute(maybe_unused)
+#define DISCARD [[maybe_unused]] auto _ =
+#endif
+#endif
+#ifndef DISCARD
+#define DISCARD (void)
+#endif
+
 using std::cerr;
 using std::endl;
 
@@ -95,7 +104,7 @@ void interpreter::run() {
         if (m_flags.debug) {
             std::cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
             std::wcout << (wchar_t)op << endl;
-            [[maybe_unused]] int _ = getchar();
+            DISCARD getchar();
         }
 
         switch (op) {
@@ -252,7 +261,7 @@ void interpreter::run() {
             case BNG_NE:
                 switch (m_direction) {
                     case direction::southwest:
-                        if (m_stack.back() < 0) {
+                        if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::southeast;
                         } else {
                             m_direction = direction::west;
@@ -404,7 +413,7 @@ void interpreter::run() {
                         break;
                     }
 
-                    [[maybe_unused]] int _ = scanf("%*c");
+                    DISCARD scanf("%*c");
                 }
 
                 m_stack.push_back(int24_t{ i });
