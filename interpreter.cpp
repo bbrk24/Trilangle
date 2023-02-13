@@ -20,6 +20,7 @@
 using std::cerr;
 using std::endl;
 using std::wcout;
+using std::cout;
 
 interpreter::interpreter(const program& p, flags f) noexcept :
     m_program(p),
@@ -103,10 +104,19 @@ void interpreter::run() {
     while (true) {
         int24_t op = m_program.at(m_coords.first, m_coords.second);
         if (m_flags.debug) {
-            std::cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
+            cout << "Stack: [";
+
+            for (size_t i = 0; i < m_stack.size(); ++i) {
+                if (i != 0) {
+                    cout << ", ";
+                }
+                cout << m_stack[i];
+            }
+
+            cout << "]\nCoords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
             wcout << (wchar_t)op;
             wcout.clear();
-            std::cout << endl;
+            cout << endl;
             DISCARD getchar();
         }
 
@@ -202,8 +212,8 @@ void interpreter::run() {
                 case direction::west:
                     m_direction = direction::northeast;
                     break;
-                case direction::northwest:
-                    m_direction = direction::east;
+                case direction::northeast:
+                    m_direction = direction::west;
                     break;
                 case direction::east:
                     m_direction = direction::southwest;
@@ -320,7 +330,7 @@ void interpreter::run() {
                         break;
                     case direction::northeast:
                     case direction::west:
-                        m_direction = direction::southwest;
+                        m_direction = direction::northwest;
                         break;
                     case direction::northwest:
                         m_direction = direction::southeast;
@@ -424,7 +434,7 @@ void interpreter::run() {
                 break;
             }
             case PTI:
-                std::cout << m_stack.back() << endl;
+                cout << m_stack.back() << endl;
                 break;
             case SKP:
                 advance();
