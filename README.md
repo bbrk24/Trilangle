@@ -130,15 +130,15 @@ Simply outputs its input until EOF is read.
 Everyone's favorite program. Does some math on the value of `!` to get the space and newline characters.
 
 ```
-         "
-        H o
-       o " !
-      " o ( o
-     e o o o l
-    o " " " o "
-   " , W r " ! 3
-  l o o o d o : o
- o " " " o ' ( @ .
+        "
+       H o
+      o " !
+     " o ( o
+    e o o o l
+   o " " " o "
+  " , W r " ! 3
+ l o o o d o : o
+o " " " o ' ( @ .
 ```
 
 ### AAAAAAAAAA
