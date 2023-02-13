@@ -19,6 +19,7 @@
 
 using std::cerr;
 using std::endl;
+using std::wcout;
 
 interpreter::interpreter(const program& p, flags f) noexcept :
     m_program(p),
@@ -103,7 +104,9 @@ void interpreter::run() {
         int24_t op = m_program.at(m_coords.first, m_coords.second);
         if (m_flags.debug) {
             std::cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
-            std::wcout << (wchar_t)op << endl;
+            wcout << (wchar_t)op;
+            wcout.clear();
+            std::cout << endl;
             DISCARD getchar();
         }
 
@@ -402,7 +405,8 @@ void interpreter::run() {
                 m_stack.push_back(getunichar());
                 break;
             case PTC:
-                std::wcout << (wchar_t)m_stack.back();
+                wcout << (wchar_t)m_stack.back();
+                wcout.clear();
                 break;
             case GTI: {
                 int32_t i;
@@ -413,7 +417,7 @@ void interpreter::run() {
                         break;
                     }
 
-                    DISCARD scanf("%*c");
+                    DISCARD getchar();
                 }
 
                 m_stack.push_back(int24_t{ i });

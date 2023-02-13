@@ -10,6 +10,15 @@ using std::string;
 
 constexpr size_t BUF_SIZE = 256;
 
+static constexpr const char* HELP = "TRIAGONY\n\n"
+"\tTriagony is an esoteric programming language inspired by Hexagony.\n\n"
+"Usage: %s <filename> [flags]\n"
+"For full documentation, see Github: https://github.com/bbrk24/Triagony#readme\n\n"
+"Flags:\n"
+"\t--help     \tShow this message\n"
+"\t--debug, -d\tEnter debugging mode\n"
+;
+
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
 static inline string read_istream(std::istream& stream) {
     string retval;
@@ -23,13 +32,16 @@ static inline string read_istream(std::istream& stream) {
     return retval;
 }
 
-string parse_args(int argc, char** argv, flags& f) noexcept {
+string parse_args(int argc, char** argv, flags& f) {
     char* filename = nullptr;
 
     for (int i = 1; i < argc; ++i) {
         if (argv[i][0] == '-') {
-            if (!strcmp(argv[i], "-d")) {
+            if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
                 f.debug = 1;
+            } else if (!strcmp(argv[i], "--help")) {
+                printf(HELP, argv[0]);
+                exit(0);
             } else {
                 cerr << "Unrecognized flag: " << argv[i] << endl;
             }

@@ -110,6 +110,10 @@ Triagony has five instructions for I/O: two for console input, two for console o
 
 Note that the input functions push to the stack, but the output functions do not pop from it.
 
+## Debugging
+
+When run with the `-d` flag, the interpreter enters "debug mode." Before executing each instruction, it prints the location of the IP and the opcode that it is pointing at, and it waits for you to press enter before continuing.
+
 ## Sample Programs
 
 Here are some simple programs I've written.
