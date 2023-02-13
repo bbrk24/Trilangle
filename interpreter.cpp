@@ -187,20 +187,20 @@ void interpreter::run() {
                         m_direction = direction::southeast;
                         break;
                     case direction::southeast:
-                        m_direction = direction::east;
+                        m_direction = direction::west;
                         break;
                     case direction::east:
                         m_direction = direction::northwest;
                         break;
                     case direction::northwest:
-                        m_direction = direction::west;
+                        m_direction = direction::east;
                         break;
                 }
                 break;
             case MIR_NWSE:
                 switch (m_direction) {
                 case direction::west:
-                    m_direction = direction::northwest;
+                    m_direction = direction::northeast;
                     break;
                 case direction::northwest:
                     m_direction = direction::east;

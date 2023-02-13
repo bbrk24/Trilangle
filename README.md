@@ -146,6 +146,20 @@ Everyone's favorite program. Does some math on the value of `!` to get the space
 o " " " o ' ( @ .
 ```
 
+### Count to 100
+
+Pushes the same zero twice, from different directions.
+
+```
+      '
+     0 .
+    v j .
+   . ! " /
+  @ . ) e .
+ , > - . / .
+. _ . . ' . .
+```
+
 ### AAAAAAAAAA
 
 ```
