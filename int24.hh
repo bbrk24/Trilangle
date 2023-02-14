@@ -61,6 +61,9 @@ struct int24_t {
     constexpr int24_t operator~() const noexcept {
         return int24_t{ ~value };
     }
+    constexpr int24_t operator<<(int24_t rhs) const noexcept {
+        return int24_t{ this->value << rhs.value };
+    }
 };
 
 #define INT24_C(x) int24_t{ INT32_C(x) }

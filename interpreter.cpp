@@ -434,7 +434,7 @@ void interpreter::run() {
                     DISCARD getchar();
                 }
 
-                m_stack.push_back(int24_t{ i });
+                m_stack.emplace_back(i);
                 break;
             }
             case PTI:
@@ -457,7 +457,7 @@ void interpreter::run() {
                 m_stack.emplace_back(rdist(reng));
                 break;
             case EXP:
-                m_stack.back() = int24_t{ 1 << m_stack.back() };
+                m_stack.back() = INT24_C(1) << m_stack.back();
                 break;
             case SWP: {
                 size_t i = m_stack.size() - 2;
