@@ -20,8 +20,10 @@ int24_t parse_unichar(FuncType getbyte) {
         if (c == EOF) {
             if (i == 0) {
                 return INT24_C(-1);
-            } else {
+            } else if (i + 1 == buf_max) {
                 break;
+            } else {
+                return INVALID_CHAR;
             }
         }
 
@@ -30,11 +32,10 @@ int24_t parse_unichar(FuncType getbyte) {
             return INVALID_CHAR;
         }
 
-        if (buf[i] < 0x80) {
-            break;
-        }
         if (i == 0) {
-            if ((buf[0] & 0xe0) == 0xc0) {
+            if (buf[0] < 0x80) {
+                return buf[0];
+            } else if ((buf[0] & 0xe0) == 0xc0) {
                 buf_max = 2;
             } else if ((buf[0] & 0xf0) == 0xe0) {
                 buf_max = 3;
@@ -42,10 +43,6 @@ int24_t parse_unichar(FuncType getbyte) {
                 return INVALID_CHAR;
             }
         }
-    }
-
-    if (buf[0] < 0x80) {
-        return buf[0];
     }
 
     switch (buf[0] & 0xf0) {
