@@ -17,6 +17,9 @@ struct int24_t {
     constexpr operator int32_t() const noexcept {
         return value;
     }
+    constexpr explicit operator unsigned int() const noexcept {
+        return (unsigned int)value;
+    }
 
     constexpr bool operator!=(const int24_t& other) const noexcept {
         return this->value != other.value;

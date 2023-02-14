@@ -17,7 +17,6 @@
 #define DISCARD (void)
 #endif
 
-using std::cerr;
 using std::endl;
 using std::wcout;
 using std::cout;
@@ -230,7 +229,7 @@ void interpreter::run() {
             case BNG_E:
                 switch (m_direction) {
                     case direction::west:
-                        if (m_stack.back() < 0) {
+                        if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::southwest;
                         } else {
                             m_direction = direction::northwest;
@@ -254,7 +253,7 @@ void interpreter::run() {
             case BNG_W:
                 switch (m_direction) {
                     case direction::east:
-                        if (m_stack.back() < 0) {
+                        if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::northeast;
                         } else {
                             m_direction = direction::southeast;
@@ -302,7 +301,7 @@ void interpreter::run() {
             case BNG_SW:
                 switch (m_direction) {
                     case direction::northeast:
-                        if (m_stack.back() < 0) {
+                        if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::northwest;
                         } else {
                             m_direction = direction::east;
@@ -326,7 +325,7 @@ void interpreter::run() {
             case BNG_NW:
                 switch (m_direction) {
                     case direction::southeast:
-                        if (m_stack.back() < 0) {
+                        if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::east;
                         } else {
                             m_direction = direction::southwest;
@@ -350,7 +349,7 @@ void interpreter::run() {
             case BNG_SE:
                 switch (m_direction) {
                 case direction::northwest:
-                    if (m_stack.back() < 0) {
+                    if (m_stack.back() < INT24_C(0)) {
                         m_direction = direction::west;
                     } else {
                         m_direction = direction::northeast;
@@ -464,13 +463,17 @@ void interpreter::run() {
                 std::swap(m_stack[i], m_stack[i + 1]);
                 break;
             }
-            case 0xfffd:
-                cerr << "Unicode replacement character (U+FFFD) detected in source. Please check encoding." << endl;
+            case INVALID_CHAR:
+                fprintf(
+                    stderr,
+                    "Unicode replacement character (U+%0.4X) detected in source. Please check encoding.\n",
+                    (unsigned int)INVALID_CHAR
+                );
                 exit(1);
             default:
-                cerr << "Unrecognized opcode '";
+                std::cerr << "Unrecognized opcode '";
                 std::wcerr << (wchar_t)op;
-                cerr << "' (at (" << m_coords.first << ", " << m_coords.second << "))" << endl;
+                std::cerr << "' (at (" << m_coords.first << ", " << m_coords.second << "))" << endl;
                 exit(1);
         }
         
