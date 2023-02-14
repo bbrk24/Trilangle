@@ -5,6 +5,7 @@
 
 struct flags {
 	unsigned char debug : 1;
+	unsigned char show_stack : 1;
 };
 
 // Read input file or STDIN, and return its contents. Parse other flags as appropriate.

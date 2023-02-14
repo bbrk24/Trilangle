@@ -10,13 +10,14 @@ using std::string;
 
 constexpr size_t BUF_SIZE = 256;
 
-static constexpr const char* HELP = "TRIAGONY\n\n"
-"\tTriagony is an esoteric programming language inspired by Hexagony.\n\n"
+static constexpr const char* HELP = "TRILANGLE\n\n"
+"\tTrilangle is an esoteric programming language inspired by Hexagony.\n\n"
 "Usage: %s <filename> [flags]\n"
-"For full documentation, see Github: https://github.com/bbrk24/Triagony#readme\n\n"
+"For full documentation, see Github: https://github.com/bbrk24/Trilangle#readme\n\n"
 "Flags:\n"
-"\t--help     \tShow this message\n"
-"\t--debug, -d\tEnter debugging mode\n"
+"\t--help          \tShow this message\n"
+"\t--debug, -d     \tEnter debugging mode\n"
+"\t--show-stack, -s\tShow the stack while debugging\n"
 ;
 
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
@@ -39,6 +40,11 @@ string parse_args(int argc, char** argv, flags& f) {
         if (argv[i][0] == '-') {
             if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
                 f.debug = 1;
+            } else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--show-stack")) {
+                f.show_stack = 1;
+            } else if (!strcmp(argv[i], "-sd") || !strcmp(argv[i], "-ds")) {
+                f.debug = 1;
+                f.show_stack = 1;
             } else if (!strcmp(argv[i], "--help")) {
                 printf(HELP, argv[0]);
                 exit(0);

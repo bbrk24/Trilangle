@@ -1,8 +1,6 @@
-# Triagony
+# Trilangle
 
-NOTE: "Triagony" is a working title and likely will not be its final name.
-
-Triagony is a 2-D, stack-based programming language inspired by [Hexagony].
+Trilangle is a 2-D, stack-based programming language inspired by [Hexagony].
 
 ## Program layout
 
@@ -37,13 +35,11 @@ Additionally, trailing `.`s on the end of the last line may be omitted.
 
 ## Memory Layout
 
-Triagony ditches the hexagonal memory layout in favor of a stack. Technically, it's not a pure stack as it is possible to index into it, but the majority of operations treat it as such.
+Trilangle ditches the hexagonal memory layout in favor of a stack. Technically, it's not a pure stack as it is possible to index into it, but the majority of operations treat it as such.
 
 Each item on the stack is a 24-bit signed integer.
 
 ## Instructions
-
-In general, the instruction set is inspired by but not necessarily the same as Hexagony.
 
 ### Control flow splits
 
@@ -60,7 +56,7 @@ When the IP hits the "point" of any of these instructions, it deflects to the le
 
 ### Mirrors
 
-Triagony has the same four mirrors as Hexagony: `|`, `_`, `/`, and `\`.
+Trilangle has the same four mirrors as Hexagony: `|`, `_`, `/`, and `\`.
 
 ### Other control flow
 
@@ -70,7 +66,7 @@ There is also a NOP, `.`.
 
 ### Numeric instructions
 
-Triagony has twelve numeric instructions that operate purely on the stack. In no particular order, these are:
+Trilangle has twelve numeric instructions that operate purely on the stack. In no particular order, these are:
 
 - `+` (ADD): pop two numbers from the stack and push their sum.
 - `-` (SUB): pop two numbers from the stack and push their difference\*.
@@ -100,7 +96,7 @@ There are a few instructions that operate on the stack directly.
 
 ### I/O instructions
 
-Triagony has five instructions for I/O: two for console input, two for console output, and one for randomness.
+Trilangle has five instructions for I/O: two for console input, two for console output, and one for randomness.
 
 - `i` (GTC): read a single UTF-8 character from STDIN and push it to the stack. Pushes -1 on EOF.
 - `?` (GTI): read an integer from STDIN and push it to the stack. Pushes -1 on EOF.
@@ -113,6 +109,8 @@ Note that the input functions push to the stack, but the output functions do not
 ## Debugging
 
 When run with the `-d` flag, the interpreter enters "debug mode." Before executing each instruction, it prints the location of the IP and the opcode that it is pointing at, and it waits for you to press enter before continuing.
+
+If the `-s` flag is also set, the interpreter will print the stack contents as well as the IP.
 
 ## Sample Programs
 
@@ -158,6 +156,35 @@ Pushes the same zero twice, from different directions.
   @ . ) e .
  , > - . / .
 . _ . . ' . .
+```
+
+### Truth Machine
+
+Reads a single character in. If the character is '0', it prints back a single zero and exits. If the character is '1', it prints infinitely many ones back.
+
+```
+     i
+    o <
+   " . 7
+  1 . @ #
+ \ - < . .
+^ 1 " / . .
+```
+
+### Prime Test
+
+Reads in an integer, and prints '1' if it's prime.
+
+```
+        '
+       2 .
+      ? . .
+     < . . .
+    j . 2 ' 2
+   @ . L . ( %
+  . , 7 # \ ~ !
+ 1 ' , / ^ S ) S
+. . . > ( - j . .
 ```
 
 ### AAAAAAAAAA

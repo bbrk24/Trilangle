@@ -104,16 +104,20 @@ void interpreter::run() {
     while (true) {
         int24_t op = m_program.at(m_coords.first, m_coords.second);
         if (m_flags.debug) {
-            cout << "Stack: [";
+            if (m_flags.show_stack) {
+                cout << "Stack: [";
 
-            for (size_t i = 0; i < m_stack.size(); ++i) {
-                if (i != 0) {
-                    cout << ", ";
+                for (size_t i = 0; i < m_stack.size(); ++i) {
+                    if (i != 0) {
+                        cout << ", ";
+                    }
+                    cout << m_stack[i];
                 }
-                cout << m_stack[i];
+
+                cout << "]" << endl;
             }
 
-            cout << "]\nCoords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
+            cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
             wcout << (wchar_t)op;
             wcout.clear();
             cout << endl;
