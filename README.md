@@ -160,15 +160,14 @@ Pushes the same zero twice, from different directions.
 
 ### Truth Machine
 
-Reads a single character in. If the character is '0', it prints back a single zero and exits. If the character is '1', it prints infinitely many ones back.
+Reads a single number in. If the number is 0, it prints back a single zero and exits. If the number is 1, it prints infinitely many ones back.
 
 ```
-     i
-    o <
-   " . 7
-  1 . @ #
- \ - < . .
-^ 1 " / . .
+    ?
+   ! <
+  ( @ 7
+ \ < . #
+^ ) / . .
 ```
 
 ### Prime Test
