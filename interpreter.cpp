@@ -18,6 +18,15 @@
 #define DISCARD (void)
 #endif
 
+#define EMPTY_PROTECT(name) \
+    if (m_stack.empty() && m_flags.warnings) { \
+        cerr << "Warning: Attempt to " name " empty stack." << endl; \
+    } else
+
+#define SIZE_CHECK(name, count) \
+    if (m_flags.warnings && m_stack.size() < (count)) \
+        cerr << "Warning: Attempt to " name " stack with fewer than " << (count) << " elements." << endl
+
 #ifdef SCNi24
 using input_type = int24_t;
 constexpr const char* FORMAT_STRING = "%" SCNi24;
@@ -31,6 +40,7 @@ using rand_type = std::conditional_t<std::is_integral<int24_t>::value && !std::i
 using std::endl;
 using std::wcout;
 using std::cout;
+using std::cerr;
 
 interpreter::interpreter(const program& p, flags f) noexcept :
     m_program(p),
@@ -147,30 +157,35 @@ void interpreter::run() {
             case NOP:
                 break;
             case ADD: {
+                SIZE_CHECK("add from", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() += top;
                 break;
             }
             case SUB: {
+                SIZE_CHECK("subtract from", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() -= top;
                 break;
             }
             case MUL: {
+                SIZE_CHECK("multiply from", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() *= top;
                 break;
             }
             case DIV: {
+                SIZE_CHECK("divide from", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() /= top;
                 break;
             }
             case MOD: {
+                SIZE_CHECK("divide from", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() %= top;
@@ -399,47 +414,64 @@ void interpreter::run() {
             case PSI: {
                 advance();
                 int24_t next = m_program.at(m_coords.first, m_coords.second);
+
+                if (m_flags.warnings) {
+                    if (next < (int24_t)'0' || next > (int24_t)'9') {
+                        cerr << "Warning: Pushing non-decimal number with " << static_cast<char>(opcode::PSI) <<
+                            " is implementation-defined behavior." << endl;
+                    }
+                }
+
                 m_stack.emplace_back(next - '0');
                 break;
             }
             case POP:
-                m_stack.pop_back();
+                EMPTY_PROTECT("pop from")
+                    m_stack.pop_back();
                 break;
             case EXT:
                 return;
             case INC:
-                m_stack.back() += INT24_C(1);
+                EMPTY_PROTECT("increment")
+                    m_stack.back() += INT24_C(1);
                 break;
             case DEC:
-                m_stack.back() -= INT24_C(1);
+                EMPTY_PROTECT("decrement")
+                    m_stack.back() -= INT24_C(1);
                 break;
             case AND: {
+                SIZE_CHECK("bitwise and", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() &= top;
                 break;
             }
             case IOR: {
+                SIZE_CHECK("bitwise or", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() |= top;
                 break;
             }
             case XOR: {
+                SIZE_CHECK("bitwise xor", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() ^= top;
                 break;
             }
             case NOT:
-                m_stack.back() = ~m_stack.back();
+                EMPTY_PROTECT("complement")
+                    m_stack.back() = ~m_stack.back();
                 break;
             case GTC:
                 m_stack.push_back(getunichar());
                 break;
             case PTC:
-                wcout << static_cast<wchar_t>(m_stack.back());
-                wcout.clear();
+                EMPTY_PROTECT("print from") {
+                    wcout << static_cast<wchar_t>(m_stack.back());
+                    wcout.clear();
+                }
                 break;
             case GTI: {
                 input_type i;
@@ -457,7 +489,8 @@ void interpreter::run() {
                 break;
             }
             case PTI:
-                cout << m_stack.back() << endl;
+                EMPTY_PROTECT("print from")
+                    cout << m_stack.back() << endl;
                 break;
             case SKP:
                 advance();
@@ -465,20 +498,28 @@ void interpreter::run() {
             case IDX: {
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
+
+                if (top < INT24_C(0) && m_flags.warnings) {
+                    cerr << "Warning: Attempt to use negative index." << endl;
+                } else SIZE_CHECK("index", top);
+
                 size_t i = m_stack.size() - top - 1;
                 m_stack.push_back(m_stack[i]);
                 break;
             }
             case DUP:
-                m_stack.push_back(m_stack.back());
+                EMPTY_PROTECT("duplicate")
+                    m_stack.push_back(m_stack.back());
                 break;
             case RND:
                 m_stack.emplace_back(rdist(reng));
                 break;
             case EXP:
-                m_stack.back() = INT24_C(1) << m_stack.back();
+                EMPTY_PROTECT("exponentiate")
+                    m_stack.back() = INT24_C(1) << m_stack.back();
                 break;
             case SWP: {
+                SIZE_CHECK("swap in", 2);
                 size_t i = m_stack.size() - 2;
                 std::swap(m_stack[i], m_stack[i + 1]);
                 break;
@@ -491,9 +532,9 @@ void interpreter::run() {
                 );
                 exit(1);
             default:
-                std::cerr << "Unrecognized opcode '";
+                cerr << "Unrecognized opcode '";
                 std::wcerr << static_cast<wchar_t>(op);
-                std::cerr << "' (at (" << m_coords.first << ", " << m_coords.second << "))" << endl;
+                cerr << "' (at (" << m_coords.first << ", " << m_coords.second << "))" << endl;
                 exit(1);
         }
         

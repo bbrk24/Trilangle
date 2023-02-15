@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <unordered_map>
 
 using std::string;
 
@@ -16,7 +17,14 @@ static constexpr const char* HELP = "TRILANGLE\n\n"
 "\t--help          \tShow this message\n"
 "\t--debug, -d     \tEnter debugging mode\n"
 "\t--show-stack, -s\tShow the stack while debugging\n"
+"\t--warnings, -w  \tShow warnings for unspecified behavior\n"
 ;
+
+static const std::unordered_map<char, void(*)(flags*)> FLAGS_MAP = {
+    { 'd', [](flags* f) { f->debug = 1; } },
+    { 's', [](flags* f) { f->show_stack = 1; } },
+    { 'w', [](flags* f) { f->warnings = 1; } },
+};
 
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
 static inline string read_istream(std::istream& stream) {
@@ -31,23 +39,37 @@ static inline string read_istream(std::istream& stream) {
     return retval;
 }
 
+[[noreturn]] static inline void unrecognized_flag(const char* flag) {
+    std::cerr << "Unrecognized flag: " << flag << std::endl;
+    exit(1);
+}
+
 string parse_args(int argc, char** argv, flags& f) {
     char* filename = nullptr;
 
     for (int i = 1; i < argc; ++i) {
         if (argv[i][0] == '-') {
-            if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
-                f.debug = 1;
-            } else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--show-stack")) {
-                f.show_stack = 1;
-            } else if (!strcmp(argv[i], "-sd") || !strcmp(argv[i], "-ds")) {
-                f.debug = 1;
-                f.show_stack = 1;
-            } else if (!strcmp(argv[i], "--help")) {
-                printf(HELP, argv[0]);
-                exit(0);
+            if (argv[i][1] == '-') {
+                if (!strcmp(argv[i] + 2, "debug")) {
+                    FLAGS_MAP.at('d')(&f);
+                } else if (!strcmp(argv[i] + 2, "show-stack")) {
+                    FLAGS_MAP.at('s')(&f);
+                } else if (!strcmp(argv[i] + 2, "warnings")) {
+                    FLAGS_MAP.at('w')(&f);
+                } else if (!strcmp(argv[i] + 2, "help")) {
+                    printf(HELP, argv[0]);
+                    exit(0);
+                } else {
+                    unrecognized_flag(argv[i]);
+                }
             } else {
-                std::cerr << "Unrecognized flag: " << argv[i] << std::endl;
+                for (uintptr_t j = 1; argv[i][j] != '\0'; ++j) {
+                    try {
+                        FLAGS_MAP.at(argv[i][j])(&f);
+                    } catch (std::out_of_range) {
+                        unrecognized_flag(argv[i]);
+                    }
+                }
             }
         } else {
             filename = argv[i];
