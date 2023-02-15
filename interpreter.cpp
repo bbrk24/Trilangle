@@ -44,7 +44,7 @@ using std::cerr;
 
 interpreter::interpreter(const program& p, flags f) noexcept :
     m_program(p),
-    m_coords{ 0, 0 },
+    m_coords{ 0U, 0U },
     m_stack(),
     m_direction(direction::southwest),
     m_flags(f) { }
@@ -205,6 +205,9 @@ void interpreter::run() {
                     case direction::southeast:
                         m_direction = direction::northeast;
                         break;
+                    case direction::east:
+                    case direction::west:
+                        break;
                 }
                 break;
             case MIR_NS:
@@ -243,6 +246,9 @@ void interpreter::run() {
                     case direction::northwest:
                         m_direction = direction::east;
                         break;
+                    case direction::northeast:
+                    case direction::southwest:
+                        break;
                 }
                 break;
             case MIR_NWSE:
@@ -259,11 +265,15 @@ void interpreter::run() {
                 case direction::southwest:
                     m_direction = direction::east;
                     break;
+                case direction::northwest:
+                case direction::southeast:
+                    break;
                 }
                 break;
             case BNG_E:
                 switch (m_direction) {
                     case direction::west:
+                        EMPTY_PROTECT("branch on");
                         if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::southwest;
                         } else {
@@ -288,6 +298,7 @@ void interpreter::run() {
             case BNG_W:
                 switch (m_direction) {
                     case direction::east:
+                        EMPTY_PROTECT("branch on");
                         if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::northeast;
                         } else {
@@ -312,6 +323,7 @@ void interpreter::run() {
             case BNG_NE:
                 switch (m_direction) {
                     case direction::southwest:
+                        EMPTY_PROTECT("branch on");
                         if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::southeast;
                         } else {
@@ -336,6 +348,7 @@ void interpreter::run() {
             case BNG_SW:
                 switch (m_direction) {
                     case direction::northeast:
+                        EMPTY_PROTECT("branch on");
                         if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::northwest;
                         } else {
@@ -360,6 +373,7 @@ void interpreter::run() {
             case BNG_NW:
                 switch (m_direction) {
                     case direction::southeast:
+                        EMPTY_PROTECT("branch on");
                         if (m_stack.back() < INT24_C(0)) {
                             m_direction = direction::east;
                         } else {
@@ -383,26 +397,27 @@ void interpreter::run() {
                 break;
             case BNG_SE:
                 switch (m_direction) {
-                case direction::northwest:
-                    if (m_stack.back() < INT24_C(0)) {
-                        m_direction = direction::west;
-                    } else {
-                        m_direction = direction::northeast;
-                    }
-                    break;
-                case direction::southwest:
-                case direction::east:
-                    m_direction = direction::southeast;
-                    break;
-                case direction::northeast:
-                    m_direction = direction::southwest;
-                    break;
-                case direction::west:
-                    m_direction = direction::east;
-                    break;
-                case direction::southeast:
-                    m_direction = direction::northwest;
-                    break;
+                    case direction::northwest:
+                        EMPTY_PROTECT("branch on");
+                        if (m_stack.back() < INT24_C(0)) {
+                            m_direction = direction::west;
+                        } else {
+                            m_direction = direction::northeast;
+                        }
+                        break;
+                    case direction::southwest:
+                    case direction::east:
+                        m_direction = direction::southeast;
+                        break;
+                    case direction::northeast:
+                        m_direction = direction::southwest;
+                        break;
+                    case direction::west:
+                        m_direction = direction::east;
+                        break;
+                    case direction::southeast:
+                        m_direction = direction::northwest;
+                        break;
                 }
                 break;
             case PSC: {
@@ -499,9 +514,9 @@ void interpreter::run() {
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
 
-                if (top < INT24_C(0) && m_flags.warnings) {
+                if (m_flags.warnings && top < INT24_C(0)) {
                     cerr << "Warning: Attempt to use negative index." << endl;
-                } else SIZE_CHECK("index", top);
+                } else SIZE_CHECK("index", static_cast<unsigned int>(top) + 1);
 
                 size_t i = m_stack.size() - top - 1;
                 m_stack.push_back(m_stack[i]);

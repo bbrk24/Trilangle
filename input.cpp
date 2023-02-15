@@ -20,10 +20,10 @@ static constexpr const char* HELP = "TRILANGLE\n\n"
 "\t--warnings, -w  \tShow warnings for unspecified behavior\n"
 ;
 
-static const std::unordered_map<char, void(*)(flags*)> FLAGS_MAP = {
-    { 'd', [](flags* f) { f->debug = 1; } },
-    { 's', [](flags* f) { f->show_stack = 1; } },
-    { 'w', [](flags* f) { f->warnings = 1; } },
+static const std::unordered_map<char, void(*)(flags&)> FLAGS_MAP = {
+    { 'd', [](flags& f) { f.debug = true; } },
+    { 's', [](flags& f) { f.show_stack = true; } },
+    { 'w', [](flags& f) { f.warnings = true; } },
 };
 
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
@@ -34,7 +34,7 @@ static inline string read_istream(std::istream& stream) {
     while (stream.read(buf, BUF_SIZE)) {
         retval.append(buf, BUF_SIZE);
     }
-    retval.append(buf, stream.gcount());
+    retval.append(buf, static_cast<size_t>(stream.gcount()));
 
     return retval;
 }
@@ -51,11 +51,11 @@ string parse_args(int argc, char** argv, flags& f) {
         if (argv[i][0] == '-') {
             if (argv[i][1] == '-') {
                 if (!strcmp(argv[i] + 2, "debug")) {
-                    FLAGS_MAP.at('d')(&f);
+                    FLAGS_MAP.at('d')(f);
                 } else if (!strcmp(argv[i] + 2, "show-stack")) {
-                    FLAGS_MAP.at('s')(&f);
+                    FLAGS_MAP.at('s')(f);
                 } else if (!strcmp(argv[i] + 2, "warnings")) {
-                    FLAGS_MAP.at('w')(&f);
+                    FLAGS_MAP.at('w')(f);
                 } else if (!strcmp(argv[i] + 2, "help")) {
                     printf(HELP, argv[0]);
                     exit(0);
@@ -65,7 +65,7 @@ string parse_args(int argc, char** argv, flags& f) {
             } else {
                 for (uintptr_t j = 1; argv[i][j] != '\0'; ++j) {
                     try {
-                        FLAGS_MAP.at(argv[i][j])(&f);
+                        FLAGS_MAP.at(argv[i][j])(f);
                     } catch (std::out_of_range) {
                         unrecognized_flag(argv[i]);
                     }

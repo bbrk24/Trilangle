@@ -4,11 +4,11 @@
 #include <string>
 
 struct flags {
-	unsigned char debug : 1;
-	unsigned char show_stack : 1;
-	unsigned char warnings : 1;
+	bool debug;
+	bool show_stack;
+	bool warnings;
 
-	constexpr flags() noexcept : debug(0), show_stack(0), warnings(0) { }
+	constexpr flags() noexcept : debug(false), show_stack(false), warnings(false) { }
 };
 
 // Read input file or STDIN, and return its contents. Parse other flags as appropriate.
