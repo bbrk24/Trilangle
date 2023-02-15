@@ -177,14 +177,14 @@ Reads in an integer, and prints '1' if it's prime.
 
 ```
         '
-       2 .
-      ? . .
-     < . . .
+       2 _
+      ? ) )
+     < ! . _
     j . 2 ' 2
-   @ . L . ( %
-  . , 7 # \ ~ !
+   . 2 L . ( %
+  . , 7 # . . .
  - S , / ^ S ) S
-. . . > ( 2 . . .
+. @ > ( 2 . . . .
 ```
 
 ### AAAAAAAAAA
