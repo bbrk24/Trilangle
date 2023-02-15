@@ -183,8 +183,8 @@ Reads in an integer, and prints '1' if it's prime.
     j . 2 ' 2
    @ . L . ( %
   . , 7 # \ ~ !
- 1 ' , / ^ S ) S
-. . . > ( - j . .
+ - S , / ^ S ) S
+. . . > ( 2 . . .
 ```
 
 ### AAAAAAAAAA
