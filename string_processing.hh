@@ -1,33 +1,36 @@
 #pragma once
 
 #include "int24.hh"
-#include <type_traits>
 #include <vector>
 #include <string>
 #include <cstdio>
 
 constexpr int24_t INVALID_CHAR{ 0xfffd };
 
-// Given a function that yields one "character" at a time, parse the incoming bytestream as UTF-8.
+// Given a function that yields one "character" at a time, parse the incoming bytestream as UTF-8, and return a single
+// Unicode character.
 template<typename FuncType>
 int24_t parse_unichar(FuncType getbyte) {
     unsigned char buf[4];
 
-    size_t buf_max = 4;
-    for (size_t i = 0; i < buf_max; ++i) {
+    // The maximum number of used bytes in the buffer, determined by the first byte read.
+    uintptr_t buf_max = 4;
+    for (uintptr_t i = 0; i < buf_max; ++i) {
         int c = getbyte();
 
+        // Handle EOF
         if (c == EOF) {
             if (i == 0) {
+                // The character started as EOF
                 return INT24_C(-1);
-            } else if (i + 1 == buf_max) {
-                break;
             } else {
+                // The EOF came mid-character
                 return INVALID_CHAR;
             }
         }
 
-        buf[i] = (unsigned char)c;
+
+        buf[i] = static_cast<unsigned char>(c);
         if (i != 0 && (buf[i] & 0xc0) != 0x80) {
             return INVALID_CHAR;
         }
@@ -39,20 +42,22 @@ int24_t parse_unichar(FuncType getbyte) {
                 buf_max = 2;
             } else if ((buf[0] & 0xf0) == 0xe0) {
                 buf_max = 3;
-            } else if ((buf[0] & 0xf0) != 0xf0) {
+            } else if ((buf[0] & 0xf8) != 0xf0) {
                 return INVALID_CHAR;
             }
         }
     }
 
-    switch (buf[0] & 0xf0) {
-        case 0xc0:
-        case 0xd0:
-            return int24_t(((buf[0] & 0x1f) << 6) | (buf[1] & 0x3f));
-        case 0xe0:
-            return int24_t(((buf[0] & 0x0f) << 12) | ((buf[1] & 0x3f) << 6) | (buf[2] & 0x3f));
-        case 0xf0:
-            return int24_t(((buf[0] & 0x07) << 18) | ((buf[1] & 0x3f) << 12) | ((buf[2] & 0x3f) << 6) | (buf[3] & 0x3f));
+    // Perform bitwise math to extract the actual value out of the UTF-8.
+    switch (buf_max) {
+        case 2:
+            return static_cast<int24_t>(((buf[0] & 0x1f) << 6) | (buf[1] & 0x3f));
+        case 3:
+            return static_cast<int24_t>(((buf[0] & 0x0f) << 12) | ((buf[1] & 0x3f) << 6) | (buf[2] & 0x3f));
+        case 4:
+            return static_cast<int24_t>(
+                ((buf[0] & 0x07) << 18) | ((buf[1] & 0x3f) << 12) | ((buf[2] & 0x3f) << 6) | (buf[3] & 0x3f)
+            );
         default:
             return INVALID_CHAR;
     }

@@ -1,17 +1,15 @@
 #include "program.hh"
 #include "string_processing.hh"
+#include "opcode.hh"
 #include <algorithm>
 #include <cassert>
 
-using std::string;
-
-static inline size_t triangular(size_t n) {
+constexpr size_t triangular(size_t n) {
     return n * (n + 1) / 2;
 }
 
-program::program(const string& source) : m_code(parse_utf8(source)), m_side_length(0) {
+program::program(const std::string& source) : m_code(parse_utf8(source)), m_side_length(0) {
     // remove all whitespace
-
     auto iter = std::stable_partition(
         m_code.begin(),
         m_code.end(),
@@ -21,16 +19,17 @@ program::program(const string& source) : m_code(parse_utf8(source)), m_side_leng
     );
     m_code.erase(iter, m_code.end());
 
+    // Determine the next triangular number
     size_t capacity;
     do {
         ++m_side_length;
         capacity = triangular(m_side_length);
     } while (capacity < m_code.size());
 
+    // Fill the remaining space with NOPs
     m_code.reserve(capacity);
-
     while (m_code.size() < capacity) {
-        m_code.emplace_back('.');
+        m_code.emplace_back(opcode::NOP);
     }
 }
 

@@ -1,12 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 
 #include "interpreter.hh"
-#include "opcodes.hh"
+#include "opcode.hh"
 #include "string_processing.hh"
 #include <iostream>
 #include <cstdlib>
 #include <cinttypes>
 #include <random>
+#include <type_traits>
 
 #ifdef __has_cpp_attribute
 #if __has_cpp_attribute(maybe_unused)
@@ -16,6 +17,16 @@
 #ifndef DISCARD
 #define DISCARD (void)
 #endif
+
+#ifdef SCNi24
+using input_type = int24_t;
+constexpr const char* FORMAT_STRING = "%" SCNi24;
+#else
+using input_type = int32_t;
+constexpr const char* FORMAT_STRING = "%" SCNi32;
+#endif
+
+using rand_type = std::conditional_t<std::is_integral<int24_t>::value && !std::is_same<int24_t, char>::value, int24_t, int32_t>;
 
 using std::endl;
 using std::wcout;
@@ -28,7 +39,9 @@ interpreter::interpreter(const program& p, flags f) noexcept :
     m_direction(direction::southwest),
     m_flags(f) { }
 
+// Advance the IP one step, accounting for wrap-around.
 void interpreter::advance() noexcept {
+    // I don't remember how this works, it just does.
     switch (m_direction) {
         case direction::southwest:
             if (++m_coords.first == m_program.side_length()) {
@@ -97,11 +110,17 @@ void interpreter::advance() noexcept {
 }
 
 void interpreter::run() {
-    std::default_random_engine reng(std::move(std::random_device())());
-    std::uniform_int_distribution<int32_t> rdist(-0x800000, 0x7fffff);
+    // Create the random number generator.
 
+    std::default_random_engine reng(std::move(std::random_device())());
+    std::uniform_int_distribution<rand_type> rdist(-0x800000, 0x7fffff);
+
+    // Begin the execution loop.
     while (true) {
+        // The operation currently being executed
         int24_t op = m_program.at(m_coords.first, m_coords.second);
+
+        // Print the requisite information in debug mode.
         if (m_flags.debug) {
             if (m_flags.show_stack) {
                 cout << "Stack: [";
@@ -117,12 +136,13 @@ void interpreter::run() {
             }
 
             cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
-            wcout << (wchar_t)op;
+            wcout << static_cast<wchar_t>(op);
             wcout.clear();
             cout << endl;
             DISCARD getchar();
         }
 
+        // ...yeah
         switch (op) {
             case NOP:
                 break;
@@ -418,13 +438,13 @@ void interpreter::run() {
                 m_stack.push_back(getunichar());
                 break;
             case PTC:
-                wcout << (wchar_t)m_stack.back();
+                wcout << static_cast<wchar_t>(m_stack.back());
                 wcout.clear();
                 break;
             case GTI: {
-                int32_t i;
-                
-                while (!scanf("%" SCNi32, &i)) {
+                input_type i;
+
+                while (!scanf(FORMAT_STRING, &i)) {
                     if (feof(stdin)) {
                         i = -1;
                         break;
@@ -467,12 +487,12 @@ void interpreter::run() {
                 fprintf(
                     stderr,
                     "Unicode replacement character (U+%0.4X) detected in source. Please check encoding.\n",
-                    (unsigned int)INVALID_CHAR
+                    static_cast<unsigned int>(op)
                 );
                 exit(1);
             default:
                 std::cerr << "Unrecognized opcode '";
-                std::wcerr << (wchar_t)op;
+                std::wcerr << static_cast<wchar_t>(op);
                 std::cerr << "' (at (" << m_coords.first << ", " << m_coords.second << "))" << endl;
                 exit(1);
         }

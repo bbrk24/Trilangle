@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-enum opcodes : int32_t {
+enum opcode : int32_t {
     NOP = '.', // no-op
     ADD = '+', // add
     SUB = '-', // subtract

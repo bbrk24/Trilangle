@@ -1,11 +1,9 @@
 #include "string_processing.hh"
 
-using std::vector;
-
-vector<int24_t> parse_utf8(const std::string& s) noexcept {
+std::vector<int24_t> parse_utf8(const std::string& s) noexcept {
     auto iter = s.begin();
 
-    vector<int24_t> vec;
+    std::vector<int24_t> vec;
     vec.reserve(s.size() / 4);
 
     do {
@@ -14,7 +12,7 @@ vector<int24_t> parse_utf8(const std::string& s) noexcept {
                 if (iter == s.end()) {
                     return EOF;
                 } else {
-                    return (int)*iter++;
+                    return static_cast<int>(*iter++);
                 }
             })
         );

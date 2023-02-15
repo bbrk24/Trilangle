@@ -4,8 +4,6 @@
 #include <fstream>
 #include <cstring>
 
-using std::cerr;
-using std::endl;
 using std::string;
 
 constexpr size_t BUF_SIZE = 256;
@@ -49,7 +47,7 @@ string parse_args(int argc, char** argv, flags& f) {
                 printf(HELP, argv[0]);
                 exit(0);
             } else {
-                cerr << "Unrecognized flag: " << argv[i] << endl;
+                std::cerr << "Unrecognized flag: " << argv[i] << std::endl;
             }
         } else {
             filename = argv[i];
@@ -64,7 +62,7 @@ string parse_args(int argc, char** argv, flags& f) {
         if (f_input.is_open()) {
             return read_istream(f_input);
         } else {
-            cerr << "File could not be opened for reading: " << filename << endl;
+            std::cerr << "File could not be opened for reading: " << filename << std::endl;
             exit(1);
         }
     }
@@ -78,7 +76,7 @@ int24_t getunichar() noexcept {
         return INT24_C(-1);
     }
 
-    return int24_t(c);
+    return static_cast<int24_t>(c);
 #else
     return parse_unichar(getchar);
 #endif
