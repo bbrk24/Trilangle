@@ -63,4 +63,4 @@ int24_t parse_unichar(FuncType getbyte) {
     }
 }
 
-std::vector<int24_t> parse_utf8(const std::string& s) noexcept;
+std::vector<int24_t> parse_utf8(const std::string& s, bool skip_shebang) noexcept;

@@ -43,11 +43,11 @@ using std::cout;
 using std::cerr;
 
 interpreter::interpreter(const program& p, flags f) noexcept :
-    m_program(p),
-    m_coords{ 0U, 0U },
     m_stack(),
-    m_direction(direction::southwest),
-    m_flags(f) { }
+    m_coords{ 0U, 0U },
+    m_program(p),
+    m_flags(f),
+    m_direction(direction::southwest) { }
 
 // Advance the IP one step, accounting for wrap-around.
 void interpreter::advance() noexcept {
@@ -483,10 +483,13 @@ void interpreter::run() {
                 m_stack.push_back(getunichar());
                 break;
             case PTC:
-                EMPTY_PROTECT("print from") {
-                    wcout << static_cast<wchar_t>(m_stack.back());
-                    wcout.clear();
+                EMPTY_PROTECT("print from")
+                    putwchar(static_cast<wchar_t>(m_stack.back()));
+
+                if (m_flags.pipekill && ferror(stdout)) {
+                    return;
                 }
+
                 break;
             case GTI: {
                 input_type i;
@@ -505,7 +508,12 @@ void interpreter::run() {
             }
             case PTI:
                 EMPTY_PROTECT("print from")
-                    cout << m_stack.back() << endl;
+                    printf("%" PRId32 "\n", static_cast<int32_t>(m_stack.back()));
+
+                if (m_flags.pipekill && ferror(stdout)) {
+                    return;
+                }
+
                 break;
             case SKP:
                 advance();

@@ -8,7 +8,7 @@ constexpr size_t triangular(size_t n) {
     return n * (n + 1) / 2;
 }
 
-program::program(const std::string& source) : m_code(parse_utf8(source)), m_side_length(0) {
+program::program(const std::string& source) : m_code(parse_utf8(source, true)), m_side_length(0) {
     // remove all whitespace
     auto iter = std::stable_partition(
         m_code.begin(),
@@ -27,10 +27,7 @@ program::program(const std::string& source) : m_code(parse_utf8(source)), m_side
     } while (capacity < m_code.size());
 
     // Fill the remaining space with NOPs
-    m_code.reserve(capacity);
-    while (m_code.size() < capacity) {
-        m_code.emplace_back(opcode::NOP);
-    }
+    m_code.resize(capacity, static_cast<int24_t>(opcode::NOP));
 }
 
 int24_t program::at(size_t row, size_t column) const {

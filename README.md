@@ -112,6 +112,8 @@ When run with the `-d` flag, the interpreter enters "debug mode." Before executi
 
 If the `-w` flag is set, warnings will be printed to STDERR for undefined behavior.
 
+If the `-f` flag is set, programs terminate once STDOUT cannot be written to. This allows, for example, piping the output of the program into `head` to terminate early.
+
 ## Sample Programs
 
 Here are some simple programs I've written.

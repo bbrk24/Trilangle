@@ -16,9 +16,9 @@ public:
 private:
     void advance() noexcept;
 
-    const program& m_program;
-    std::pair<size_t, size_t> m_coords;
     std::vector<int24_t> m_stack;
-    direction m_direction;
+    std::pair<size_t, size_t> m_coords;
+    const program& m_program;
     flags m_flags;
+    direction m_direction;
 };

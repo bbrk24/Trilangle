@@ -3,9 +3,10 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include <unordered_map>
+#include <tuple>
 
 using std::string;
+using std::get;
 
 constexpr size_t BUF_SIZE = 256;
 
@@ -18,12 +19,49 @@ static constexpr const char* HELP = "TRILANGLE\n\n"
 "\t--debug, -d     \tEnter debugging mode\n"
 "\t--show-stack, -s\tShow the stack while debugging\n"
 "\t--warnings, -w  \tShow warnings for unspecified behavior\n"
+"\t--pipekill, -f  \tEnd the program once STDOUT is closed\n"
 ;
 
-static const std::unordered_map<char, void(*)(flags&)> FLAGS_MAP = {
-    { 'd', [](flags& f) { f.debug = true; } },
-    { 's', [](flags& f) { f.show_stack = true; } },
-    { 'w', [](flags& f) { f.warnings = true; } },
+namespace flag_container {
+    static const std::tuple<const char*, char, void(*)(flags&)> FLAGS[] = {
+        { "debug", 'd', [](flags& f) { f.debug = true; } },
+        { "show-stack", 's', [](flags& f) { f.show_stack = true; } },
+        { "warnings", 'w', [](flags& f) { f.warnings = true; } },
+        { "pipekill", 'f', [](flags& f) { f.pipekill = true; } },
+    };
+
+    [[noreturn]] static inline void unrecognized_flag(const char* flag) {
+        std::cerr << "Unrecognized flag: " << flag << std::endl;
+        exit(1);
+    }
+    
+    static inline void set_flag(const char* flagname, flags& f) noexcept {
+        if (flagname[1] == '-') {
+            for (const auto& t : FLAGS) {
+                if (!strcmp(get<0>(t), flagname + 2)) {
+                    get<2>(t)(f);
+                    return;
+                }
+            }
+            unrecognized_flag(flagname);
+        } else {
+            for (uintptr_t i = 1; flagname[i] != '\0'; ++i) {
+                bool known_flag = false;
+
+                for (const auto& t : FLAGS) {
+                    if (get<1>(t) == flagname[i]) {
+                        get<2>(t)(f);
+                        known_flag = true;
+                        break;
+                    }
+                }
+
+                if (!known_flag) {
+                    unrecognized_flag(flagname);
+                }
+            }
+        }
+    }
 };
 
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
@@ -39,39 +77,23 @@ static inline string read_istream(std::istream& stream) {
     return retval;
 }
 
-[[noreturn]] static inline void unrecognized_flag(const char* flag) {
-    std::cerr << "Unrecognized flag: " << flag << std::endl;
-    exit(1);
-}
-
 string parse_args(int argc, char** argv, flags& f) {
     char* filename = nullptr;
 
     for (int i = 1; i < argc; ++i) {
         if (argv[i][0] == '-') {
-            if (argv[i][1] == '-') {
-                if (!strcmp(argv[i] + 2, "debug")) {
-                    FLAGS_MAP.at('d')(f);
-                } else if (!strcmp(argv[i] + 2, "show-stack")) {
-                    FLAGS_MAP.at('s')(f);
-                } else if (!strcmp(argv[i] + 2, "warnings")) {
-                    FLAGS_MAP.at('w')(f);
-                } else if (!strcmp(argv[i] + 2, "help")) {
-                    printf(HELP, argv[0]);
-                    exit(0);
-                } else {
-                    unrecognized_flag(argv[i]);
-                }
-            } else {
-                for (uintptr_t j = 1; argv[i][j] != '\0'; ++j) {
-                    try {
-                        FLAGS_MAP.at(argv[i][j])(f);
-                    } catch (std::out_of_range) {
-                        unrecognized_flag(argv[i]);
-                    }
-                }
+            if (!strcmp(argv[i] + 1, "-help")) {
+                printf(HELP, argv[0]);
+                exit(0);
             }
+
+            flag_container::set_flag(argv[i], f);
         } else {
+            if (filename != nullptr) {
+                std::cerr << "Error: please specify only one filename." << std::endl;
+                exit(1);
+            }
+
             filename = argv[i];
         }
     }
