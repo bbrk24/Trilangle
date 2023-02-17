@@ -1,8 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 
 #include "interpreter.hh"
-#include "opcode.hh"
-#include "string_processing.hh"
 #include <iostream>
 #include <cstdlib>
 #include <cinttypes>

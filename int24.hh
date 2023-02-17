@@ -22,8 +22,8 @@ struct int24_t {
         return static_cast<unsigned int>(value);
     }
 
-    constexpr bool operator!=(const int24_t& other) const noexcept {
-        return this->value != other.value;
+    constexpr bool operator==(const int24_t& other) const noexcept {
+        return this->value == other.value;
     }
     constexpr bool operator<(const int24_t& other) const noexcept {
         return this->value < other.value;

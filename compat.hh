@@ -11,23 +11,11 @@
 #ifdef __cpp_constinit
 // constinit, constexpr, or neither, depending on where lambdas are allowed
 #define CONSTINIT_LAMBDA constinit
-#endif
-
-#ifdef __cpp_constexpr
-#if defined(__cpp_lib_constexpr_vector) && defined(__cpp_lib_constexpr_string)
-// constexpr if dynamic containers are constexpr
-#define CONSTEXPR_ALLOC constexpr
-#endif
-
-#if !defined(CONSTINIT_LAMBDA) && __cpp_constexpr >= 201603
+#elif defined(__cpp_constexpr)
+#if __cpp_constexpr >= 201603
 // constinit, constexpr, or neither, depending on where lambdas are allowed
 #define CONSTINIT_LAMBDA constexpr
 #endif
-#endif
-
-#ifndef CONSTEXPR_ALLOC
-// constexpr if dynamic containers are constexpr
-#define CONSTEXPR_ALLOC inline
 #endif
 
 #ifndef CONSTINIT_LAMBDA
@@ -36,13 +24,33 @@
 #endif
 
 
+#if defined(__cpp_lib_constexpr_vector) && defined(__cpp_lib_constexpr_string)
+// constexpr if dynamic containers are constexpr
+#define CONSTEXPR_ALLOC constexpr
+
+#ifdef __cpp_lib_constexpr_algorithms
+// constexpr if functions in <algorithm> are constexpr
+#define CONSTEXPR_ALG constexpr
+#endif
+
+#else
+// constexpr if dynamic containers are constexpr
+#define CONSTEXPR_ALLOC inline
+#endif
+
+#ifndef CONSTEXPR_ALG
+// constexpr if functions in <algorithm> are constexpr
+#define CONSTEXPR_ALG inline
+#endif
+
+
 #ifdef __has_cpp_attribute
 #if __has_cpp_attribute(maybe_unused)
-// explicitly throw out the result of a [[nodiscard]] function
-#define DISCARD [[maybe_unused]] auto _ =
-
 // mark that it's okay if a function is never called
 #define MAYBE_UNUSED [[maybe_unused]]
+
+// explicitly throw out the result of a [[nodiscard]] function
+#define DISCARD [[maybe_unused]] auto _ =
 #endif
 
 #if __has_cpp_attribute(unlikely)
@@ -60,14 +68,11 @@
 #endif
 #endif
 
-#ifndef DISCARD
-// explicitly throw out the result of a [[nodiscard]] function
-#define DISCARD (void)
-#endif
-
 #ifndef MAYBE_UNUSED
 // mark that it's okay if a function is never called
 #define MAYBE_UNUSED
+// explicitly throw out the result of a [[nodiscard]] function
+#define DISCARD (void)
 #endif
 
 #ifndef UNLIKELY
