@@ -2,18 +2,13 @@
 #include "string_processing.hh"
 #include "opcode.hh"
 #include <algorithm>
-#include <cassert>
-
-constexpr size_t triangular(size_t n) {
-    return n * (n + 1) / 2;
-}
 
 program::program(const std::string& source) : m_code(parse_utf8(source, true)), m_side_length(0) {
     // remove all whitespace
     auto iter = std::stable_partition(
         m_code.begin(),
         m_code.end(),
-        [](int24_t c) {
+        [](int24_t c) NOEXCEPT_T {
             return c != (int24_t)' ' && c != (int24_t)'\n';
         }
     );
@@ -28,11 +23,4 @@ program::program(const std::string& source) : m_code(parse_utf8(source, true)), 
 
     // Fill the remaining space with NOPs
     m_code.resize(capacity, static_cast<int24_t>(opcode::NOP));
-}
-
-int24_t program::at(size_t row, size_t column) const {
-    assert(row < m_side_length && column <= row);
-
-    size_t idx = triangular(row) + column;
-    return m_code[idx];
 }

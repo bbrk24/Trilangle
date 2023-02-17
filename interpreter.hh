@@ -2,7 +2,6 @@
 
 #include "program.hh"
 #include "input.hh"
-#include <utility>
 
 enum class direction : char {
     southwest, west, northwest, northeast, east, southeast
@@ -10,7 +9,12 @@ enum class direction : char {
 
 class interpreter {
 public:
-    interpreter(const program& p, flags f) noexcept;
+    CONSTEXPR_ALLOC interpreter(const program& p, flags f) noexcept :
+        m_stack(),
+        m_coords{ SIZE_C(0), SIZE_C(0) },
+        m_program(p),
+        m_flags(f),
+        m_direction(direction::southwest) { }
 
     void run();
 private:

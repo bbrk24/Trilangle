@@ -1,6 +1,7 @@
 #pragma once
 
 #include "int24.hh"
+#include "compat.hh"
 #include <vector>
 #include <string>
 #include <cstdio>
@@ -10,7 +11,7 @@ constexpr int24_t INVALID_CHAR{ 0xfffd };
 // Given a function that yields one "character" at a time, parse the incoming bytestream as UTF-8, and return a single
 // Unicode character.
 template<typename FuncType>
-int24_t parse_unichar(FuncType getbyte) {
+constexpr int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) {
     unsigned char buf[4];
 
     // The maximum number of used bytes in the buffer, determined by the first byte read.
@@ -59,8 +60,31 @@ int24_t parse_unichar(FuncType getbyte) {
                 ((buf[0] & 0x07) << 18) | ((buf[1] & 0x3f) << 12) | ((buf[2] & 0x3f) << 6) | (buf[3] & 0x3f)
             );
         default:
-            return INVALID_CHAR;
-    }
+            unreachable();
+        }
 }
 
-std::vector<int24_t> parse_utf8(const std::string& s, bool skip_shebang) noexcept;
+CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_shebang) {
+    auto iter = s.begin();
+
+    std::vector<int24_t> vec;
+    vec.reserve(s.size() / 4);
+
+    if (skip_shebang && s.size() > 2 && s[0] == '#' && s[1] == '!') {
+        while (*iter++ != '\n');
+    }
+
+    do {
+        vec.push_back(
+            parse_unichar([&]() noexcept {
+                if (iter == s.end()) {
+                    return EOF;
+                } else {
+                    return static_cast<int>(*iter++);
+                }
+            })
+        );
+    } while (iter != s.end());
+
+    return vec;
+}

@@ -23,11 +23,11 @@ static constexpr const char* HELP = "TRILANGLE\n\n"
 ;
 
 namespace flag_container {
-    static const std::tuple<const char*, char, void(*)(flags&)> FLAGS[] = {
-        { "debug", 'd', [](flags& f) { f.debug = true; } },
-        { "show-stack", 's', [](flags& f) { f.show_stack = true; } },
-        { "warnings", 'w', [](flags& f) { f.warnings = true; } },
-        { "pipekill", 'f', [](flags& f) { f.pipekill = true; } },
+    static CONSTINIT_LAMBDA const std::tuple<const char*, char, void(*)(flags&) NOEXCEPT_T> FLAGS[] = {
+        { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
+        { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
+        { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
+        { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
     };
 
     [[noreturn]] static inline void unrecognized_flag(const char* flag) {
@@ -35,7 +35,7 @@ namespace flag_container {
         exit(1);
     }
     
-    static inline void set_flag(const char* flagname, flags& f) noexcept {
+    static inline void set_flag(const char* flagname, flags& f) {
         if (flagname[1] == '-') {
             for (const auto& t : FLAGS) {
                 if (!strcmp(get<0>(t), flagname + 2)) {

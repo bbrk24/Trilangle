@@ -8,24 +8,16 @@
 #include <cinttypes>
 #include <random>
 #include <type_traits>
-
-#ifdef __has_cpp_attribute
-#if __has_cpp_attribute(maybe_unused)
-#define DISCARD [[maybe_unused]] auto _ =
-#endif
-#endif
-#ifndef DISCARD
-#define DISCARD (void)
-#endif
+#include <functional>
 
 #define EMPTY_PROTECT(name) \
-    if (m_stack.empty() && m_flags.warnings) { \
-        cerr << "Warning: Attempt to " name " empty stack." << endl; \
+    if (m_stack.empty() && m_flags.warnings) UNLIKELY { \
+        cerr << "Warning: Attempt to " name " empty stack.\n"; \
     } else
 
 #define SIZE_CHECK(name, count) \
     if (m_flags.warnings && m_stack.size() < (count)) \
-        cerr << "Warning: Attempt to " name " stack with fewer than " << (count) << " elements." << endl
+       UNLIKELY cerr << "Warning: Attempt to " name " stack with fewer than " << (count) << " elements.\n"
 
 #ifdef SCNi24
 using input_type = int24_t;
@@ -35,19 +27,10 @@ using input_type = int32_t;
 constexpr const char* FORMAT_STRING = "%" SCNi32;
 #endif
 
-using rand_type = std::conditional_t<std::is_integral<int24_t>::value && !std::is_same<int24_t, char>::value, int24_t, int32_t>;
+using rand_type = std::conditional_t<std::is_integral<int24_t>::value, int24_t, int32_t>;
 
-using std::endl;
-using std::wcout;
 using std::cout;
 using std::cerr;
-
-interpreter::interpreter(const program& p, flags f) noexcept :
-    m_stack(),
-    m_coords{ 0U, 0U },
-    m_program(p),
-    m_flags(f),
-    m_direction(direction::southwest) { }
 
 // Advance the IP one step, accounting for wrap-around.
 void interpreter::advance() noexcept {
@@ -122,7 +105,7 @@ void interpreter::advance() noexcept {
 void interpreter::run() {
     // Create the random number generator.
 
-    std::default_random_engine reng(std::move(std::random_device())());
+    std::default_random_engine reng(std::invoke(std::random_device()));
     std::uniform_int_distribution<rand_type> rdist(-0x800000, 0x7fffff);
 
     // Begin the execution loop.
@@ -142,13 +125,13 @@ void interpreter::run() {
                     cout << m_stack[i];
                 }
 
-                cout << "]" << endl;
+                cout << "]\n";
             }
 
-            cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: ";
-            wcout << static_cast<wchar_t>(op);
-            wcout.clear();
-            cout << endl;
+            cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: " << std::flush;
+            putwchar(static_cast<wchar_t>(op));
+            putchar('\n');
+
             DISCARD getchar();
         }
 
@@ -431,9 +414,9 @@ void interpreter::run() {
                 int24_t next = m_program.at(m_coords.first, m_coords.second);
 
                 if (m_flags.warnings) {
-                    if (next < (int24_t)'0' || next > (int24_t)'9') {
+                    if (next < (int24_t)'0' || next > (int24_t)'9') UNLIKELY {
                         cerr << "Warning: Pushing non-decimal number with " << static_cast<char>(opcode::PSI) <<
-                            " is implementation-defined behavior." << endl;
+                            " is implementation-defined behavior.\n";
                     }
                 }
 
@@ -522,8 +505,8 @@ void interpreter::run() {
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
 
-                if (m_flags.warnings && top < INT24_C(0)) {
-                    cerr << "Warning: Attempt to use negative index." << endl;
+                if (m_flags.warnings && top < INT24_C(0)) UNLIKELY {
+                    cerr << "Warning: Attempt to use negative index.\n";
                 } else SIZE_CHECK("index", static_cast<unsigned int>(top) + 1);
 
                 size_t i = m_stack.size() - top - 1;
@@ -547,7 +530,7 @@ void interpreter::run() {
                 std::swap(m_stack[i], m_stack[i + 1]);
                 break;
             }
-            case INVALID_CHAR:
+            UNLIKELY case INVALID_CHAR:
                 fprintf(
                     stderr,
                     "Unicode replacement character (U+%0.4X) detected in source. Please check encoding.\n",
@@ -555,9 +538,9 @@ void interpreter::run() {
                 );
                 exit(1);
             default:
-                cerr << "Unrecognized opcode '";
-                std::wcerr << static_cast<wchar_t>(op);
-                cerr << "' (at (" << m_coords.first << ", " << m_coords.second << "))" << endl;
+                cerr << "Unrecognized opcode '" << std::flush;
+                putwchar(static_cast<wchar_t>(op));
+                cerr << "' (at (" << m_coords.first << ", " << m_coords.second << "))" << std::endl;
                 exit(1);
         }
         
