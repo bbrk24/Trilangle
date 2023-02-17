@@ -8,7 +8,7 @@ program::program(const std::string& source) : m_code(parse_utf8(source, true)), 
     auto iter = std::stable_partition(
         m_code.begin(),
         m_code.end(),
-        [](int24_t c) NOEXCEPT_T {
+        [](int24_t c) {
             return c != (int24_t)' ' && c != (int24_t)'\n';
         }
     );

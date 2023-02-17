@@ -1,7 +1,6 @@
 #pragma once
 
 #include "int24.hh"
-#include "compat.hh"
 #include <vector>
 #include <string>
 #include <cassert>

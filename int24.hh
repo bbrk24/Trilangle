@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <cwchar>
+#include "compat.hh"
 
 #ifndef INT24_C
 struct int24_t {
@@ -9,7 +10,7 @@ struct int24_t {
     constexpr int24_t(char x) noexcept : value(x) {}
     constexpr int24_t(unsigned char x) noexcept : value(x) {}
     constexpr explicit int24_t(int32_t x) noexcept : value(x) {}
-    constexpr explicit int24_t(wint_t x) noexcept : value(x) {}
+    MAYBE_UNUSED constexpr explicit int24_t(wint_t x) noexcept : value(x) {}
 
     constexpr explicit operator wchar_t() const noexcept {
         return static_cast<wchar_t>(value);

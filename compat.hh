@@ -8,17 +8,18 @@
 #endif
 #endif
 
+#ifdef __cpp_constinit
+// constinit, constexpr, or neither, depending on where lambdas are allowed
+#define CONSTINIT_LAMBDA constinit
+#endif
 
 #ifdef __cpp_constexpr
-#if defined(__cpp_constexpr_dynamic_alloc) && __cpp_constexpr >= 201907
+#if defined(__cpp_lib_constexpr_vector) && defined(__cpp_lib_constexpr_string)
 // constexpr if dynamic containers are constexpr
 #define CONSTEXPR_ALLOC constexpr
 #endif
 
-#ifdef __cpp_constinit
-// constinit, constexpr, or neither, depending on where lambdas are allowed
-#define CONSTINIT_LAMBDA constinit
-#elif __cpp_constexpr >= 201603
+#if !defined(CONSTINIT_LAMBDA) && __cpp_constexpr >= 201603
 // constinit, constexpr, or neither, depending on where lambdas are allowed
 #define CONSTINIT_LAMBDA constexpr
 #endif
@@ -39,6 +40,9 @@
 #if __has_cpp_attribute(maybe_unused)
 // explicitly throw out the result of a [[nodiscard]] function
 #define DISCARD [[maybe_unused]] auto _ =
+
+// mark that it's okay if a function is never called
+#define MAYBE_UNUSED [[maybe_unused]]
 #endif
 
 #if __has_cpp_attribute(unlikely)
@@ -61,6 +65,11 @@
 #define DISCARD (void)
 #endif
 
+#ifndef MAYBE_UNUSED
+// mark that it's okay if a function is never called
+#define MAYBE_UNUSED
+#endif
+
 #ifndef UNLIKELY
 // mark an execution branch as being very unlikely, and that it's acceptable for it to be slow
 #define UNLIKELY
@@ -75,8 +84,8 @@
 #ifdef __cpp_noexcept_function_type
 // noexcept if it's part of the type
 #define NOEXCEPT_T noexcept
-// noexcept if it's part of the type
 #else
+// noexcept if it's part of the type
 #define NOEXCEPT_T
 #endif
 
@@ -88,6 +97,7 @@
 // mark a literal as a size_t
 #define SIZE_C(x) x ## U
 #endif
+
 
 #ifdef __cpp_lib_unreachable
 using std::unreachable;

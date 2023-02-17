@@ -1,12 +1,15 @@
 #pragma once
 
 #include "int24.hh"
-#include "compat.hh"
 #include <vector>
 #include <string>
 #include <cstdio>
 
 constexpr int24_t INVALID_CHAR{ 0xfffd };
+
+// A type suitable for storing the index of a C string.
+// Not necessarily the same as std::string::size_type, and not necessarily capable of holding negative values.
+typedef size_t string_index;
 
 // Given a function that yields one "character" at a time, parse the incoming bytestream as UTF-8, and return a single
 // Unicode character.
@@ -15,8 +18,8 @@ constexpr int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) 
     unsigned char buf[4];
 
     // The maximum number of used bytes in the buffer, determined by the first byte read.
-    uintptr_t buf_max = 4;
-    for (uintptr_t i = 0; i < buf_max; ++i) {
+    string_index buf_max = 4;
+    for (string_index i = 0; i < buf_max; ++i) {
         int c = getbyte();
 
         // Handle EOF
@@ -76,7 +79,7 @@ CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_
 
     do {
         vec.push_back(
-            parse_unichar([&]() noexcept {
+            parse_unichar([&]() NOEXCEPT_T {
                 if (iter == s.end()) {
                     return EOF;
                 } else {

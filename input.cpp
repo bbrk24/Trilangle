@@ -45,7 +45,7 @@ namespace flag_container {
             }
             unrecognized_flag(flagname);
         } else {
-            for (uintptr_t i = 1; flagname[i] != '\0'; ++i) {
+            for (string_index i = 1; flagname[i] != '\0'; ++i) {
                 bool known_flag = false;
 
                 for (const auto& t : FLAGS) {

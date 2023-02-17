@@ -8,7 +8,6 @@
 #include <cinttypes>
 #include <random>
 #include <type_traits>
-#include <functional>
 
 #define EMPTY_PROTECT(name) \
     if (m_stack.empty() && m_flags.warnings) UNLIKELY { \
@@ -105,7 +104,7 @@ void interpreter::advance() noexcept {
 void interpreter::run() {
     // Create the random number generator.
 
-    std::default_random_engine reng(std::invoke(std::random_device()));
+    std::default_random_engine reng(std::move(std::random_device())());
     std::uniform_int_distribution<rand_type> rdist(-0x800000, 0x7fffff);
 
     // Begin the execution loop.
