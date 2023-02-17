@@ -61,7 +61,7 @@ constexpr int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) 
             );
         default:
             unreachable();
-        }
+    }
 }
 
 CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_shebang) {

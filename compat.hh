@@ -49,6 +49,11 @@
 #if __has_cpp_attribute(assume)
 #define __HAS_ASSUME
 #endif
+
+#if __has_cpp_attribute(fallthrough)
+// mark an intentional lack of a break statement in a switch block
+#define FALLTHROUGH [[fallthrough]];
+#endif
 #endif
 
 #ifndef DISCARD
@@ -59,6 +64,11 @@
 #ifndef UNLIKELY
 // mark an execution branch as being very unlikely, and that it's acceptable for it to be slow
 #define UNLIKELY
+#endif
+
+#ifndef FALLTHROUGH
+// mark an intentional lack of a break statement in a switch block
+#define FALLTHROUGH
 #endif
 
 

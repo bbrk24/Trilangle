@@ -188,7 +188,7 @@ void interpreter::run() {
                     case direction::southeast:
                         m_direction = direction::northeast;
                         break;
-                    case direction::east:
+                    case direction::east: FALLTHROUGH
                     case direction::west:
                         break;
                 }
@@ -229,28 +229,28 @@ void interpreter::run() {
                     case direction::northwest:
                         m_direction = direction::east;
                         break;
-                    case direction::northeast:
+                    case direction::northeast: FALLTHROUGH
                     case direction::southwest:
                         break;
                 }
                 break;
             case MIR_NWSE:
                 switch (m_direction) {
-                case direction::west:
-                    m_direction = direction::northeast;
-                    break;
-                case direction::northeast:
-                    m_direction = direction::west;
-                    break;
-                case direction::east:
-                    m_direction = direction::southwest;
-                    break;
-                case direction::southwest:
-                    m_direction = direction::east;
-                    break;
-                case direction::northwest:
-                case direction::southeast:
-                    break;
+                    case direction::west:
+                        m_direction = direction::northeast;
+                        break;
+                    case direction::northeast:
+                        m_direction = direction::west;
+                        break;
+                    case direction::east:
+                        m_direction = direction::southwest;
+                        break;
+                    case direction::southwest:
+                        m_direction = direction::east;
+                        break;
+                    case direction::northwest: FALLTHROUGH
+                    case direction::southeast:
+                        break;
                 }
                 break;
             case BNG_E:
@@ -263,7 +263,7 @@ void interpreter::run() {
                             m_direction = direction::northwest;
                         }
                         break;
-                    case direction::northeast:
+                    case direction::northeast: FALLTHROUGH
                     case direction::southeast:
                         m_direction = direction::east;
                         break;
@@ -288,7 +288,7 @@ void interpreter::run() {
                             m_direction = direction::southeast;
                         }
                         break;
-                    case direction::northwest:
+                    case direction::northwest: FALLTHROUGH
                     case direction::southwest:
                         m_direction = direction::west;
                         break;
@@ -313,7 +313,7 @@ void interpreter::run() {
                             m_direction = direction::west;
                         }
                         break;
-                    case direction::northwest:
+                    case direction::northwest: FALLTHROUGH
                     case direction::east:
                         m_direction = direction::northeast;
                         break;
@@ -338,7 +338,7 @@ void interpreter::run() {
                             m_direction = direction::east;
                         }
                         break;
-                    case direction::southeast:
+                    case direction::southeast: FALLTHROUGH
                     case direction::west:
                         m_direction = direction::southwest;
                         break;
@@ -363,7 +363,7 @@ void interpreter::run() {
                             m_direction = direction::southwest;
                         }
                         break;
-                    case direction::northeast:
+                    case direction::northeast: FALLTHROUGH
                     case direction::west:
                         m_direction = direction::northwest;
                         break;
@@ -388,7 +388,7 @@ void interpreter::run() {
                             m_direction = direction::northeast;
                         }
                         break;
-                    case direction::southwest:
+                    case direction::southwest: FALLTHROUGH
                     case direction::east:
                         m_direction = direction::southeast;
                         break;
