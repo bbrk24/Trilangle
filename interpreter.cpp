@@ -113,7 +113,7 @@ void interpreter::run() {
             case BNG_SE: FALLTHROUGH
             case BNG_SW: FALLTHROUGH
             case BNG_W:
-                program_walker::branch(m_ip.dir, op, [&]() {
+                program_walker::branch(m_ip.dir, op, [&]() NOEXCEPT_T {
                     EMPTY_PROTECT("branch on");
                     return m_stack.back() < INT24_C(0);
                 });

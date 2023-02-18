@@ -164,7 +164,7 @@ void disassembler::build_state() {
         program_state initial_state{ initial_ip, -1L };
         auto p = m_visited.insert(initial_state);
 
-        m_state_ptr = new state_element{ *p.first, nullptr, nullptr};
+        m_state_ptr = new state_element{ *p.first, nullptr, nullptr };
         build(*m_state_ptr);
     }
 }
@@ -197,7 +197,7 @@ void disassembler::build(state_element& state) {
         case BNG_SE: FALLTHROUGH
         case BNG_SW: FALLTHROUGH
         case BNG_W:
-            program_walker::branch(next.dir, op, [&]() {
+            program_walker::branch(next.dir, op, [&]() NOEXCEPT_T {
                 branched = true;
                 return false;
             });
@@ -212,7 +212,7 @@ void disassembler::build(state_element& state) {
     if (branched) {
         instruction_pointer third{ next.coords, state.value.first.dir };
 
-        program_walker::branch(third.dir, op, []() { return true; });
+        program_walker::branch(third.dir, op, []() NOEXCEPT_T { return true; });
 
         auto third_pair = m_visited.insert({ third, -1L });
         auto* el = new state_element{ *third_pair.first, nullptr, nullptr };

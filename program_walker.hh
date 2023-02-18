@@ -102,7 +102,7 @@ protected:
     const program& m_program;
 
     // Reflect the IP according to the mirror.
-    static inline void reflect(direction& dir, int24_t mir) {
+    static inline void reflect(direction& dir, int24_t mir) noexcept {
         switch (mir) {
             case MIR_EW:
                 switch (dir) {
@@ -190,7 +190,7 @@ protected:
 
     // Move the IP according to the branch instruction.
     template<typename T>
-    static void branch(direction& dir, int24_t bng, T go_left) {
+    static void branch(direction& dir, int24_t bng, T go_left) noexcept(noexcept(go_left())) {
         switch (bng) {
             case BNG_E:
                 switch (dir) {
