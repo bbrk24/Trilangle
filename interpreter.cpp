@@ -29,76 +29,6 @@ using rand_type = std::conditional_t<std::is_integral<int24_t>::value, int24_t, 
 using std::cout;
 using std::cerr;
 
-// Advance the IP one step, accounting for wrap-around.
-void interpreter::advance() noexcept {
-    // I don't remember how this works, it just does.
-    switch (m_direction) {
-        case direction::southwest:
-            if (++m_coords.first == m_program.side_length()) {
-                m_coords.second = (m_coords.second + 1) % m_program.side_length();
-                m_coords.first = m_coords.second;
-            }
-            break;
-        case direction::west:
-            if (m_coords.second == 0) {
-                if (++m_coords.first == m_program.side_length()) {
-                    m_coords.first = 0;
-                } else {
-                    m_coords.second = m_coords.first;
-                }
-            } else {
-                --m_coords.second;
-            }
-            break;
-        case direction::northwest:
-            if (m_coords.second == 0) {
-                if (m_coords.first == m_program.side_length() - 1) {
-                    m_coords.second = m_program.side_length() - 1;
-                } else {
-                    m_coords.second = m_program.side_length() - m_coords.first - 2;
-                    m_coords.first = m_program.side_length() - 1;
-                }
-            } else {
-                --m_coords.first;
-                --m_coords.second;
-            }
-            break;
-        case direction::northeast:
-            if (m_coords.first == 0 || m_coords.second >= m_coords.first) {
-                m_coords.first = m_program.side_length() - 1;
-                if (m_coords.second == 0) {
-                    m_coords.second = m_program.side_length() - 1;
-                } else {
-                    --m_coords.second;
-                }
-            } else {
-                --m_coords.first;
-            }
-            break;
-        case direction::east:
-            if (++m_coords.second > m_coords.first) {
-                if (m_coords.first == 0) {
-                    m_coords.first = m_program.side_length() - 1;
-                } else {
-                    --m_coords.first;
-                }
-                m_coords.second = 0;
-            }
-            break;
-        case direction::southeast:
-            ++m_coords.second;
-            if (++m_coords.first == m_program.side_length()) {
-                if (m_coords.second < m_program.side_length()) {
-                    m_coords.first = m_program.side_length() - m_coords.second - 1;
-                } else {
-                    m_coords.first = m_program.side_length() - 1;
-                }
-                m_coords.second = 0;
-            }
-            break;
-    }
-}
-
 void interpreter::run() {
     // Create the random number generator.
 
@@ -108,7 +38,7 @@ void interpreter::run() {
     // Begin the execution loop.
     while (true) {
         // The operation currently being executed
-        int24_t op = m_program.at(m_coords.first, m_coords.second);
+        int24_t op = m_program.at(m_ip.coords.first, m_ip.coords.second);
 
         // Print the requisite information in debug mode.
         if (m_flags.debug) {
@@ -125,7 +55,7 @@ void interpreter::run() {
                 cout << "]\n";
             }
 
-            cout << "Coords: (" << m_coords.first << ", " << m_coords.second << ")\nInstruction: " << std::flush;
+            cout << "Coords: (" << m_ip.coords.first << ", " << m_ip.coords.second << ")\nInstruction: " << std::flush;
             putwchar(static_cast<wchar_t>(op));
             putchar('\n');
 
@@ -171,244 +101,32 @@ void interpreter::run() {
                 m_stack.back() %= top;
                 break;
             }
-            case MIR_EW:
-                switch (m_direction) {
-                    case direction::southwest:
-                        m_direction = direction::northwest;
-                        break;
-                    case direction::northwest:
-                        m_direction = direction::southwest;
-                        break;
-                    case direction::northeast:
-                        m_direction = direction::southeast;
-                        break;
-                    case direction::southeast:
-                        m_direction = direction::northeast;
-                        break;
-                    case direction::east: FALLTHROUGH
-                    case direction::west:
-                        break;
-                }
-                break;
-            case MIR_NS:
-                switch (m_direction) {
-                    case direction::southwest:
-                        m_direction = direction::southeast;
-                        break;
-                    case direction::northwest:
-                        m_direction = direction::northeast;
-                        break;
-                    case direction::northeast:
-                        m_direction = direction::northwest;
-                        break;
-                    case direction::southeast:
-                        m_direction = direction::southwest;
-                        break;
-                    case direction::west:
-                        m_direction = direction::east;
-                        break;
-                    case direction::east:
-                        m_direction = direction::west;
-                        break;
-                }
-                break;
-            case MIR_NESW:
-                switch (m_direction) {
-                    case direction::west:
-                        m_direction = direction::southeast;
-                        break;
-                    case direction::southeast:
-                        m_direction = direction::west;
-                        break;
-                    case direction::east:
-                        m_direction = direction::northwest;
-                        break;
-                    case direction::northwest:
-                        m_direction = direction::east;
-                        break;
-                    case direction::northeast: FALLTHROUGH
-                    case direction::southwest:
-                        break;
-                }
-                break;
+            case MIR_EW: FALLTHROUGH
+            case MIR_NESW: FALLTHROUGH
+            case MIR_NS: FALLTHROUGH
             case MIR_NWSE:
-                switch (m_direction) {
-                    case direction::west:
-                        m_direction = direction::northeast;
-                        break;
-                    case direction::northeast:
-                        m_direction = direction::west;
-                        break;
-                    case direction::east:
-                        m_direction = direction::southwest;
-                        break;
-                    case direction::southwest:
-                        m_direction = direction::east;
-                        break;
-                    case direction::northwest: FALLTHROUGH
-                    case direction::southeast:
-                        break;
-                }
+                program_walker::reflect(m_ip.dir, op);
                 break;
-            case BNG_E:
-                switch (m_direction) {
-                    case direction::west:
-                        EMPTY_PROTECT("branch on");
-                        if (m_stack.back() < INT24_C(0)) {
-                            m_direction = direction::southwest;
-                        } else {
-                            m_direction = direction::northwest;
-                        }
-                        break;
-                    case direction::northeast: FALLTHROUGH
-                    case direction::southeast:
-                        m_direction = direction::east;
-                        break;
-                    case direction::east:
-                        m_direction = direction::west;
-                        break;
-                    case direction::southwest:
-                        m_direction = direction::northeast;
-                        break;
-                    case direction::northwest:
-                        m_direction = direction::southeast;
-                        break;
-                }
-                break;
+            case BNG_E: FALLTHROUGH
+            case BNG_NE: FALLTHROUGH
+            case BNG_NW: FALLTHROUGH
+            case BNG_SE: FALLTHROUGH
+            case BNG_SW: FALLTHROUGH
             case BNG_W:
-                switch (m_direction) {
-                    case direction::east:
-                        EMPTY_PROTECT("branch on");
-                        if (m_stack.back() < INT24_C(0)) {
-                            m_direction = direction::northeast;
-                        } else {
-                            m_direction = direction::southeast;
-                        }
-                        break;
-                    case direction::northwest: FALLTHROUGH
-                    case direction::southwest:
-                        m_direction = direction::west;
-                        break;
-                    case direction::west:
-                        m_direction = direction::east;
-                        break;
-                    case direction::southeast:
-                        m_direction = direction::northwest;
-                        break;
-                    case direction::northeast:
-                        m_direction = direction::southwest;
-                        break;
-                }
-                break;
-            case BNG_NE:
-                switch (m_direction) {
-                    case direction::southwest:
-                        EMPTY_PROTECT("branch on");
-                        if (m_stack.back() < INT24_C(0)) {
-                            m_direction = direction::southeast;
-                        } else {
-                            m_direction = direction::west;
-                        }
-                        break;
-                    case direction::northwest: FALLTHROUGH
-                    case direction::east:
-                        m_direction = direction::northeast;
-                        break;
-                    case direction::northeast:
-                        m_direction = direction::southwest;
-                        break;
-                    case direction::west:
-                        m_direction = direction::east;
-                        break;
-                    case direction::southeast:
-                        m_direction = direction::northwest;
-                        break;
-                }
-                break;
-            case BNG_SW:
-                switch (m_direction) {
-                    case direction::northeast:
-                        EMPTY_PROTECT("branch on");
-                        if (m_stack.back() < INT24_C(0)) {
-                            m_direction = direction::northwest;
-                        } else {
-                            m_direction = direction::east;
-                        }
-                        break;
-                    case direction::southeast: FALLTHROUGH
-                    case direction::west:
-                        m_direction = direction::southwest;
-                        break;
-                    case direction::northwest:
-                        m_direction = direction::southeast;
-                        break;
-                    case direction::east:
-                        m_direction = direction::west;
-                        break;
-                    case direction::southwest:
-                        m_direction = direction::northeast;
-                        break;
-                }
-                break;
-            case BNG_NW:
-                switch (m_direction) {
-                    case direction::southeast:
-                        EMPTY_PROTECT("branch on");
-                        if (m_stack.back() < INT24_C(0)) {
-                            m_direction = direction::east;
-                        } else {
-                            m_direction = direction::southwest;
-                        }
-                        break;
-                    case direction::northeast: FALLTHROUGH
-                    case direction::west:
-                        m_direction = direction::northwest;
-                        break;
-                    case direction::northwest:
-                        m_direction = direction::southeast;
-                        break;
-                    case direction::east:
-                        m_direction = direction::west;
-                        break;
-                    case direction::southwest:
-                        m_direction = direction::northeast;
-                        break;
-                }
-                break;
-            case BNG_SE:
-                switch (m_direction) {
-                    case direction::northwest:
-                        EMPTY_PROTECT("branch on");
-                        if (m_stack.back() < INT24_C(0)) {
-                            m_direction = direction::west;
-                        } else {
-                            m_direction = direction::northeast;
-                        }
-                        break;
-                    case direction::southwest: FALLTHROUGH
-                    case direction::east:
-                        m_direction = direction::southeast;
-                        break;
-                    case direction::northeast:
-                        m_direction = direction::southwest;
-                        break;
-                    case direction::west:
-                        m_direction = direction::east;
-                        break;
-                    case direction::southeast:
-                        m_direction = direction::northwest;
-                        break;
-                }
+                program_walker::branch(m_ip.dir, op, [&]() {
+                    EMPTY_PROTECT("branch on");
+                    return m_stack.back() < INT24_C(0);
+                });
                 break;
             case PSC: {
                 advance();
-                int24_t next = m_program.at(m_coords.first, m_coords.second);
+                int24_t next = m_program.at(m_ip.coords.first, m_ip.coords.second);
                 m_stack.push_back(next);
                 break;
             }
             case PSI: {
                 advance();
-                int24_t next = m_program.at(m_coords.first, m_coords.second);
+                int24_t next = m_program.at(m_ip.coords.first, m_ip.coords.second);
 
                 if (m_flags.warnings) {
                     if (next < (int24_t)'0' || next > (int24_t)'9') UNLIKELY {
@@ -537,7 +255,7 @@ void interpreter::run() {
             default:
                 cerr << "Unrecognized opcode '" << std::flush;
                 putwchar(static_cast<wchar_t>(op));
-                cerr << "' (at (" << m_coords.first << ", " << m_coords.second << "))" << std::endl;
+                cerr << "' (at (" << m_ip.coords.first << ", " << m_ip.coords.second << "))" << std::endl;
                 exit(1);
         }
         

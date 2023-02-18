@@ -23,6 +23,14 @@
 #define CONSTINIT_LAMBDA
 #endif
 
+#ifdef __cpp_constexpr_dynamic_alloc
+// constexpr if destructors are allowed to be
+#define CONSTEXPR_DESTRUCT constexpr
+#else
+// constexpr if destructors are allowed to be
+#define CONSTEXPR_DESTRUCT inline
+#endif
+
 
 #if defined(__cpp_lib_constexpr_vector) && defined(__cpp_lib_constexpr_string)
 // constexpr if dynamic containers are constexpr

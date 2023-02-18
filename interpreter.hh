@@ -1,28 +1,22 @@
 #pragma once
 
-#include "program.hh"
+#include "program_walker.hh"
 #include "input.hh"
 
-enum class direction : char {
-    southwest, west, northwest, northeast, east, southeast
-};
-
-class interpreter {
+class interpreter : public program_walker {
 public:
-    CONSTEXPR_ALLOC interpreter(const program& p, flags f) noexcept :
+    CONSTEXPR_ALLOC interpreter(const program& p, flags f) noexcept : program_walker(p),
         m_stack(),
-        m_coords{ SIZE_C(0), SIZE_C(0) },
-        m_program(p),
-        m_flags(f),
-        m_direction(direction::southwest) { }
+        m_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest },
+        m_flags(f) { }
 
     void run();
 private:
-    void advance() noexcept;
+    constexpr void advance() noexcept {
+        program_walker::advance(m_ip, m_program.side_length());
+    }
 
     std::vector<int24_t> m_stack;
-    std::pair<size_t, size_t> m_coords;
-    const program& m_program;
-    flags m_flags;
-    direction m_direction;
+    instruction_pointer m_ip;
+    const flags m_flags;
 };
