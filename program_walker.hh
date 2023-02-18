@@ -10,24 +10,8 @@ class program_walker {
 public:
     constexpr program_walker(const program& p) noexcept : m_program(p) { }
 
-    struct instruction_pointer {
-        std::pair<size_t, size_t> coords;
-        direction dir;
-
-        constexpr bool operator==(const instruction_pointer& rhs) const noexcept {
-            return this->coords == rhs.coords && this->dir == rhs.dir;
-        }
-
-        struct hash {
-            inline size_t operator()(const instruction_pointer& key) const noexcept {
-                size_t first_hash = key.coords.first;
-                size_t second_hash = (key.coords.second << (4 * sizeof (size_t))) | (key.coords.second >> (4 * sizeof (size_t)));
-                size_t direction_hash = std::hash<direction>()(key.dir);
-
-                return first_hash ^ second_hash ^ direction_hash;
-            }
-        };
-    };
+    // Pack this struct, so that the sizeof (size_t) - 1 bytes leftover at the end can be used by other variables in a larger object
+    PACK(struct instruction_pointer { std::pair<size_t, size_t> coords; direction dir; });
 
     // Advance the IP one step.
     static constexpr void advance(instruction_pointer& ip, size_t program_size) noexcept {
@@ -341,3 +325,20 @@ protected:
         }
     }
 };
+
+constexpr bool operator==(const program_walker::instruction_pointer &lhs, const program_walker::instruction_pointer &rhs) noexcept {
+    return lhs.coords == rhs.coords && lhs.dir == rhs.dir;
+}
+
+namespace std {
+    template<>
+    struct hash<program_walker::instruction_pointer> {
+        inline size_t operator()(const program_walker::instruction_pointer& key) const noexcept {
+            size_t first_hash = key.coords.first;
+            size_t second_hash = (key.coords.second << (4 * sizeof(size_t))) | (key.coords.second >> (4 * sizeof(size_t)));
+            size_t direction_hash = hash<direction>()(key.dir);
+
+            return first_hash ^ second_hash ^ direction_hash;
+        }
+    };
+}

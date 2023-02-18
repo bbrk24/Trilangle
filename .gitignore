@@ -1,5 +1,6 @@
 *.vcxproj
 *.vcxproj.*
-/**/Debug/
-/**/Release/
+**/Debug/
+**/Release/
 .vscode/
+*.hint

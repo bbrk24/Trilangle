@@ -43,13 +43,15 @@ public:
         m_ins_num(maybe_move(other.m_ins_num)),
         m_flags(maybe_move(other.m_flags)) { }
 
-    disassembler(const disassembler&) = delete;
+    explicit disassembler(const disassembler&) = default;
 
     inline ~disassembler() noexcept {
         if (m_state_ptr != nullptr) delete m_state_ptr;
     }
 
+    // 
     void write_state(std::wostream& os) &&;
+    void write_state(std::wostream& os) &;
 private:
     struct state_element {
         program_state& value;
@@ -71,8 +73,8 @@ private:
     state_element* m_state_ptr;
     // Track the visited program states and their locations within the disassembly.
     // The IP is used to track the state itself, and the long is the disassembly location used for labels and jumps.
-    std::unordered_map<instruction_pointer, long, instruction_pointer::hash> m_visited;
+    std::unordered_map<instruction_pointer, long> m_visited;
     // The number of the next instruction to be printed.
     long m_ins_num;
-    flags m_flags;
+    const flags m_flags;
 };

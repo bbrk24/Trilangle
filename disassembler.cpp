@@ -113,6 +113,14 @@ void disassembler::write_state(std::wostream& os) && {
     os << std::endl;
 }
 
+void disassembler::write_state(std::wostream& os) & {
+    build_state();
+    print_op(os, m_state_ptr->value, m_program, m_ins_num, !m_flags.hide_nops);
+    disassembler other(*this);
+    other.write(os, *other.m_state_ptr);
+    os << std::endl;
+}
+
 void disassembler::write(std::wostream& os, state_element& state) {
     if (!state.first_child) return;
 
