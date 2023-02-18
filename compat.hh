@@ -12,6 +12,7 @@
 #ifndef __INCLUDED_VERSION
 #include <vector>
 #include <string>
+#include <algorithm>
 #endif
 
 #undef __INCLUDED_VERSION
@@ -32,6 +33,8 @@
 #define CONSTINIT_LAMBDA
 #endif
 
+
+// There's no macro explicitly for checking if constexpr destructors are allowed, but constexpr allocation requires it
 #ifdef __cpp_constexpr_dynamic_alloc
 // constexpr if destructors are allowed to be
 #define CONSTEXPR_DESTRUCT constexpr
