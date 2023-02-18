@@ -6,6 +6,28 @@
 #include <vector>
 #include <unordered_map>
 
+// Moves a value if it's better than copying.
+template<
+    typename T,
+    std::enable_if_t<sizeof (std::remove_reference_t<T>) <= sizeof (void*) && std::is_trivially_copy_constructible<T>::value, bool> = false
+>
+constexpr const T& maybe_move(const T& value) noexcept {
+    return value;
+}
+
+// Moves a value if it's better than copying.
+template<
+    typename T,
+    std::enable_if_t<
+        std::is_nothrow_move_constructible<T>::value
+            && !(sizeof (std::remove_reference_t<T>) <= sizeof (void*) && std::is_trivially_copy_constructible<T>::value),
+        bool
+    > = true
+>
+constexpr std::remove_reference_t<T>&& maybe_move(T&& value) noexcept {
+    return std::move(value);
+}
+
 class disassembler : public program_walker {
 public:
     using program_state = std::pair<const instruction_pointer, long>;
@@ -16,13 +38,19 @@ public:
         m_ins_num(0L),
         m_flags(f) { }
 
+    inline disassembler(disassembler&& other) noexcept : program_walker(std::move(other)),
+        m_state_ptr(maybe_move(other.m_state_ptr)),
+        m_visited(maybe_move(other.m_visited)),
+        m_ins_num(maybe_move(other.m_ins_num)),
+        m_flags(maybe_move(other.m_flags)) { }
+
     disassembler(const disassembler&) = delete;
 
     inline ~disassembler() noexcept {
         if (m_state_ptr != nullptr) delete m_state_ptr;
     }
 
-    void write_state(std::wostream& os);
+    void write_state(std::wostream& os) &&;
 private:
     struct state_element {
         program_state& value;

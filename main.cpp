@@ -7,8 +7,7 @@ int main(int argc, char** argv) {
     program p(parse_args(argc, argv, f));
 
     if (f.disassemble) {
-        disassembler d(p, f);
-        d.write_state(std::wcout);
+        disassembler(p, f).write_state(std::wcout);
     } else {
         interpreter i(p, f);
         i.run();

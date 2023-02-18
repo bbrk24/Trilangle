@@ -106,11 +106,11 @@ static inline void print_op(
     }
 }
 
-void disassembler::write_state(std::wostream& os) {
+void disassembler::write_state(std::wostream& os) && {
     build_state();
     print_op(os, m_state_ptr->value, m_program, m_ins_num, !m_flags.hide_nops);
     write(os, *m_state_ptr);
-    os << std::flush;
+    os << std::endl;
 }
 
 void disassembler::write(std::wostream& os, state_element& state) {
