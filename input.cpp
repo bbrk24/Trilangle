@@ -14,12 +14,14 @@ static constexpr const char* HELP = "TRILANGLE\n\n"
 "\tTrilangle is an esoteric programming language inspired by Hexagony.\n\n"
 "Usage: %s <filename> [flags]\n"
 "For full documentation, see Github: https://github.com/bbrk24/Trilangle#readme\n\n"
-"Flags:\n"
-"\t--help          \tShow this message\n"
-"\t--debug, -d     \tEnter debugging mode\n"
-"\t--show-stack, -s\tShow the stack while debugging\n"
-"\t--warnings, -w  \tShow warnings for unspecified behavior\n"
-"\t--pipekill, -f  \tEnd the program once STDOUT is closed\n"
+"Flags:\n\n"
+"\t--help           \tShow this message\n\n"
+"\t--debug, -d      \tEnter debugging mode\n"
+"\t--show-stack, -s \tShow the stack while debugging\n"
+"\t--warnings, -w   \tShow warnings for unspecified behavior\n"
+"\t--pipekill, -f   \tEnd the program once STDOUT is closed\n\n"
+"\t--disassemble, -D\tOutput a pseudo-assembly representation of the code\n"
+"\t--hide-nops, -n  \tDon't include NOPs in the disassembly\n"
 ;
 
 namespace flag_container {
@@ -28,6 +30,8 @@ namespace flag_container {
         { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
         { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
         { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
+        { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },
+        { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
     };
 
     [[noreturn]] static inline void unrecognized_flag(const char* flag) {

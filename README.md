@@ -114,6 +114,25 @@ If the `-w` flag is set, warnings will be printed to STDERR for undefined behavi
 
 If the `-f` flag is set, programs terminate once STDOUT cannot be written to. This allows, for example, piping the output of the program into `head` to terminate early.
 
+## The disassembler
+
+As you may have noticed above, every instruction has a three-letter name. When the interpreter is given the flag `-D`, rather than interpreting code, it converts it to a pseudo-assembly program.
+
+In additon to actual NOPs, it reports mirrors, skips, and some branch instructions as NOPS. Since this results in an excess of NOPs in the output, you may additionally pass the `-n` flag to hide NOPs.
+
+When laying out the program linearly, the disassembler represents branch instructions as `BNG` (branch if negative) statements, and loops as `JMP` (jump) statements.
+
+For example, when passing [the cat program below](#cat) with the flags `-Dn`, the output is as follows:
+
+```
+4:      GTC
+5:      BNG 12
+7:      PTC
+9:      POP
+11:     JMP 2
+13:     EXT
+```
+
 ## Sample Programs
 
 Here are some simple programs I've written.

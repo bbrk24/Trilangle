@@ -1,19 +1,28 @@
 #include "disassembler.hh"
 #include <sstream>
+#include <iostream>
+#include <cstdlib>
 
-#define PRINT_NAME(x) case x: os << wss.str() << L ## # x; break
+#define PRINT_NAME(x) case x: os << wss.str() << L ## # x; printed_first_line = true; break
 
 static inline void print_op(
     std::wostream& os,
     disassembler::program_state& state,
     const program& prg,
     long ins_num,
+    bool show_nops,
     bool show_branch = false
 ) {
-    int24_t op = prg.at(state.first.coords.first, state.first.coords.second);
-    std::wstringstream wss;
+    static bool printed_first_line = false;
 
-    wss << L'\n' << ins_num << L":\t";
+    int24_t op = prg.at(state.first.coords.first, state.first.coords.second);
+    std::wostringstream wss;
+
+    if (printed_first_line) {
+        wss << L'\n';
+    }
+
+    wss << ins_num << L":\t";
 
     if (state.second == -1L) {
         state.second = ins_num;
@@ -27,6 +36,7 @@ static inline void print_op(
             case BNG_W:
                 if (show_branch) {
                     os << wss.str() << L"BNG";
+                    printed_first_line = true;
                     break;
                 }
                 FALLTHROUGH
@@ -36,7 +46,10 @@ static inline void print_op(
             case MIR_NS: FALLTHROUGH
             case MIR_NWSE: FALLTHROUGH
             case NOP:
-                os << wss.str() << L"NOP";
+                if (show_nops) {
+                    os << wss.str() << L"NOP";
+                    printed_first_line = true;
+                }
                 break;
             PRINT_NAME(ADD);
             PRINT_NAME(SUB);
@@ -47,8 +60,9 @@ static inline void print_op(
                 auto newip = state.first;
                 program_walker::advance(newip, prg.side_length());
                 int24_t arg = prg.at(newip.coords.first, newip.coords.second);
-                os << wss.str() << L"PSI ." << static_cast<wchar_t>(arg);
+                os << wss.str() << L"PSI #" << static_cast<wchar_t>(arg);
 
+                printed_first_line = true;
                 break;
             }
             case PSC: {
@@ -61,6 +75,7 @@ static inline void print_op(
                 swprintf_s(buf, 9, L"0x%x", static_cast<unsigned int>(arg));
                 os << buf;
 
+                printed_first_line = true;
                 break;
             }
             PRINT_NAME(POP);
@@ -82,16 +97,18 @@ static inline void print_op(
             PRINT_NAME(SWP);
             default:
                 os << wss.str() << L"Invalid opcode '" << static_cast<wchar_t>(op) << L'\'';
+                printed_first_line = true;
                 break;
         }
     } else {
         os << wss.str() << L"JMP " << state.second;
+        printed_first_line = true;
     }
 }
 
 void disassembler::write_state(std::wostream& os) {
     build_state();
-    print_op(os, m_state_ptr->value, m_program, m_ins_num);
+    print_op(os, m_state_ptr->value, m_program, m_ins_num, !m_flags.hide_nops);
     write(os, *m_state_ptr);
     os << std::flush;
 }
@@ -102,24 +119,49 @@ void disassembler::write(std::wostream& os, state_element& state) {
     ++m_ins_num;
 
     if (state.second_child) {
-        print_op(os, state.first_child->value, m_program, m_ins_num, true);
+        print_op(os, state.first_child->value, m_program, m_ins_num, !m_flags.hide_nops, true);
 
-        std::wstringstream wss;
+        std::wostringstream wss;
         write(wss, *state.first_child);
 
         os << L' ' << ++m_ins_num << wss.str();
-        print_op(os, state.second_child->value, m_program, m_ins_num);
+        print_op(os, state.second_child->value, m_program, m_ins_num, !m_flags.hide_nops);
 
         write(os, *state.second_child);
     } else {
-        print_op(os, state.first_child->value, m_program, m_ins_num);
+        print_op(os, state.first_child->value, m_program, m_ins_num, !m_flags.hide_nops);
         write(os, *state.first_child);
     }
 }
 
 void disassembler::build_state() {
     if (m_state_ptr == nullptr) {
-        program_state initial_state{ { { SIZE_C(0), SIZE_C(0) }, direction::southwest }, -1L };
+        instruction_pointer initial_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest };
+
+        int24_t op = m_program.at(0, 0);
+        switch (op) {
+            case MIR_EW: FALLTHROUGH
+            case MIR_NESW: FALLTHROUGH
+            case MIR_NS: FALLTHROUGH
+            case MIR_NWSE:
+                program_walker::reflect(initial_ip.dir, op);
+                break;
+            case BNG_E: FALLTHROUGH
+            case BNG_NE: FALLTHROUGH
+            case BNG_NW: FALLTHROUGH
+            case BNG_SE: FALLTHROUGH
+            case BNG_SW: FALLTHROUGH
+            case BNG_W:
+                program_walker::branch(initial_ip.dir, op, []() -> bool {
+                    std::cerr << "Error: program starts with branch instruction. Behavior is undefined." << std::endl;
+                    exit(1);
+                });
+                break;
+            default:
+                break;
+        }
+
+        program_state initial_state{ initial_ip, -1L };
         auto p = m_visited.insert(initial_state);
 
         m_state_ptr = new state_element{ *p.first, nullptr, nullptr};

@@ -66,10 +66,6 @@
 #define UNLIKELY [[unlikely]]
 #endif
 
-#if __has_cpp_attribute(assume)
-#define __HAS_ASSUME
-#endif
-
 #if __has_cpp_attribute(fallthrough)
 // mark an intentional lack of a break statement in a switch block
 #define FALLTHROUGH [[fallthrough]];
@@ -114,8 +110,6 @@
 
 #ifdef __cpp_lib_unreachable
 using std::unreachable;
-#elif defined(__HAS_ASSUME)
-#define unreachable() [[assume(false)]]
 #else
 [[noreturn]] static inline void unreachable() {
     // Polyfill derived from https://en.cppreference.com/w/cpp/utility/unreachable
@@ -126,5 +120,3 @@ using std::unreachable;
 #endif
 }
 #endif
-
-#undef __HAS_ASSUME

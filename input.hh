@@ -8,8 +8,16 @@ struct flags {
 	bool show_stack : 1;
 	bool warnings : 1;
 	bool pipekill : 1;
+	bool disassemble : 1;
+	bool hide_nops : 1;
 
-	constexpr flags() noexcept : debug(false), show_stack(false), warnings(false), pipekill(false) { }
+	constexpr flags() noexcept :
+		debug(false),
+		show_stack(false),
+		warnings(false),
+		pipekill(false),
+		disassemble(false),
+		hide_nops(false) { }
 };
 
 // Read input file or STDIN, and return its contents. Parse other flags as appropriate.
