@@ -21,7 +21,7 @@ public:
         struct hash {
             inline size_t operator()(const instruction_pointer& key) const noexcept {
                 size_t first_hash = key.coords.first;
-                size_t second_hash = (key.coords.second << (4 * sizeof(size_t))) | (key.coords.second >> (4 * sizeof(size_t)));
+                size_t second_hash = (key.coords.second << (4 * sizeof (size_t))) | (key.coords.second >> (4 * sizeof (size_t)));
                 size_t direction_hash = std::hash<direction>()(key.dir);
 
                 return first_hash ^ second_hash ^ direction_hash;
