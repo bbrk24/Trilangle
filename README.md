@@ -130,7 +130,7 @@ For example, when passing [the cat program below](#cat) with the flags `-Dn`, th
 7:      PTC
 9:      POP
 11:     JMP 2
-13:     EXT
+12:     EXT
 ```
 
 ## Sample Programs

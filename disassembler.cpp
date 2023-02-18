@@ -132,8 +132,7 @@ void disassembler::write(std::wostream& os, state_element& state) {
         std::wostringstream wss;
         write(wss, *state.first_child);
 
-        os << L' ' << ++m_ins_num << wss.str();
-        print_op(os, state.second_child->value, m_program, m_ins_num, !m_flags.hide_nops);
+        os << L' ' << (m_ins_num + 1) << wss.str();
 
         write(os, *state.second_child);
     } else {
@@ -217,6 +216,10 @@ void disassembler::build(state_element& state) {
     auto pair = m_visited.insert({ next, -1L });
     state.first_child = new state_element{ *pair.first, nullptr, nullptr };
 
+    if (pair.second) {
+        build(*state.first_child);
+    }
+
     if (branched) {
         instruction_pointer third{ next.coords, state.value.first.dir };
 
@@ -229,9 +232,5 @@ void disassembler::build(state_element& state) {
         if (third_pair.second) {
             build(*el);
         }
-    }
-
-    if (pair.second) {
-        build(*state.first_child);
     }
 }
