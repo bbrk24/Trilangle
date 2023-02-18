@@ -34,14 +34,17 @@ public:
     inline disassembler(const program& p, flags f) noexcept : program_walker(p),
         m_state_ptr(nullptr),
         m_visited(),
-        m_ins_num(0L),
+        m_ins_num(-1L),
         m_flags(f) { }
 
     inline disassembler(disassembler&& other) noexcept : program_walker(std::move(other)),
-        m_state_ptr(maybe_move(other.m_state_ptr)),
+        m_state_ptr(other.m_state_ptr),
         m_visited(maybe_move(other.m_visited)),
         m_ins_num(maybe_move(other.m_ins_num)),
-        m_flags(maybe_move(other.m_flags)) { }
+        m_flags(maybe_move(other.m_flags))
+    {
+        other.m_state_ptr = nullptr;
+    }
 
     explicit disassembler(const disassembler&) = default;
 
@@ -49,9 +52,8 @@ public:
         if (m_state_ptr != nullptr) delete m_state_ptr;
     }
 
-    // 
-    void write_state(std::wostream& os) &&;
-    void write_state(std::wostream& os) &;
+    // Write the state to the specified output stream.
+    void write_state(std::wostream& os);
 private:
     struct state_element {
         program_state& value;

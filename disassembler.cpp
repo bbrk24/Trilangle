@@ -106,18 +106,11 @@ static inline void print_op(
     }
 }
 
-void disassembler::write_state(std::wostream& os) && {
+void disassembler::write_state(std::wostream& os) {
     build_state();
+    m_ins_num = 0L;
     print_op(os, m_state_ptr->value, m_program, m_ins_num, !m_flags.hide_nops);
     write(os, *m_state_ptr);
-    os << std::endl;
-}
-
-void disassembler::write_state(std::wostream& os) & {
-    build_state();
-    print_op(os, m_state_ptr->value, m_program, m_ins_num, !m_flags.hide_nops);
-    disassembler other(*this);
-    other.write(os, *other.m_state_ptr);
     os << std::endl;
 }
 
@@ -142,38 +135,40 @@ void disassembler::write(std::wostream& os, state_element& state) {
 }
 
 void disassembler::build_state() {
-    if (m_state_ptr == nullptr) {
-        instruction_pointer initial_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest };
-
-        int24_t op = m_program.at(0, 0);
-        switch (op) {
-            case MIR_EW: FALLTHROUGH
-            case MIR_NESW: FALLTHROUGH
-            case MIR_NS: FALLTHROUGH
-            case MIR_NWSE:
-                program_walker::reflect(initial_ip.dir, op);
-                break;
-            case BNG_E: FALLTHROUGH
-            case BNG_NE: FALLTHROUGH
-            case BNG_NW: FALLTHROUGH
-            case BNG_SE: FALLTHROUGH
-            case BNG_SW: FALLTHROUGH
-            case BNG_W:
-                program_walker::branch(initial_ip.dir, op, []() -> bool {
-                    std::cerr << "Error: program starts with branch instruction. Behavior is undefined." << std::endl;
-                    exit(1);
-                });
-                break;
-            default:
-                break;
-        }
-
-        program_state initial_state{ initial_ip, -1L };
-        auto p = m_visited.insert(initial_state);
-
-        m_state_ptr = new state_element{ *p.first, nullptr, nullptr };
-        build(*m_state_ptr);
+    if (m_state_ptr != nullptr) {
+        return;
     }
+
+    instruction_pointer initial_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest };
+
+    int24_t op = m_program.at(0, 0);
+    switch (op) {
+        case MIR_EW: FALLTHROUGH
+        case MIR_NESW: FALLTHROUGH
+        case MIR_NS: FALLTHROUGH
+        case MIR_NWSE:
+            program_walker::reflect(initial_ip.dir, op);
+            break;
+        case BNG_E: FALLTHROUGH
+        case BNG_NE: FALLTHROUGH
+        case BNG_NW: FALLTHROUGH
+        case BNG_SE: FALLTHROUGH
+        case BNG_SW: FALLTHROUGH
+        case BNG_W:
+            program_walker::branch(initial_ip.dir, op, []() -> bool {
+                std::cerr << "Error: program starts with branch instruction. Behavior is undefined." << std::endl;
+                exit(1);
+            });
+            break;
+        default:
+            break;
+    }
+
+    program_state initial_state{ initial_ip, -1L };
+    auto p = m_visited.insert(initial_state);
+
+    m_state_ptr = new state_element{ *p.first, nullptr, nullptr };
+    build(*m_state_ptr);
 }
 
 void disassembler::build(state_element& state) {
