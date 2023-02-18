@@ -3,7 +3,6 @@
 #include "program_walker.hh"
 #include "input.hh"
 #include <ostream>
-#include <vector>
 #include <unordered_map>
 
 // Moves a value if it's better than copying.

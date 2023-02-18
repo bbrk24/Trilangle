@@ -5,8 +5,17 @@
 #ifdef __has_include
 #if __has_include(<version>)
 #include <version>
+#define __INCLUDED_VERSION
 #endif
 #endif
+
+#ifndef __INCLUDED_VERSION
+#include <vector>
+#include <string>
+#endif
+
+#undef __INCLUDED_VERSION
+
 
 #ifdef __cpp_constinit
 // constinit, constexpr, or neither, depending on where lambdas are allowed
