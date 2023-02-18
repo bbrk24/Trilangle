@@ -1,73 +1,153 @@
 #include "disassembler.hh"
 #include <sstream>
 
+#define PRINT_NAME(x) case x: os << wss.str() << L ## # x; break
+
+static inline void print_op(
+    std::wostream& os,
+    disassembler::program_state& state,
+    const program& prg,
+    long ins_num,
+    bool show_branch = false
+) {
+    int24_t op = prg.at(state.first.coords.first, state.first.coords.second);
+    std::wstringstream wss;
+
+    wss << L'\n' << ins_num << L":\t";
+
+    if (state.second == -1L) {
+        state.second = ins_num;
+
+        switch (op) {
+            case BNG_E: FALLTHROUGH
+            case BNG_NE: FALLTHROUGH
+            case BNG_NW: FALLTHROUGH
+            case BNG_SE: FALLTHROUGH
+            case BNG_SW: FALLTHROUGH
+            case BNG_W:
+                if (show_branch) {
+                    os << wss.str() << L"BNG";
+                    break;
+                }
+                FALLTHROUGH
+            case SKP: FALLTHROUGH
+            case MIR_EW: FALLTHROUGH
+            case MIR_NESW: FALLTHROUGH
+            case MIR_NS: FALLTHROUGH
+            case MIR_NWSE: FALLTHROUGH
+            case NOP:
+                os << wss.str() << L"NOP";
+                break;
+            PRINT_NAME(ADD);
+            PRINT_NAME(SUB);
+            PRINT_NAME(MUL);
+            PRINT_NAME(DIV);
+            PRINT_NAME(MOD);
+            case PSI: {
+                auto newip = state.first;
+                program_walker::advance(newip, prg.side_length());
+                int24_t arg = prg.at(newip.coords.first, newip.coords.second);
+                os << wss.str() << L"PSI ." << static_cast<wchar_t>(arg);
+
+                break;
+            }
+            case PSC: {
+                auto newip = state.first;
+                program_walker::advance(newip, prg.side_length());
+                int24_t arg = prg.at(newip.coords.first, newip.coords.second);
+                os << wss.str() << L"PSC '" << static_cast<wchar_t>(arg) << L"' ; ";
+
+                wchar_t buf[9];
+                swprintf_s(buf, 9, L"0x%x", static_cast<unsigned int>(arg));
+                os << buf;
+
+                break;
+            }
+            PRINT_NAME(POP);
+            PRINT_NAME(EXT);
+            PRINT_NAME(INC);
+            PRINT_NAME(DEC);
+            PRINT_NAME(AND);
+            PRINT_NAME(IOR);
+            PRINT_NAME(XOR);
+            PRINT_NAME(NOT);
+            PRINT_NAME(GTC);
+            PRINT_NAME(PTC);
+            PRINT_NAME(GTI);
+            PRINT_NAME(PTI);
+            PRINT_NAME(IDX);
+            PRINT_NAME(DUP);
+            PRINT_NAME(RND);
+            PRINT_NAME(EXP);
+            PRINT_NAME(SWP);
+            default:
+                os << wss.str() << L"Invalid opcode '" << static_cast<wchar_t>(op) << L'\'';
+                break;
+        }
+    } else {
+        os << wss.str() << L"JMP " << state.second;
+    }
+}
+
 void disassembler::write_state(std::wostream& os) {
     build_state();
-    os << L'\t';
-    os << static_cast<wchar_t>(m_program.at(m_state_ptr->value.ip.coords.first, m_state_ptr->value.ip.coords.second));
-    write(os, *m_state_ptr, false);
+    print_op(os, m_state_ptr->value, m_program, m_ins_num);
+    write(os, *m_state_ptr);
     os << std::flush;
 }
 
-void disassembler::write(std::wostream& os, const state_element& state, bool label) {
-    if (label) {
-        os << L"\nlbl" << m_lbl_num++ << L':';
-    }
-
-    os << L"\n\t";
-
+void disassembler::write(std::wostream& os, state_element& state) {
     if (!state.first_child) return;
 
-    if (state.first_child->sibling) {
-        os << static_cast<wchar_t>(m_program.at(state.first_child->value.ip.coords.first, state.first_child->value.ip.coords.second))
-            << L" lbl" << m_lbl_num;
+    ++m_ins_num;
+
+    if (state.second_child) {
+        print_op(os, state.first_child->value, m_program, m_ins_num, true);
 
         std::wstringstream wss;
-        write(wss, *state.first_child, true);
+        write(wss, *state.first_child);
 
-        os << L", lbl" << m_lbl_num << wss.str()
-            << static_cast<wchar_t>(
-                m_program.at(state.first_child->sibling->value.ip.coords.first, state.first_child->sibling->value.ip.coords.second)
-            );
+        os << L' ' << ++m_ins_num << wss.str();
+        print_op(os, state.second_child->value, m_program, m_ins_num);
 
-        write(os, *state.first_child->sibling, true);
+        write(os, *state.second_child);
     } else {
-        os << static_cast<wchar_t>(m_program.at(state.first_child->value.ip.coords.first, state.first_child->value.ip.coords.second));
-        write(os, *state.first_child, false);
+        print_op(os, state.first_child->value, m_program, m_ins_num);
+        write(os, *state.first_child);
     }
 }
 
 void disassembler::build_state() {
     if (m_state_ptr == nullptr) {
-        program_state initial_state{ { { SIZE_C(0), SIZE_C(0) }, direction::southwest } };
+        program_state initial_state{ { { SIZE_C(0), SIZE_C(0) }, direction::southwest }, -1L };
         auto p = m_visited.insert(initial_state);
 
-        m_state_ptr = new state_element{ *p.first, nullptr, nullptr };
+        m_state_ptr = new state_element{ *p.first, nullptr, nullptr};
         build(*m_state_ptr);
     }
 }
 
 void disassembler::build(state_element& state) {
-    if (m_program.at(state.value.ip.coords.first, state.value.ip.coords.second) == opcode::EXT) {
+    int24_t op = m_program.at(state.value.first.coords.first, state.value.first.coords.second);
+    if (op == opcode::EXT) {
         return;
     }
 
-    program_state next = state.value;
-    program_walker::advance(next.ip, m_program.side_length());
+    instruction_pointer next = state.value.first;
+    program_walker::advance(next, m_program.side_length());
 
-    int24_t op = m_program.at(next.ip.coords.first, next.ip.coords.second);
+    if (op == opcode::PSC || op == opcode::PSI || op == opcode::SKP) {
+        program_walker::advance(next, m_program.side_length());
+    }
+
+    op = m_program.at(next.coords.first, next.coords.second);
     bool branched = false;
     switch (op) {
         case MIR_EW: FALLTHROUGH
         case MIR_NESW: FALLTHROUGH
         case MIR_NS: FALLTHROUGH
         case MIR_NWSE:
-            program_walker::reflect(next.ip.dir, op);
-            break;
-        case SKP: FALLTHROUGH
-        case PTI: FALLTHROUGH
-        case PSC:
-            program_walker::advance(next.ip, m_program.side_length());
+            program_walker::reflect(next.dir, op);
             break;
         case BNG_E: FALLTHROUGH
         case BNG_NE: FALLTHROUGH
@@ -75,7 +155,7 @@ void disassembler::build(state_element& state) {
         case BNG_SE: FALLTHROUGH
         case BNG_SW: FALLTHROUGH
         case BNG_W:
-            program_walker::branch(next.ip.dir, op, [&]() {
+            program_walker::branch(next.dir, op, [&]() {
                 branched = true;
                 return false;
             });
@@ -84,16 +164,17 @@ void disassembler::build(state_element& state) {
             break;
     }
 
-    auto pair = m_visited.insert(next);
+    auto pair = m_visited.insert({ next, -1L });
     state.first_child = new state_element{ *pair.first, nullptr, nullptr };
 
     if (branched) {
-        program_state third{ { next.ip.coords, state.value.ip.dir } };
-        program_walker::branch(third.ip.dir, op, []() { return true; });
+        instruction_pointer third{ next.coords, state.value.first.dir };
 
-        auto third_pair = m_visited.insert(third);
+        program_walker::branch(third.dir, op, []() { return true; });
+
+        auto third_pair = m_visited.insert({ third, -1L });
         auto* el = new state_element{ *third_pair.first, nullptr, nullptr };
-        state.first_child->sibling = el;
+        state.second_child = el;
 
         if (third_pair.second) {
             build(*el);

@@ -9,13 +9,25 @@ enum class direction : char {
 class program_walker {
 public:
     constexpr program_walker(const program& p) noexcept : m_program(p) { }
-protected:
+
     struct instruction_pointer {
         std::pair<size_t, size_t> coords;
         direction dir;
-    };
 
-    const program& m_program;
+        constexpr bool operator==(const instruction_pointer& rhs) const noexcept {
+            return this->coords == rhs.coords && this->dir == rhs.dir;
+        }
+
+        struct hash {
+            inline size_t operator()(const instruction_pointer& key) const noexcept {
+                size_t first_hash = key.coords.first;
+                size_t second_hash = (key.coords.second << (4 * sizeof(size_t))) | (key.coords.second >> (4 * sizeof(size_t)));
+                size_t direction_hash = std::hash<direction>()(key.dir);
+
+                return first_hash ^ second_hash ^ direction_hash;
+            }
+        };
+    };
 
     // Advance the IP one step.
     static constexpr void advance(instruction_pointer& ip, size_t program_size) noexcept {
@@ -86,6 +98,8 @@ protected:
                 break;
         }
     }
+protected:
+    const program& m_program;
 
     // Reflect the IP according to the mirror.
     static inline void reflect(direction& dir, int24_t mir) {
