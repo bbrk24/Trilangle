@@ -13,22 +13,22 @@ using std::endl;
 constexpr size_t BUF_SIZE = 256;
 
 constexpr const char* HELP_HEADER = "TRILANGLE\n\n"
-"\tTrilangle is an esoteric programming language inspired by Hexagony.\n\n"
-"Usage: %s <filename> [flags]\n"
+"\tTrilangle is a 2-D, stack-based esoteric programming language.\n\n"
+"Usage: %s [flags] [--] [filename]\n"
 "For full documentation, see Github: https://github.com/bbrk24/Trilangle#readme\n\n"
 ;
 
 static constexpr const char* FLAGS_HELP = "Flags:\n\n"
 "\t--help           \tShow this message then exit.\n\n"
 "\t--debug, -d      \tEnter debugging mode.\n"
-"\t--show-stack, -s \tShow the stack while debugging.\n"
-"\t                 \tRequires --debug.\n"
+"\t--show-stack, -s \tShow the stack while debugging. Requires --debug.\n"
 "\t--warnings, -w   \tShow warnings for unspecified behavior.\n"
 "\t--pipekill, -f   \tEnd the program once STDOUT is closed.\n\n"
-"\t--disassemble, -D\tOutput a pseudo-assembly representation\n"
-"\t                 \tof the code.\n"
-"\t--hide-nops, -n  \tDon't include NOPs in the disassembly.\n"
-"\t                 \tRequires --disassemble."
+"\t--disassemble, -D\tOutput a pseudo-assembly representation of the\n"
+"\t                 \tcode. Incompatible with --debug, --warnings, and\n"
+"\t                 \t--pipekill.\n"
+"\t--hide-nops, -n  \tDon't include NOPs in the disassembly. Requires\n"
+"\t                 \t--disassemble."
 ;
 
 namespace flag_container {
@@ -47,7 +47,7 @@ namespace flag_container {
     }
 
     [[noreturn]] static inline void unrecognized_flag(const char* flag) {
-        cerr << "Unrecognized flag: " << flag << endl;
+        cerr << "Unrecognized flag: " << flag << "\n\n";
         invalid_flags();
     }
     
@@ -96,12 +96,16 @@ static inline string read_istream(std::istream& stream) {
 string parse_args(int argc, char** argv, flags& f) {
     char* filename = nullptr;
 
+    bool parse_flags = true;
     for (int i = 1; i < argc; ++i) {
-        if (argv[i][0] == '-') {
+        if (parse_flags && argv[i][0] == '-') {
             if (!strcmp(argv[i] + 1, "-help")) {
                 printf(HELP_HEADER, argv[0]);
-                puts(FLAGS_HELP);
+                std::cout << FLAGS_HELP << endl;
                 exit(0);
+            } else if (!strcmp(argv[i] + 1, "-")) {
+                parse_flags = false;
+                continue;
             }
 
             flag_container::set_flag(argv[i], f);
@@ -116,7 +120,7 @@ string parse_args(int argc, char** argv, flags& f) {
     }
 
     if (!f.is_valid()) {
-        cerr << "Invalid combination of flags.\n" << endl;
+        cerr << "Invalid combination of flags.\n\n";
         flag_container::invalid_flags();
     }
 

@@ -18,8 +18,8 @@ struct int24_t {
     constexpr operator int32_t() const noexcept {
         return value;
     }
-    constexpr explicit operator unsigned int() const noexcept {
-        return static_cast<unsigned int>(value);
+    constexpr explicit operator uint32_t() const noexcept {
+        return static_cast<uint32_t>(value);
     }
 
     constexpr bool operator==(const int24_t& other) const noexcept {

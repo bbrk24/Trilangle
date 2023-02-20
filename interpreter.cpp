@@ -88,14 +88,28 @@ void interpreter::run() {
                 break;
             }
             case DIV: {
-                SIZE_CHECK("divide from", 2);
+                if (m_flags.warnings) {
+                    if (m_stack.size() < 2) UNLIKELY {
+                        cerr << "Warning: Attempt to divide from stack with fewer than 2 elements.\n";
+                    }
+                    if (!m_stack.empty() && m_stack.back() == INT24_C(0)) UNLIKELY {
+                        cerr << "Warning: Attempted division by zero.\n";
+                    }
+                }
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() /= top;
                 break;
             }
             case MOD: {
-                SIZE_CHECK("divide from", 2);
+                if (m_flags.warnings) {
+                    if (m_stack.size() < 2) UNLIKELY {
+                        cerr << "Warning: Attempt to divide from stack with fewer than 2 elements.\n";
+                    }
+                    if (!m_stack.empty() && m_stack.back() == INT24_C(0)) UNLIKELY {
+                        cerr << "Warning: Attempted division by zero.\n";
+                    }
+                }
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
                 m_stack.back() %= top;
@@ -130,8 +144,8 @@ void interpreter::run() {
 
                 if (m_flags.warnings) {
                     if (next < (int24_t)'0' || next > (int24_t)'9') UNLIKELY {
-                        cerr << "Warning: Pushing non-decimal number with " << static_cast<char>(opcode::PSI) <<
-                            " is implementation-defined behavior.\n";
+                        cerr << "Warning: Pushing non-decimal number with " << static_cast<char>(opcode::PSI)
+                            << " is implementation-defined behavior.\n";
                     }
                 }
 
@@ -217,15 +231,24 @@ void interpreter::run() {
                 advance();
                 break;
             case IDX: {
+                if (m_flags.warnings && m_stack.empty()) UNLIKELY {
+                    cerr << "Warning: Attempt to read index from empty stack.\n";
+                    break;
+                }
+
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
 
-                if (m_flags.warnings && top < INT24_C(0)) UNLIKELY {
-                    cerr << "Warning: Attempt to use negative index.\n";
-                } else SIZE_CHECK("index", static_cast<unsigned int>(top) + 1);
+                if (m_flags.warnings) {
+                    if (top < INT24_C(0) || m_stack.size() < top + 1) UNLIKELY {
+                        cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size() << ", index = "
+                            << static_cast<int32_t>(top) << ")\n";
+                    }
+                }
 
                 size_t i = m_stack.size() - top - 1;
                 m_stack.push_back(m_stack[i]);
+
                 break;
             }
             case DUP:
@@ -248,8 +271,8 @@ void interpreter::run() {
             UNLIKELY case INVALID_CHAR:
                 fprintf(
                     stderr,
-                    "Unicode replacement character (U+%0.4X) detected in source. Please check encoding.\n",
-                    static_cast<unsigned int>(op)
+                    "Unicode replacement character (U+%0.4" PRIX32 ") detected in source.Please check encoding.\n",
+                    static_cast<uint32_t>(op)
                 );
                 exit(1);
             default:

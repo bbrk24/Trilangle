@@ -34,7 +34,7 @@ public:
     inline disassembler(const program& p, flags f) noexcept : program_walker(p),
         m_state_ptr(nullptr),
         m_visited(),
-        m_ins_num(-1L),
+        m_ins_num(0),
         m_flags(f) { }
 
     inline disassembler(disassembler&& other) noexcept : program_walker(std::move(other)),
@@ -77,6 +77,6 @@ private:
     // The IP is used to track the state itself, and the long is the disassembly location used for labels and jumps.
     std::unordered_map<instruction_pointer, long> m_visited;
     // The number of the next instruction to be printed.
-    long m_ins_num;
+    int32_t m_ins_num;
     const flags m_flags;
 };
