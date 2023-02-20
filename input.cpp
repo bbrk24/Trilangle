@@ -7,21 +7,28 @@
 
 using std::string;
 using std::get;
+using std::cerr;
+using std::endl;
 
 constexpr size_t BUF_SIZE = 256;
 
-static constexpr const char* HELP = "TRILANGLE\n\n"
+constexpr const char* HELP_HEADER = "TRILANGLE\n\n"
 "\tTrilangle is an esoteric programming language inspired by Hexagony.\n\n"
 "Usage: %s <filename> [flags]\n"
 "For full documentation, see Github: https://github.com/bbrk24/Trilangle#readme\n\n"
-"Flags:\n\n"
-"\t--help           \tShow this message\n\n"
-"\t--debug, -d      \tEnter debugging mode\n"
-"\t--show-stack, -s \tShow the stack while debugging\n"
-"\t--warnings, -w   \tShow warnings for unspecified behavior\n"
-"\t--pipekill, -f   \tEnd the program once STDOUT is closed\n\n"
-"\t--disassemble, -D\tOutput a pseudo-assembly representation of the code\n"
-"\t--hide-nops, -n  \tDon't include NOPs in the disassembly\n"
+;
+
+static constexpr const char* FLAGS_HELP = "Flags:\n\n"
+"\t--help           \tShow this message then exit.\n\n"
+"\t--debug, -d      \tEnter debugging mode.\n"
+"\t--show-stack, -s \tShow the stack while debugging.\n"
+"\t                 \tRequires --debug.\n"
+"\t--warnings, -w   \tShow warnings for unspecified behavior.\n"
+"\t--pipekill, -f   \tEnd the program once STDOUT is closed.\n\n"
+"\t--disassemble, -D\tOutput a pseudo-assembly representation\n"
+"\t                 \tof the code.\n"
+"\t--hide-nops, -n  \tDon't include NOPs in the disassembly.\n"
+"\t                 \tRequires --disassemble."
 ;
 
 namespace flag_container {
@@ -34,9 +41,14 @@ namespace flag_container {
         { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
     };
 
-    [[noreturn]] static inline void unrecognized_flag(const char* flag) {
-        std::cerr << "Unrecognized flag: " << flag << std::endl;
+    [[noreturn]] static inline void invalid_flags() {
+        cerr << FLAGS_HELP << endl;
         exit(1);
+    }
+
+    [[noreturn]] static inline void unrecognized_flag(const char* flag) {
+        cerr << "Unrecognized flag: " << flag << endl;
+        invalid_flags();
     }
     
     static inline void set_flag(const char* flagname, flags& f) {
@@ -87,19 +99,25 @@ string parse_args(int argc, char** argv, flags& f) {
     for (int i = 1; i < argc; ++i) {
         if (argv[i][0] == '-') {
             if (!strcmp(argv[i] + 1, "-help")) {
-                printf(HELP, argv[0]);
+                printf(HELP_HEADER, argv[0]);
+                puts(FLAGS_HELP);
                 exit(0);
             }
 
             flag_container::set_flag(argv[i], f);
         } else {
             if (filename != nullptr) {
-                std::cerr << "Error: please specify only one filename." << std::endl;
+                cerr << "Please specify only one filename." << endl;
                 exit(1);
             }
 
             filename = argv[i];
         }
+    }
+
+    if (!f.is_valid()) {
+        cerr << "Invalid combination of flags.\n" << endl;
+        flag_container::invalid_flags();
     }
 
     if (filename == nullptr) {
@@ -110,7 +128,7 @@ string parse_args(int argc, char** argv, flags& f) {
         if (f_input.is_open()) {
             return read_istream(f_input);
         } else {
-            std::cerr << "File could not be opened for reading: " << filename << std::endl;
+            cerr << "File could not be opened for reading: " << filename << endl;
             exit(1);
         }
     }

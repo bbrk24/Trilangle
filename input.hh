@@ -18,6 +18,14 @@ struct flags {
 		pipekill(false),
 		disassemble(false),
 		hide_nops(false) { }
+	
+	constexpr bool is_valid() const noexcept {
+		return !(
+			(show_stack && !debug) ||
+			(debug || warnings || pipekill) && (disassemble) ||
+			(hide_nops && !disassemble)
+		);
+	}
 };
 
 // Read input file or STDIN, and return its contents. Parse other flags as appropriate.
