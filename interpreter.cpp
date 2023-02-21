@@ -29,11 +29,18 @@ using rand_type = std::conditional_t<std::is_integral<int24_t>::value, int24_t, 
 using std::cout;
 using std::cerr;
 
+#ifndef INT24_MIN
+constexpr int24_t INT24_MIN{ -0x800000 };
+#endif
+#ifndef INT24_MAX
+constexpr int24_t INT24_MAX{ 0x7fffff };
+#endif
+
 void interpreter::run() {
     // Create the random number generator.
 
     std::default_random_engine reng(std::move(std::random_device())());
-    std::uniform_int_distribution<rand_type> rdist(-0x800000, 0x7fffff);
+    std::uniform_int_distribution<rand_type> rdist(INT24_MIN, INT24_MAX);
 
     // Begin the execution loop.
     while (true) {
@@ -70,21 +77,45 @@ void interpreter::run() {
                 SIZE_CHECK("add from", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
-                m_stack.back() += top;
+
+                int32_t temp = m_stack.back() + top;
+
+                if (m_flags.warnings && (temp < INT24_MIN || temp > INT24_MAX)) UNLIKELY {
+                    cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
+                }
+
+                m_stack.back() = static_cast<int24_t>(temp);
+
                 break;
             }
             case SUB: {
                 SIZE_CHECK("subtract from", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
-                m_stack.back() -= top;
+
+                int32_t temp = m_stack.back() - top;
+
+                if (m_flags.warnings && (temp < INT24_MIN || temp > INT24_MAX)) UNLIKELY {
+                    cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
+                }
+
+                m_stack.back() = static_cast<int24_t>(temp);
+
                 break;
             }
             case MUL: {
                 SIZE_CHECK("multiply from", 2);
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
-                m_stack.back() *= top;
+
+                int64_t temp = static_cast<int64_t>(m_stack.back()) * static_cast<int64_t>(top);
+
+                if (m_flags.warnings && (temp < INT24_MIN || temp > INT24_MAX)) UNLIKELY {
+                    cerr << "Warning: Overflow on multiplication is undefined behavior.\n";
+                }
+
+                m_stack.back() = static_cast<int24_t>(temp);
+
                 break;
             }
             case DIV: {
@@ -159,12 +190,34 @@ void interpreter::run() {
             case EXT:
                 return;
             case INC:
-                EMPTY_PROTECT("increment")
-                    m_stack.back() += INT24_C(1);
+                if (m_flags.warnings) {
+                    if (m_stack.empty()) UNLIKELY {
+                        cerr << "Warning: Attempt to increment empty stack.\n";
+                        break;
+                    }
+                    if (m_stack.back() == INT24_MAX) UNLIKELY {
+                        cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
+                        break;
+                    }
+                }
+
+                ++m_stack.back();
+
                 break;
             case DEC:
-                EMPTY_PROTECT("decrement")
-                    m_stack.back() -= INT24_C(1);
+                if (m_flags.warnings) {
+                    if (m_stack.empty()) UNLIKELY {
+                        cerr << "Warning: Attempt to decrement empty stack.\n";
+                        break;
+                    }
+                    if (m_stack.back() == INT24_MAX) UNLIKELY {
+                        cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
+                        break;
+                    }
+                }
+
+                --m_stack.back();
+
                 break;
             case AND: {
                 SIZE_CHECK("bitwise and", 2);
@@ -241,8 +294,7 @@ void interpreter::run() {
 
                 if (m_flags.warnings) {
                     if (top < INT24_C(0) || m_stack.size() < top + 1) UNLIKELY {
-                        cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size() << ", index = "
-                            << static_cast<int32_t>(top) << ")\n";
+                        cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size() << ", index = " << top << ")\n";
                     }
                 }
 
@@ -271,14 +323,13 @@ void interpreter::run() {
             UNLIKELY case INVALID_CHAR:
                 fprintf(
                     stderr,
-                    "Unicode replacement character (U+%0.4" PRIX32 ") detected in source.Please check encoding.\n",
+                    "Unicode replacement character (U+%0.4" PRIX32 ") detected in source. Please check encoding.\n",
                     static_cast<uint32_t>(op)
                 );
                 exit(1);
             default:
-                cerr << "Unrecognized opcode '" << std::flush;
-                putwchar(static_cast<wchar_t>(op));
-                cerr << "' (at (" << m_ip.coords.first << ", " << m_ip.coords.second << "))" << std::endl;
+                std::wcerr << L"Unrecognized opcode '" << static_cast<wchar_t>(op) << L"' (at (" << m_ip.coords.first << L", "
+                    << m_ip.coords.second << L"))" << std::endl;
                 exit(1);
         }
         
