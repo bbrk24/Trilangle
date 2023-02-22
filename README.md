@@ -235,7 +235,9 @@ As such, it is recommended to use C++20 or later if performance is a concern. (I
 
 ### Compiling for the web
 
-The wasm directory contains most of the wrapper/glue code necessary to run the interpreter in a browser. Emscripten 3.1.21 or later is required.
+The wasm directory contains most of the wrapper/glue code necessary to run the interpreter in a browser. Emscripten 3.1.21 or later and Node 14 or later are required.
+
+Run the shell script `build_wasm.sh` to compile the project to webassembly and to generate the JS glue code. Then, you can run `npm start` to host it locally (at http://localhost:3000), or `npm run deploy` to push it to Github pages.
 
 [Hexagony]: https://github.com/m-ender/hexagony
 [turing_completeness.md]: turing_completeness.md
