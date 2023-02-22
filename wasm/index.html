@@ -20,9 +20,29 @@
                 try {
                     Module.ccall(
                         'wasm_entrypoint',
-                        'number',
+                        null,
                         ['string', 'number', 'number', 'number'],
                         [document.getElementById('program').value, 1, 0, 0]
+                    );
+                    Module.stderr(null);
+                } catch (e) {
+                    Module.stderr(null);
+                    if (!(e instanceof ExitStatus)) {
+                        document.getElementById('stderr').innerText += String(e);
+                    }
+                }
+                Module.stdout(null);
+            }
+
+            function disassembleProgram() {
+                inputIndex = 0;
+                document.querySelectorAll('p').forEach(el => el.textContent = '');
+                try {
+                    Module.ccall(
+                        'wasm_entrypoint',
+                        null,
+                        ['string', 'number', 'number', 'number'],
+                        [document.getElementById('program').value, 0, 1, 1]
                     );
                     Module.stderr(null);
                 } catch (e) {
@@ -54,6 +74,7 @@ o &quot; &quot; &quot; o ' ( @ .
         <textarea id="stdin"></textarea>
         <br />
         <button onclick="interpretProgram()">Run!</button>
+        <button onclick="disassembleProgram()">Show disassembly</button>
         <br />
         <div id="output-label">Output:</div>
         <p id="stdout"></p>
