@@ -179,14 +179,18 @@ void disassembler::build_state() {
 
 void disassembler::build(state_element& state) {
     int24_t op = m_program.at(state.value.first.coords.first, state.value.first.coords.second);
-    if (op == opcode::EXT) {
+    if (op == static_cast<int24_t>(opcode::EXT)) {
         return;
     }
 
     instruction_pointer next = state.value.first;
     program_walker::advance(next, m_program.side_length());
 
-    if (op == opcode::PSC || op == opcode::PSI || op == opcode::SKP) {
+    if (
+        op == static_cast<int24_t>(opcode::PSC)
+        || op == static_cast<int24_t>(opcode::PSI)
+        || op == static_cast<int24_t>(opcode::SKP)
+    ) {
         program_walker::advance(next, m_program.side_length());
     }
 

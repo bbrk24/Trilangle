@@ -14,7 +14,7 @@ typedef size_t string_index;
 // Given a function that yields one "character" at a time, parse the incoming bytestream as UTF-8, and return a single
 // Unicode character.
 template<typename FuncType>
-constexpr int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) {
+int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) {
     unsigned char buf[4];
 
     // The maximum number of used bytes in the buffer, determined by the first byte read.

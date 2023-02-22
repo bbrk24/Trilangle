@@ -2,7 +2,7 @@
 #include "disassembler.hh"
 #include <iostream>
 
-int main(int argc, char** argv) {
+int main(int argc, const char** argv) {
     flags f;
     program p(parse_args(argc, argv, f));
 
