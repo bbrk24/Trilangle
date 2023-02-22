@@ -188,6 +188,8 @@ void interpreter::run() {
                     m_stack.pop_back();
                 break;
             case EXT:
+                // Emscripten doesn't flush after every putchar call, so ensure we flush at all
+                cout << std::flush;
                 return;
             case INC:
                 if (m_flags.warnings) {

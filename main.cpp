@@ -1,10 +1,16 @@
 #include "interpreter.hh"
 #include "disassembler.hh"
 #include <iostream>
+#include <clocale>
 
-int main(int argc, const char** argv) {
-    flags f;
-    program p(parse_args(argc, argv, f));
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#else
+#define EMSCRIPTEN_KEEPALIVE MAYBE_UNUSED
+#endif
+
+inline void execute(std::string prg, flags f) {
+    program p(prg);
 
     if (f.disassemble) {
         disassembler d(p, f);
@@ -13,4 +19,30 @@ int main(int argc, const char** argv) {
         interpreter i(p, f);
         i.run();
     }
+}
+
+int main(int argc, const char** argv) {
+#ifndef __EMSCRIPTEN__
+    flags f;
+    std::string program_text = parse_args(argc, argv, f);
+    execute(program_text, f);
+#endif
+}
+
+extern "C" EMSCRIPTEN_KEEPALIVE int wasm_entrypoint(
+    const char *program_text,
+    int warnings,
+    int disassemble,
+    int hide_nops
+) {
+    setlocale(LC_ALL, "");
+
+    flags f;
+    f.warnings = warnings;
+    f.disassemble = disassemble;
+    f.hide_nops = hide_nops;
+
+    std::string prg(program_text);
+    execute(prg, f);
+    return 0;
 }

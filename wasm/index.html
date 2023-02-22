@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Trilangle online interpreter</title>
+        <script async src="./out.js"></script>
+        <style>
+            #stderr {
+                color: red;
+            }
+            
+            #output-label {
+                margin-top: 1em;
+                margin-bottom: -1em;
+            }
+        </style>
+        <script>
+            function interpretProgram() {
+                inputIndex = 0;
+                document.querySelectorAll('p').forEach(el => el.textContent = '');
+                try {
+                    Module.ccall(
+                        'wasm_entrypoint',
+                        'number',
+                        ['string', 'number', 'number', 'number'],
+                        [document.getElementById('program').value, 1, 0, 0]
+                    );
+                    Module.stderr(null);
+                } catch (e) {
+                    Module.stderr(null);
+                    if (!(e instanceof ExitStatus)) {
+                        document.getElementById('stderr').innerText += String(e);
+                    }
+                }
+                Module.stdout(null);
+            }
+        </script>
+    </head>
+    <body>
+        Program:
+        <br />
+        <textarea id="program" rows="10">        &quot;
+       H o
+      o &quot; !
+     &quot; o ( o
+    e o o o l
+   o &quot; &quot; &quot; o &quot;
+  &quot; , W r &quot; ! 3
+ l o o o d o : o
+o &quot; &quot; &quot; o ' ( @ .
+</textarea>
+        <br />
+        Input:
+        <br />
+        <textarea id="stdin"></textarea>
+        <br />
+        <button onclick="interpretProgram()">Run!</button>
+        <br />
+        <div id="output-label">Output:</div>
+        <p id="stdout"></p>
+        <p id="stderr"></p>
+    </body>
+</html>

@@ -1,6 +1,13 @@
+# Visual Studio things
 *.vcxproj
 *.vcxproj.*
 **/Debug/
 **/Release/
-.vscode/
 *.hint
+
+# VS Code things
+.vscode/
+
+# wasm things
+wasm/out.*
+wasm/node_modules/

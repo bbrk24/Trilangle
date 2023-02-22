@@ -221,6 +221,8 @@ See [turing_completeness.md].
 
 ## Compiling the interpreter
 
+### Compiling natively
+
 The specific compiler used shouldn't matter. I've been using MSVC 14.34 (Visual Studio 2022 version 17.4), but it should be compatible with clang and GCC, as well as some earlier versions of MSVC (Visual Studio 2017 or later). Incompatibility with these compilers is considered a bug, and any issues should be reported on [the issues page][issues].
 
 C++14 (`201304L`) or later is required to compile this project. Certain features from newer versions will be used if they are available, which may affect the performance of the compiled binary. These features include, but are not limited to:
@@ -230,6 +232,10 @@ C++14 (`201304L`) or later is required to compile this project. Certain features
 - the `[[unlikely]]` attribute (C++20, `201803L`)
 
 As such, it is recommended to use C++20 or later if performance is a concern. (If it is, why? How are you possibly using this language in a performance-sensitive environment?)
+
+### Compiling for the web
+
+The wasm directory contains most of the wrapper/glue code necessary to run the interpreter in a browser. Emscripten 3.1.21 or later is required.
 
 [Hexagony]: https://github.com/m-ender/hexagony
 [turing_completeness.md]: turing_completeness.md
