@@ -29,19 +29,21 @@ constexpr std::remove_reference_t<T>&& maybe_move(T&& value) noexcept {
 
 class disassembler : public program_walker {
 public:
-    using program_state = std::pair<const instruction_pointer, long>;
+    using program_state = std::pair<const instruction_pointer, int32_t>;
 
     inline disassembler(const program& p, flags f) noexcept : program_walker(p),
         m_state_ptr(nullptr),
         m_visited(),
         m_ins_num(0),
-        m_flags(f) { }
+        m_flags(f),
+        m_write_newline(false) { }
 
     inline disassembler(disassembler&& other) noexcept : program_walker(std::move(other)),
         m_state_ptr(other.m_state_ptr),
         m_visited(maybe_move(other.m_visited)),
         m_ins_num(maybe_move(other.m_ins_num)),
-        m_flags(maybe_move(other.m_flags))
+        m_flags(maybe_move(other.m_flags)),
+        m_write_newline(maybe_move(other.m_write_newline))
     {
         other.m_state_ptr = nullptr;
     }
@@ -71,12 +73,16 @@ private:
 
     void write(std::wostream& os, state_element& state);
 
+    void print_op(std::wostream &os, program_state &state, bool show_nops, bool show_branch = false);
+
     // A binary tree of possible program states. build_state() fills it via DFS.
-    state_element* m_state_ptr;
+    state_element *m_state_ptr;
     // Track the visited program states and their locations within the disassembly.
     // The IP is used to track the state itself, and the long is the disassembly location used for labels and jumps.
-    std::unordered_map<instruction_pointer, long> m_visited;
+    std::unordered_map<instruction_pointer, int32_t> m_visited;
     // The number of the next instruction to be printed.
     int32_t m_ins_num;
     const flags m_flags;
+    // Whether to print a `\n` before the next instruction. Set to `false` until the first line is written.
+    bool m_write_newline;
 };

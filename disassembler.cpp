@@ -4,33 +4,24 @@
 #include <cstdlib>
 #include <cinttypes>
 
-#define PRINT_NAME(x) case x: os << buf << L ## # x; printed_first_line = true; break
+#define PRINT_NAME(x) case x: os << buf << L ## # x; m_write_newline = true; break
 
-static void print_op(
-    std::wostream& os,
-    disassembler::program_state& state,
-    const program& prg,
-    int32_t ins_num,
-    bool show_nops,
-    bool show_branch = false
-) {
-    static bool printed_first_line = false;
-
-    int24_t op = prg.at(state.first.coords.first, state.first.coords.second);
+void disassembler::print_op(std::wostream& os, disassembler::program_state& state, bool show_nops, bool show_branch) {
+    int24_t op = m_program.at(state.first.coords.first, state.first.coords.second);
 
     // Store the label in a temporary buffer, in case it's not actually printed.
     wchar_t buf[10];
     swprintf(
         buf,
         sizeof buf / sizeof (wchar_t),
-        printed_first_line
+        m_write_newline
             ? L"\n%" PRId32 ":\t"
             :   L"%" PRId32 ":\t",
-        ins_num
+        m_ins_num
     );
 
     if (state.second == -1) {
-        state.second = ins_num;
+        state.second = m_ins_num;
 
         switch (op) {
             case BNG_E: FALLTHROUGH
@@ -41,7 +32,7 @@ static void print_op(
             case BNG_W:
                 if (show_branch) {
                     os << buf << L"BNG";
-                    printed_first_line = true;
+                    m_write_newline = true;
                     break;
                 }
                 FALLTHROUGH
@@ -53,7 +44,7 @@ static void print_op(
             case NOP:
                 if (show_nops) {
                     os << buf << L"NOP";
-                    printed_first_line = true;
+                    m_write_newline = true;
                 }
                 break;
             PRINT_NAME(ADD);
@@ -64,24 +55,24 @@ static void print_op(
             case PSI: {
                 // Print in format "PSI #3"
                 auto newip = state.first;
-                program_walker::advance(newip, prg.side_length());
-                int24_t arg = prg.at(newip.coords.first, newip.coords.second);
+                program_walker::advance(newip, m_program.side_length());
+                int24_t arg = m_program.at(newip.coords.first, newip.coords.second);
                 os << buf << L"PSI #" << static_cast<wchar_t>(arg);
 
-                printed_first_line = true;
+                m_write_newline = true;
                 break;
             }
             case PSC: {
                 // Print in format "PSC 'A' ; 0x65"
                 auto newip = state.first;
-                program_walker::advance(newip, prg.side_length());
-                int24_t arg = prg.at(newip.coords.first, newip.coords.second);
+                program_walker::advance(newip, m_program.side_length());
+                int24_t arg = m_program.at(newip.coords.first, newip.coords.second);
                 os << buf << L"PSC '" << static_cast<wchar_t>(arg) << L"' ; 0x";
 
                 swprintf(buf, sizeof buf / sizeof (wchar_t), L"%" PRIx32, static_cast<uint32_t>(arg));
                 os << buf;
 
-                printed_first_line = true;
+                m_write_newline = true;
                 break;
             }
             PRINT_NAME(POP);
@@ -103,19 +94,20 @@ static void print_op(
             PRINT_NAME(SWP);
             default:
                 os << buf << L"Invalid opcode '" << static_cast<wchar_t>(op) << L'\'';
-                printed_first_line = true;
+                m_write_newline = true;
                 break;
         }
     } else {
         os << buf << L"JMP " << state.second;
-        printed_first_line = true;
+        m_write_newline = true;
     }
 }
 
 void disassembler::write_state(std::wostream& os) {
     build_state();
     m_ins_num = 0;
-    print_op(os, m_state_ptr->value, m_program, m_ins_num, !m_flags.hide_nops);
+    m_write_newline = false;
+    print_op(os, m_state_ptr->value, !m_flags.hide_nops);
     write(os, *m_state_ptr);
     os << std::endl;
 }
@@ -126,7 +118,7 @@ void disassembler::write(std::wostream& os, state_element& state) {
     ++m_ins_num;
 
     if (state.second_child) {
-        print_op(os, state.first_child->value, m_program, m_ins_num, !m_flags.hide_nops, true);
+        print_op(os, state.first_child->value, !m_flags.hide_nops, true);
 
         std::wostringstream wss;
         write(wss, *state.first_child);
@@ -135,7 +127,7 @@ void disassembler::write(std::wostream& os, state_element& state) {
 
         write(os, *state.second_child);
     } else {
-        print_op(os, state.first_child->value, m_program, m_ins_num, !m_flags.hide_nops);
+        print_op(os, state.first_child->value, !m_flags.hide_nops);
         write(os, *state.first_child);
     }
 }

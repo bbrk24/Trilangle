@@ -1,7 +1,7 @@
 var inputIndex = 0;
 Module = {
     preInit() {
-        /** @type {{ input: HTMLTextAreaElement, output: HTMLParagraphElement, error: HTMLParagraphElement }} */
+        /** @type {{ input: HTMLTextAreaElement, output: HTMLPreElement, error: HTMLParagraphElement }} */
         const elements = {
             input: document.getElementById('stdin'),
             output: document.getElementById('stdout'),
@@ -14,60 +14,50 @@ Module = {
         let stdinBuffer = null;
 
         const stdin = () => {
-            if (inputIndex === 0) {
+            if (inputIndex === 0)
                 stdinBuffer = encoder.encode(elements.input.value);
-            }
-            if (inputIndex >= stdinBuffer.length) {
+            
+            if (inputIndex >= stdinBuffer.length)
                 return null;
-            }
-            const retval = stdinBuffer.at(inputIndex);
-            ++inputIndex;
-            return retval;
+            
+            return stdinBuffer.at(inputIndex++);
         };
 
         /** @type {(element: HTMLParagraphElement, char: string) => void} */
         const appendChar = (element, char) => {
-            if (char === '\n') {
+            if (char === '\n')
                 element.appendChild(document.createElement('br'));
-            } else {
-                if (element.lastChild instanceof Text) {
-                    if (char === ' ' && element.lastChild.nodeValue.endsWith(' ')) {
-                        element.lastChild.nodeValue += '\xa0';
-                    } else {
-                        element.lastChild.nodeValue += char;
-                    }
-                } else {
-                    if (char === ' ') {
-                        element.appendChild(document.createTextNode('\xa0'));
-                    } else {
-                        element.appendChild(document.createTextNode(char));
-                    }
-                }
-            }
+            else if (element.lastChild instanceof Text) {
+                if (char === ' ' && element.lastChild.nodeValue.endsWith(' '))
+                    element.lastChild.nodeValue += '\xa0';
+                else
+                    element.lastChild.nodeValue += char;
+            } else
+                element.appendChild(document.createTextNode(char === ' ' ? '\xa0' : char));
         };
 
         /** @type {(char: number | null) => void} */
         const stdout = (char) => {
-            if (typeof char == 'number' && char < 0) {
+            if (typeof char == 'number' && char < 0)
                 stdoutBuffer.push(char);
-            } else {
+            else {
                 if (stdoutBuffer.length !== 0) {
                     const typedArray = new Int8Array(stdoutBuffer);
                     stdoutBuffer = [];
 
-                    appendChar(elements.output, decoder.decode(typedArray));
+                    elements.output.textContent += decoder.decode(typedArray);
                 }
 
                 if (typeof char == 'number')
-                    appendChar(elements.output, String.fromCharCode(char));
+                    elements.output.textContent += String.fromCharCode(char);
             }
         };
 
         /** @type {(char: number | null) => void} */
         const stderr = (char) => {
-            if (typeof char == 'number' && char < 0) {
+            if (typeof char == 'number' && char < 0)
                 stderrBuffer.push(char);
-            } else {
+            else {
                 if (stderrBuffer.length !== 0) {
                     const typedArray = new Int8Array(stderrBuffer);
                     stderrBuffer = [];
