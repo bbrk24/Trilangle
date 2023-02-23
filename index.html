@@ -1,28 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
     <head>
+        <meta charset="UTF-8" />
         <title>Trilangle online interpreter</title>
         <script async src="./out.js"></script>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
         <style>
             #stderr {
                 color: red;
             }
-            
-            #output-label {
-                margin-top: 1em;
-                margin-bottom: -1em;
-            }
         </style>
         <script>
-            function interpretProgram() {
+            /** @type {(warnings: 0 | 1, disassemble: 0 | 1, hideNops: 0 | 1) => () => void} */
+            const callInterpreter = (warnings, disassemble, hideNops) => () => {
                 inputIndex = 0;
-                document.querySelectorAll('p').forEach(el => el.textContent = '');
+                document.getElementById('stdout').innerHTML = '';
+                document.getElementById('stderr').innerHTML = '';
                 try {
                     Module.ccall(
                         'wasm_entrypoint',
                         null,
                         ['string', 'number', 'number', 'number'],
-                        [document.getElementById('program').value, 1, 0, 0]
+                        [document.getElementById('program').value, warnings, disassemble, hideNops]
                     );
                     Module.stderr(null);
                 } catch (e) {
@@ -32,31 +31,14 @@
                     }
                 }
                 Module.stdout(null);
-            }
+            };
 
-            function disassembleProgram() {
-                inputIndex = 0;
-                document.querySelectorAll('p').forEach(el => el.textContent = '');
-                try {
-                    Module.ccall(
-                        'wasm_entrypoint',
-                        null,
-                        ['string', 'number', 'number', 'number'],
-                        [document.getElementById('program').value, 0, 1, 1]
-                    );
-                    Module.stderr(null);
-                } catch (e) {
-                    Module.stderr(null);
-                    if (!(e instanceof ExitStatus)) {
-                        document.getElementById('stderr').innerText += String(e);
-                    }
-                }
-                Module.stdout(null);
-            }
+            var interpretProgram = callInterpreter(1, 0, 0);
+            var disassembleProgram = callInterpreter(0, 1, 1);
         </script>
     </head>
     <body>
-        Program:
+        <label for="program">Program:</label>
         <br />
         <textarea id="program" rows="10">        &quot;
        H o
@@ -69,15 +51,14 @@
 o &quot; &quot; &quot; o ' ( @ .
 </textarea>
         <br />
-        Input:
+        <label for="stdin">Input:</label>
         <br />
         <textarea id="stdin"></textarea>
         <br />
         <button onclick="interpretProgram()">Run!</button>
         <button onclick="disassembleProgram()">Show disassembly</button>
-        <br />
-        <div id="output-label">Output:</div>
-        <p id="stdout"></p>
+        <p id="output-label">Output:</p>
+        <pre id="stdout"></pre>
         <p id="stderr"></p>
     </body>
 </html>
