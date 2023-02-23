@@ -30,7 +30,7 @@ int main(int argc, const char** argv) {
 }
 
 extern "C" EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(
-    const char *program_text,
+    const char* program_text,
     int warnings,
     int disassemble,
     int hide_nops
