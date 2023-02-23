@@ -1,31 +1,28 @@
 var inputIndex = 0;
 Module = {
     preInit() {
-        /**
-         * @type {{
-         *     input: HTMLTextAreaElement,
-         *     output: HTMLParagraphElement,
-         *     error: HTMLParagraphElement,
-         * }}
-         */
+        /** @type {{ input: HTMLTextAreaElement, output: HTMLParagraphElement, error: HTMLParagraphElement }} */
         const elements = {
             input: document.getElementById('stdin'),
             output: document.getElementById('stdout'),
             error: document.getElementById('stderr'),
         };
 
-        const decoder = new TextDecoder();
+        const encoder = new TextEncoder(), decoder = new TextDecoder();
         let stdoutBuffer = [], stderrBuffer = [];
+        /** @type {Uint8Array?} */
+        let stdinBuffer = null;
 
-        /** @type {() => (number | null)} */
         const stdin = () => {
-            const char = elements.input.value.charCodeAt(inputIndex);
-            if (Number.isNaN(char)) {
-                return null;
-            } else {
-                ++inputIndex;
-                return char;
+            if (inputIndex === 0) {
+                stdinBuffer = encoder.encode(elements.input.value);
             }
+            if (inputIndex >= stdinBuffer.length) {
+                return null;
+            }
+            const retval = stdinBuffer.at(inputIndex);
+            ++inputIndex;
+            return retval;
         };
 
         /** @type {(element: HTMLParagraphElement, char: string) => void} */
