@@ -38,34 +38,38 @@ Module = {
 
         /** @type {(char: number | null) => void} */
         const stdout = (char) => {
-            if (typeof char == 'number' && char < 0)
-                stdoutBuffer.push(char);
-            else {
-                if (stdoutBuffer.length !== 0) {
-                    const typedArray = new Int8Array(stdoutBuffer);
-                    stdoutBuffer = [];
+            if (typeof char == 'number') {
+                if (char < 0) {
+                    stdoutBuffer.push(char);
 
-                    elements.output.textContent += decoder.decode(typedArray);
-                }
-
-                if (typeof char == 'number')
+                    if (
+                        stdoutBuffer.length === 4 ||
+                        ((stdoutBuffer[0] + 256) & 0xf0 === 0xe0 && stdoutBuffer.length >= 3) ||
+                        ((stdoutBuffer[0] + 256) & 0xe0 === 0xc0 && stdoutBuffer.length >= 2)
+                    ) {
+                        elements.output.textContent += decoder.decode(new Int8Array(stdoutBuffer));
+                        stdoutBuffer = [];
+                    }
+                } else
                     elements.output.textContent += String.fromCharCode(char);
             }
         };
 
         /** @type {(char: number | null) => void} */
         const stderr = (char) => {
-            if (typeof char == 'number' && char < 0)
-                stderrBuffer.push(char);
-            else {
-                if (stderrBuffer.length !== 0) {
-                    const typedArray = new Int8Array(stderrBuffer);
-                    stderrBuffer = [];
+            if (typeof char == 'number') {
+                if (char < 0) {
+                    stderrBuffer.push(char);
 
-                    appendChar(elements.error, decoder.decode(typedArray));
-                }
-
-                if (typeof char == 'number')
+                    if (
+                        stderrBuffer.length === 4 ||
+                        ((stderrBuffer[0] + 256) & 0xf0 === 0xe0 && stderrBuffer.length >= 3) ||
+                        ((stderrBuffer[0] + 256) & 0xe0 === 0xc0 && stderrBuffer.length >= 2)
+                    ) {
+                        appendChar(elements.error, decoder.decode(new Int8Array(stderrBuffer)));
+                        stderrBuffer = [];
+                    }
+                } else
                     appendChar(elements.error, String.fromCharCode(char));
             }
         };

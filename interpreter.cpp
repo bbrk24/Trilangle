@@ -7,9 +7,19 @@
 #include <random>
 #include <type_traits>
 
-#define EMPTY_PROTECT(name) \
+// When targeting the web, the page can't re-render until the C++ code finishes.
+// emscripten_sleep is asynchronous (so it allows a re-render), but it looks synchronous from the C side.
+// Insert a call to emscripten_sleep(0) whenever the page needs a chance to redraw, such as after a print statement.
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#else
+#define emscripten_sleep(x) ((void)0)
+#endif
+
+#define EMPTY_PROTECT(name, sleep) \
     if (m_stack.empty() && m_flags.warnings) UNLIKELY { \
         cerr << "Warning: Attempt to " name " empty stack.\n"; \
+        if (sleep) emscripten_sleep(0); \
     } else
 
 #define SIZE_CHECK(name, count) \
@@ -36,14 +46,22 @@ constexpr int24_t INT24_MIN{ -0x800000 };
 constexpr int24_t INT24_MAX{ 0x7fffff };
 #endif
 
+static bool should_run;
+
+void interpreter::stop_all() noexcept {
+    should_run = false;
+}
+
 void interpreter::run() {
+    should_run = true;
+
     // Create the random number generator.
 
     std::default_random_engine reng(std::move(std::random_device())());
     std::uniform_int_distribution<rand_type> rdist(INT24_MIN, INT24_MAX);
 
     // Begin the execution loop.
-    while (true) {
+    while (should_run) {
         // The operation currently being executed
         int24_t op = m_program.at(m_ip.coords.first, m_ip.coords.second);
 
@@ -159,7 +177,7 @@ void interpreter::run() {
             case BNG_SW: FALLTHROUGH
             case BNG_W:
                 program_walker::branch(m_ip.dir, op, [&]() NOEXCEPT_T {
-                    EMPTY_PROTECT("branch on");
+                    EMPTY_PROTECT("branch on", false);
                     return m_stack.back() < INT24_C(0);
                 });
                 break;
@@ -184,7 +202,7 @@ void interpreter::run() {
                 break;
             }
             case POP:
-                EMPTY_PROTECT("pop from")
+                EMPTY_PROTECT("pop from", true)
                     m_stack.pop_back();
                 break;
             case EXT:
@@ -243,19 +261,21 @@ void interpreter::run() {
                 break;
             }
             case NOT:
-                EMPTY_PROTECT("complement")
+                EMPTY_PROTECT("complement", true)
                     m_stack.back() = ~m_stack.back();
                 break;
             case GTC:
                 m_stack.push_back(getunichar());
                 break;
             case PTC:
-                EMPTY_PROTECT("print from")
+                EMPTY_PROTECT("print from", false)
                     putwchar(static_cast<wchar_t>(m_stack.back()));
 
                 if (m_flags.pipekill && ferror(stdout)) {
                     return;
                 }
+
+                emscripten_sleep(0);
 
                 break;
             case GTI: {
@@ -274,12 +294,14 @@ void interpreter::run() {
                 break;
             }
             case PTI:
-                EMPTY_PROTECT("print from")
+                EMPTY_PROTECT("print from", false)
                     printf("%" PRId32 "\n", static_cast<int32_t>(m_stack.back()));
 
                 if (m_flags.pipekill && ferror(stdout)) {
                     return;
                 }
+
+                emscripten_sleep(0);
 
                 break;
             case SKP:
@@ -306,14 +328,14 @@ void interpreter::run() {
                 break;
             }
             case DUP:
-                EMPTY_PROTECT("duplicate")
+                EMPTY_PROTECT("duplicate", true)
                     m_stack.push_back(m_stack.back());
                 break;
             case RND:
                 m_stack.emplace_back(rdist(reng));
                 break;
             case EXP:
-                EMPTY_PROTECT("exponentiate")
+                EMPTY_PROTECT("exponentiate", true)
                     m_stack.back() = INT24_C(1) << m_stack.back();
                 break;
             case SWP: {
@@ -334,7 +356,7 @@ void interpreter::run() {
                     << m_ip.coords.second << L"))" << std::endl;
                 exit(1);
         }
-        
+
         advance();
     }
 }

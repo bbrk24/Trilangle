@@ -11,26 +11,26 @@
             }
         </style>
         <script>
-            /** @type {(warnings: 0 | 1, disassemble: 0 | 1, hideNops: 0 | 1) => () => void} */
-            const callInterpreter = (warnings, disassemble, hideNops) => () => {
-                inputIndex = 0;
+            function clearOutput() {
                 document.getElementById('stdout').innerHTML = '';
                 document.getElementById('stderr').innerHTML = '';
+            }
+
+            /** @type {(warnings: 0 | 1, disassemble: 0 | 1, hideNops: 0 | 1) => () => Promise<void>} */
+            const callInterpreter = (warnings, disassemble, hideNops) => async () => {
+                inputIndex = 0;
+                clearOutput();
                 try {
-                    Module.ccall(
+                    await Module.ccall(
                         'wasm_entrypoint',
                         null,
                         ['string', 'number', 'number', 'number'],
                         [document.getElementById('program').value, warnings, disassemble, hideNops]
                     );
-                    Module.stderr(null);
                 } catch (e) {
-                    Module.stderr(null);
-                    if (!(e instanceof ExitStatus)) {
+                    if (!(e instanceof ExitStatus))
                         document.getElementById('stderr').innerText += String(e);
-                    }
                 }
-                Module.stdout(null);
             };
 
             var interpretProgram = callInterpreter(1, 0, 0);
@@ -57,6 +57,8 @@ o &quot; &quot; &quot; o ' ( @ .
         <br />
         <button onclick="interpretProgram()">Run!</button>
         <button onclick="disassembleProgram()">Show disassembly</button>
+        <button onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
+        <button onclick="clearOutput()">Clear output</button>
         <p id="output-label">Output:</p>
         <pre id="stdout"></pre>
         <p id="stderr"></p>

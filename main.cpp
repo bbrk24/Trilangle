@@ -29,22 +29,28 @@ int main(int argc, const char** argv) {
 #endif
 }
 
-extern "C" EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(
-    const char* program_text,
-    int warnings,
-    int disassemble,
-    int hide_nops
-) {
-    // Set locale so that putwchar works as expected
-    setlocale(LC_ALL, "");
-    // Reset EOF from previous runs
-    clearerr(stdin);
+extern "C" {
+    EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(
+        const char* program_text,
+        int warnings,
+        int disassemble,
+        int hide_nops
+    ) {
+        // Set locale so that putwchar works as expected
+        setlocale(LC_ALL, "");
+        // Reset EOF from previous runs
+        clearerr(stdin);
 
-    flags f;
-    f.warnings = warnings;
-    f.disassemble = disassemble;
-    f.hide_nops = hide_nops;
+        flags f;
+        f.warnings = warnings;
+        f.disassemble = disassemble;
+        f.hide_nops = hide_nops;
 
-    std::string prg(program_text);
-    execute(prg, f);
+        std::string prg(program_text);
+        execute(prg, f);
+    }
+
+    EMSCRIPTEN_KEEPALIVE void wasm_cancel() {
+        interpreter::stop_all();
+    }
 }

@@ -11,6 +11,8 @@ public:
         m_flags(f) { }
 
     void run();
+
+    static void stop_all() noexcept;
 private:
     constexpr void advance() noexcept {
         program_walker::advance(m_ip, m_program.side_length());
