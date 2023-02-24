@@ -35,15 +35,13 @@ public:
         m_state_ptr(nullptr),
         m_visited(),
         m_ins_num(0),
-        m_flags(f),
-        m_write_newline(false) { }
+        m_flags(f) { }
 
     inline disassembler(disassembler&& other) noexcept : program_walker(std::move(other)),
         m_state_ptr(other.m_state_ptr),
         m_visited(maybe_move(other.m_visited)),
         m_ins_num(maybe_move(other.m_ins_num)),
-        m_flags(maybe_move(other.m_flags)),
-        m_write_newline(maybe_move(other.m_write_newline))
+        m_flags(maybe_move(other.m_flags))
     {
         other.m_state_ptr = nullptr;
     }
@@ -55,7 +53,7 @@ public:
     }
 
     // Write the state to the specified output stream.
-    void write_state(std::wostream& os);
+    void write_state(std::ostream& os);
 private:
     struct state_element {
         program_state& value;
@@ -71,9 +69,9 @@ private:
     void build_state();
     void build(state_element& state);
 
-    void write(std::wostream& os, state_element& state);
+    void write(std::ostream& os, state_element& state);
 
-    void print_op(std::wostream &os, program_state &state, bool show_nops, bool show_branch = false);
+    void print_op(std::ostream &os, program_state &state, bool show_nops, bool show_branch = false);
 
     // A binary tree of possible program states. build_state() fills it via DFS.
     state_element *m_state_ptr;
@@ -83,6 +81,4 @@ private:
     // The number of the next instruction to be printed.
     int32_t m_ins_num;
     const flags m_flags;
-    // Whether to print a `\n` before the next instruction. Set to `false` until the first line is written.
-    bool m_write_newline;
 };

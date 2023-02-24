@@ -1,6 +1,5 @@
 #include "input.hh"
 #include "string_processing.hh"
-#include <iostream>
 #include <fstream>
 #include <cstring>
 #include <tuple>

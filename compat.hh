@@ -5,17 +5,17 @@
 #ifdef __has_include
 #if __has_include(<version>)
 #include <version>
-#define __INCLUDED_VERSION
+#define _INCLUDED_VERSION
 #endif
 #endif
 
-#ifndef __INCLUDED_VERSION
+#ifndef _INCLUDED_VERSION
 #include <vector>
 #include <string>
 #include <algorithm>
 #endif
 
-#undef __INCLUDED_VERSION
+#undef _INCLUDED_VERSION
 
 
 #ifdef __cpp_constinit

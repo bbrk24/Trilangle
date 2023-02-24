@@ -23,19 +23,6 @@ Module = {
             return stdinBuffer.at(inputIndex++);
         };
 
-        /** @type {(element: HTMLParagraphElement, char: string) => void} */
-        const appendChar = (element, char) => {
-            if (char === '\n')
-                element.appendChild(document.createElement('br'));
-            else if (element.lastChild instanceof Text) {
-                if (char === ' ' && element.lastChild.nodeValue.endsWith(' '))
-                    element.lastChild.nodeValue += '\xa0';
-                else
-                    element.lastChild.nodeValue += char;
-            } else
-                element.appendChild(document.createTextNode(char === ' ' ? '\xa0' : char));
-        };
-
         /** @type {(char: number | null) => void} */
         const stdout = (char) => {
             if (typeof char == 'number') {
@@ -66,11 +53,22 @@ Module = {
                         ((stderrBuffer[0] + 256) & 0xf0 === 0xe0 && stderrBuffer.length >= 3) ||
                         ((stderrBuffer[0] + 256) & 0xe0 === 0xc0 && stderrBuffer.length >= 2)
                     ) {
-                        appendChar(elements.error, decoder.decode(new Int8Array(stderrBuffer)));
+                        const text = decoder.decode(new Int8Array(stderrBuffer));
                         stderrBuffer = [];
+                        if (elements.error.lastChild instanceof Text)
+                            elements.error.lastChild.nodeValue += text;
+                        else
+                            elements.error.appendChild(document.createTextNode(text));
                     }
+                } else if (char === 10)
+                    elements.error.appendChild(document.createElement('br'));
+                else if (elements.error.lastChild instanceof Text) {
+                    if (char === 32 && elements.error.lastChild.nodeValue.endsWith(' '))
+                        elements.error.lastChild.nodeValue += '\xa0';
+                    else
+                        elements.error.lastChild.nodeValue += String.fromCharCode(char);
                 } else
-                    appendChar(elements.error, String.fromCharCode(char));
+                    elements.error.appendChild(document.createTextNode(char === 32 ? '\xa0' : String.fromCharCode(char)));
             }
         };
 

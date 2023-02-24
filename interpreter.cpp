@@ -1,7 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 
 #include "interpreter.hh"
-#include <iostream>
 #include <cstdlib>
 #include <cinttypes>
 #include <random>
@@ -26,25 +25,11 @@
     if (m_flags.warnings && m_stack.size() < (count)) \
        UNLIKELY cerr << "Warning: Attempt to " name " stack with fewer than " << (count) << " elements.\n"
 
-#ifdef SCNi24
-using input_type = int24_t;
-constexpr const char* FORMAT_STRING = "%" SCNi24;
-#else
-using input_type = int32_t;
-constexpr const char* FORMAT_STRING = "%" SCNi32;
-#endif
-
-using rand_type = std::conditional_t<std::is_integral<int24_t>::value, int24_t, int32_t>;
-
 using std::cout;
 using std::cerr;
 
-#ifndef INT24_MIN
 constexpr int24_t INT24_MIN{ -0x800000 };
-#endif
-#ifndef INT24_MAX
 constexpr int24_t INT24_MAX{ 0x7fffff };
-#endif
 
 static bool should_run;
 
@@ -58,7 +43,7 @@ void interpreter::run() {
     // Create the random number generator.
 
     std::default_random_engine reng(std::move(std::random_device())());
-    std::uniform_int_distribution<rand_type> rdist(INT24_MIN, INT24_MAX);
+    std::uniform_int_distribution<int32_t> rdist(INT24_MIN, INT24_MAX);
 
     // Begin the execution loop.
     while (should_run) {
@@ -81,7 +66,7 @@ void interpreter::run() {
             }
 
             cout << "Coords: (" << m_ip.coords.first << ", " << m_ip.coords.second << ")\nInstruction: " << std::flush;
-            putwchar(static_cast<wchar_t>(op));
+            printunichar(op);
             putchar('\n');
 
             DISCARD getchar();
@@ -269,7 +254,7 @@ void interpreter::run() {
                 break;
             case PTC:
                 EMPTY_PROTECT("print from", false)
-                    putwchar(static_cast<wchar_t>(m_stack.back()));
+                    printunichar(m_stack.back());
 
                 if (m_flags.pipekill && ferror(stdout)) {
                     return;
@@ -279,9 +264,9 @@ void interpreter::run() {
 
                 break;
             case GTI: {
-                input_type i;
+                int32_t i;
 
-                while (!scanf(FORMAT_STRING, &i)) {
+                while (!scanf("%" SCNi32, &i)) {
                     if (feof(stdin)) {
                         i = -1;
                         break;
@@ -352,8 +337,9 @@ void interpreter::run() {
                 );
                 exit(1);
             default:
-                std::wcerr << L"Unrecognized opcode '" << static_cast<wchar_t>(op) << L"' (at (" << m_ip.coords.first << L", "
-                    << m_ip.coords.second << L"))" << std::endl;
+                cerr << "Unrecognized opcode '";
+                printunichar(op, cerr);
+                cerr << "' (at (" << m_ip.coords.first << ", " << m_ip.coords.second << "))" << std::endl;
                 exit(1);
         }
 

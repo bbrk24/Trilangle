@@ -1,6 +1,5 @@
 #include "interpreter.hh"
 #include "disassembler.hh"
-#include <iostream>
 #include <clocale>
 
 #ifdef __EMSCRIPTEN__
@@ -14,7 +13,7 @@ inline void execute(std::string prg, flags f) {
 
     if (f.disassemble) {
         disassembler d(p, f);
-        d.write_state(std::wcout);
+        d.write_state(std::cout);
     } else {
         interpreter i(p, f);
         i.run();
