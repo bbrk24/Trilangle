@@ -43,7 +43,7 @@ void interpreter::run() {
     // Create the random number generator.
 
     std::default_random_engine reng(std::move(std::random_device())());
-    std::uniform_int_distribution<int32_t> rdist(INT24_MIN, INT24_MAX);
+    static std::uniform_int_distribution<int32_t> rdist(INT24_MIN, INT24_MAX);
 
     // Begin the execution loop.
     while (should_run) {
@@ -52,6 +52,8 @@ void interpreter::run() {
 
         // Print the requisite information in debug mode.
         if (m_flags.debug) {
+            // TODO: Figure out debugging on the web
+#ifndef __EMSCRIPTEN__
             if (m_flags.show_stack) {
                 cout << "Stack: [";
 
@@ -65,11 +67,12 @@ void interpreter::run() {
                 cout << "]\n";
             }
 
-            cout << "Coords: (" << m_ip.coords.first << ", " << m_ip.coords.second << ")\nInstruction: " << std::flush;
+            cout << "Coords: (" << m_ip.coords.first << ", " << m_ip.coords.second << ")\nInstruction: ";
             printunichar(op);
             cout << std::endl;
 
             DISCARD getchar();
+#endif
         }
 
         // ...yeah
@@ -162,7 +165,7 @@ void interpreter::run() {
             case BNG_SW: FALLTHROUGH
             case BNG_W:
                 program_walker::branch(m_ip.dir, op, [&]() NOEXCEPT_T {
-                    EMPTY_PROTECT("branch on", false);
+                    EMPTY_PROTECT("branch on", false) {}
                     return m_stack.back() < INT24_C(0);
                 });
                 break;
@@ -178,7 +181,7 @@ void interpreter::run() {
 
                 if (m_flags.warnings) {
                     if (next < (int24_t)'0' || next > (int24_t)'9') UNLIKELY {
-                        cerr << "Warning: Pushing non-decimal number with " << static_cast<char>(opcode::PSI)
+                        cerr << "Warning: Pushing non-ASCII-decimal number with " << static_cast<char>(opcode::PSI)
                             << " is implementation-defined behavior.\n";
                     }
                 }
@@ -187,8 +190,9 @@ void interpreter::run() {
                 break;
             }
             case POP:
-                EMPTY_PROTECT("pop from", true)
+                EMPTY_PROTECT("pop from", true) {
                     m_stack.pop_back();
+                }
                 break;
             case EXT:
                 // Emscripten doesn't flush after every putchar call, so ensure we flush at all
@@ -198,11 +202,11 @@ void interpreter::run() {
                 if (m_flags.warnings) {
                     if (m_stack.empty()) UNLIKELY {
                         cerr << "Warning: Attempt to increment empty stack.\n";
+                        emscripten_sleep(0);
                         break;
                     }
                     if (m_stack.back() == INT24_MAX) UNLIKELY {
                         cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
-                        break;
                     }
                 }
 
@@ -213,11 +217,11 @@ void interpreter::run() {
                 if (m_flags.warnings) {
                     if (m_stack.empty()) UNLIKELY {
                         cerr << "Warning: Attempt to decrement empty stack.\n";
+                        emscripten_sleep(0);
                         break;
                     }
                     if (m_stack.back() == INT24_MAX) UNLIKELY {
                         cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
-                        break;
                     }
                 }
 
@@ -246,15 +250,17 @@ void interpreter::run() {
                 break;
             }
             case NOT:
-                EMPTY_PROTECT("complement", true)
+                EMPTY_PROTECT("complement", true) {
                     m_stack.back() = ~m_stack.back();
+                }
                 break;
             case GTC:
                 m_stack.push_back(getunichar());
                 break;
             case PTC:
-                EMPTY_PROTECT("print from", false)
+                EMPTY_PROTECT("print from", false) {
                     printunichar(m_stack.back());
+                }
 
                 if (m_flags.pipekill && ferror(stdout)) {
                     return;
@@ -279,8 +285,9 @@ void interpreter::run() {
                 break;
             }
             case PTI:
-                EMPTY_PROTECT("print from", false)
+                EMPTY_PROTECT("print from", false) {
                     printf("%" PRId32 "\n", static_cast<int32_t>(m_stack.back()));
+                }
 
                 if (m_flags.pipekill && ferror(stdout)) {
                     return;
@@ -295,6 +302,7 @@ void interpreter::run() {
             case IDX: {
                 if (m_flags.warnings && m_stack.empty()) UNLIKELY {
                     cerr << "Warning: Attempt to read index from empty stack.\n";
+                    emscripten_sleep(0);
                     break;
                 }
 
@@ -303,7 +311,8 @@ void interpreter::run() {
 
                 if (m_flags.warnings) {
                     if (top < INT24_C(0) || m_stack.size() < top + 1) UNLIKELY {
-                        cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size() << ", index = " << top << ")\n";
+                        cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size()
+                            << ", index = " << top << ")\n";
                     }
                 }
 
@@ -313,15 +322,17 @@ void interpreter::run() {
                 break;
             }
             case DUP:
-                EMPTY_PROTECT("duplicate", true)
+                EMPTY_PROTECT("duplicate", true) {
                     m_stack.push_back(m_stack.back());
+                }
                 break;
             case RND:
                 m_stack.emplace_back(rdist(reng));
                 break;
             case EXP:
-                EMPTY_PROTECT("exponentiate", true)
+                EMPTY_PROTECT("exponentiate", true) {
                     m_stack.back() = INT24_C(1) << m_stack.back();
+                }
                 break;
             case SWP: {
                 SIZE_CHECK("swap in", 2);
@@ -329,7 +340,7 @@ void interpreter::run() {
                 std::swap(m_stack[i], m_stack[i + 1]);
                 break;
             }
-            UNLIKELY case INVALID_CHAR:
+            case INVALID_CHAR:
                 fprintf(
                     stderr,
                     "Unicode replacement character (U+%0.4" PRIX32 ") detected in source. Please check encoding.\n",

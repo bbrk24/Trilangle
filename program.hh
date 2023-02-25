@@ -36,7 +36,7 @@ public:
     }
 
     CONSTEXPR_ALLOC int24_t at(size_t row, size_t column) const noexcept {
-        assert(row < m_side_length&& column <= row);
+        assert(row < m_side_length && column <= row);
 
         size_t idx = triangular(row) + column;
         return m_code[idx];

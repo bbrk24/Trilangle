@@ -9,7 +9,7 @@ using std::get;
 using std::cerr;
 using std::endl;
 
-constexpr size_t BUF_SIZE = 256;
+constexpr size_t BUF_SIZE = 128;
 
 constexpr const char* HELP_HEADER = "TRILANGLE\n\n"
 "\tTrilangle is a 2-D, stack-based esoteric programming language.\n\n"

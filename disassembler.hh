@@ -8,7 +8,10 @@
 // Moves a value if it's better than copying.
 template<
     typename T,
-    std::enable_if_t<sizeof (std::remove_reference_t<T>) <= sizeof (void*) && std::is_trivially_copy_constructible<T>::value, bool> = false
+    std::enable_if_t<
+        sizeof (std::remove_reference_t<T>) <= sizeof (void*) && std::is_trivially_copy_constructible<T>::value,
+        bool
+    > = false
 >
 constexpr const T& maybe_move(const T& value) noexcept {
     return value;
@@ -19,7 +22,10 @@ template<
     typename T,
     std::enable_if_t<
         std::is_nothrow_move_constructible<T>::value
-            && !(sizeof (std::remove_reference_t<T>) <= sizeof (void*) && std::is_trivially_copy_constructible<T>::value),
+            && !(
+                sizeof (std::remove_reference_t<T>) <= sizeof (void*)
+                && std::is_trivially_copy_constructible<T>::value
+            ),
         bool
     > = true
 >
@@ -76,7 +82,7 @@ private:
     // A binary tree of possible program states. build_state() fills it via DFS.
     state_element *m_state_ptr;
     // Track the visited program states and their locations within the disassembly.
-    // The IP is used to track the state itself, and the long is the disassembly location used for labels and jumps.
+    // The IP is used to track the state itself, and the integer is the disassembly location used for labels and jumps.
     std::unordered_map<instruction_pointer, int32_t> m_visited;
     // The number of the next instruction to be printed.
     int32_t m_ins_num;

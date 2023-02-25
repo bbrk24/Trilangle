@@ -68,7 +68,9 @@ Module = {
                     else
                         elements.error.lastChild.nodeValue += String.fromCharCode(char);
                 } else
-                    elements.error.appendChild(document.createTextNode(char === 32 ? '\xa0' : String.fromCharCode(char)));
+                    elements.error.appendChild(
+                        document.createTextNode(char === 32 ? '\xa0' : String.fromCharCode(char))
+                    );
             }
         };
 

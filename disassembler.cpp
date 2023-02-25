@@ -85,10 +85,10 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
             PRINT_NAME(EXP);
             PRINT_NAME(SWP);
             default:
-            os << buf << "Invalid opcode '";
-            printunichar(op, os);
-            os << "'\n";
-            break;
+                os << buf << "Invalid opcode '";
+                printunichar(op, os);
+                os << "'\n";
+                break;
         }
     } else {
         os << buf << "JMP " << state.second << '\n';
@@ -98,6 +98,7 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
 void disassembler::write_state(std::ostream& os) {
     build_state();
     m_ins_num = 0;
+    
     print_op(os, m_state_ptr->value, !m_flags.hide_nops);
     write(os, *m_state_ptr);
     os << std::flush;

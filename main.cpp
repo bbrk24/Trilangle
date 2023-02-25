@@ -8,7 +8,7 @@
 #define EMSCRIPTEN_KEEPALIVE MAYBE_UNUSED
 #endif
 
-inline void execute(std::string prg, flags f) {
+inline void execute(const std::string& prg, flags f) {
     program p(prg);
 
     if (f.disassemble) {
@@ -45,8 +45,7 @@ extern "C" {
         f.disassemble = disassemble;
         f.hide_nops = hide_nops;
 
-        std::string prg(program_text);
-        execute(prg, f);
+        execute(program_text, f);
     }
 
     EMSCRIPTEN_KEEPALIVE void wasm_cancel() {

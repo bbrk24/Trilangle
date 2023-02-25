@@ -21,9 +21,9 @@ struct flags {
 	
 	constexpr bool is_valid() const noexcept {
 		return !(
-			(show_stack && !debug) ||
-			((debug || warnings || pipekill) && disassemble) ||
-			(hide_nops && !disassemble)
+			(show_stack && !debug)
+			|| ((debug || warnings || pipekill) && disassemble)
+			|| (hide_nops && !disassemble)
 		);
 	}
 };
