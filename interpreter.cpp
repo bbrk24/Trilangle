@@ -67,7 +67,7 @@ void interpreter::run() {
 
             cout << "Coords: (" << m_ip.coords.first << ", " << m_ip.coords.second << ")\nInstruction: " << std::flush;
             printunichar(op);
-            putchar('\n');
+            cout << std::endl;
 
             DISCARD getchar();
         }
