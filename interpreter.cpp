@@ -270,18 +270,9 @@ void interpreter::run() {
 
                 break;
             case GTI: {
-                int32_t i;
+                int32_t i = -1;
 
-                while (true) {
-                    if (feof(stdin)) {
-                        i = -1;
-                        break;
-                    }
-
-                    if (scanf("%" SCNi32, &i)) {
-                        break;
-                    }
-
+                while (!(feof(stdin) || scanf("%" SCNi32, &i))) {
                     DISCARD getchar();
                 }
 
