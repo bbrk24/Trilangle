@@ -272,9 +272,13 @@ void interpreter::run() {
             case GTI: {
                 int32_t i;
 
-                while (!scanf("%" SCNi32, &i)) {
+                while (true) {
                     if (feof(stdin)) {
                         i = -1;
+                        break;
+                    }
+
+                    if (scanf("%" SCNi32, &i)) {
                         break;
                     }
 
