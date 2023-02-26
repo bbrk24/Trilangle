@@ -1,50 +1,70 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Trilangle online interpreter</title>
-        <script async src="./out.js"></script>
-        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-        <style>
-            #stderr {
-                color: red;
-            }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Trilangle online interpreter</title>
+    <link rel="icon" href="./favicon.ico" />
+    <script async src="./out.js"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <style>
+      body {
+        font-family: sans-serif;
+      }
 
-            textarea {
-                font-family: monospace;
-            }
-        </style>
-        <script>
-            function clearOutput() {
-                document.getElementById('stdout').innerHTML = '';
-                document.getElementById('stderr').innerHTML = '';
-            }
+      textarea {
+        font-family: monospace;
+        background-color: inherit;
+        color: inherit;
+      }
 
-            /** @type {(warnings: 0 | 1, disassemble: 0 | 1, hideNops: 0 | 1) => () => Promise<void>} */
-            const callInterpreter = (warnings, disassemble, hideNops) => async () => {
-                inputIndex = 0;
-                clearOutput();
-                try {
-                    await Module.ccall(
-                        'wasm_entrypoint',
-                        null,
-                        ['string', 'number', 'number', 'number'],
-                        [document.getElementById('program').value, warnings, disassemble, hideNops]
-                    );
-                } catch (e) {
-                    if (!(e instanceof ExitStatus))
-                        document.getElementById('stderr').innerText += String(e);
-                }
-            };
+      button {
+        background-color: rgb(127 127 127 / 35%);
+        color: inherit;
+        border: none;
+        border-radius: 0.25em;
+        padding: 0.25em 0.45em;
+      }
 
-            var interpretProgram = callInterpreter(1, 0, 0);
-            var disassembleProgram = callInterpreter(0, 1, 1);
-        </script>
-    </head>
-    <body>
-        <label for="program">Program:</label>
-        <br />
-        <textarea id="program" rows="10" spellcheck="false">        &quot;
+      #stderr {
+        color: crimson;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #1c1c1c;
+          color: whitesmoke;
+        }
+      }
+    </style>
+    <script>
+      function clearOutput() {
+        document.getElementById('stdout').innerHTML = '';
+        document.getElementById('stderr').innerHTML = '';
+      }
+
+      /** @type {(warnings: 0 | 1, disassemble: 0 | 1, hideNops: 0 | 1) => () => Promise<void>} */
+      const callInterpreter = (warnings, disassemble, hideNops) => async () => {
+        inputIndex = 0;
+        clearOutput();
+        try {
+          await Module.ccall(
+            'wasm_entrypoint',
+            null,
+            ['string', 'number', 'number', 'number'],
+            [document.getElementById('program').value, warnings, disassemble, hideNops]
+          );
+        } catch (e) {
+          if (!(e instanceof ExitStatus))
+            document.getElementById('stderr').innerText += String(e);
+        }
+      };
+
+      var interpretProgram = callInterpreter(1, 0, 0), disassembleProgram = callInterpreter(0, 1, 1);
+    </script>
+  </head>
+  <body>
+    <label for="program">Program:</label><br />
+    <textarea id="program" rows="10" spellcheck="false">        &quot;
        H o
       o &quot; !
      &quot; o ( o
@@ -52,19 +72,15 @@
    o &quot; &quot; &quot; o &quot;
   &quot; , W r &quot; ! 3
  l o o o d o : o
-o &quot; &quot; &quot; o ' ( @ .
-</textarea>
-        <br />
-        <label for="stdin">Input:</label>
-        <br />
-        <textarea id="stdin"></textarea>
-        <br />
-        <button onclick="interpretProgram()">Run!</button>
-        <button onclick="disassembleProgram()">Show disassembly</button>
-        <button onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
-        <button onclick="clearOutput()">Clear output</button>
-        <p>Output:</p>
-        <pre id="stdout"></pre>
-        <p id="stderr"></p>
-    </body>
+o &quot; &quot; &quot; o ' ( @ .</textarea><br />
+    <label for="stdin">Input:</label><br />
+    <textarea id="stdin"></textarea><br />
+    <button onclick="interpretProgram()">Run!</button>
+    <button onclick="disassembleProgram()">Show disassembly</button>
+    <button onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
+    <button onclick="clearOutput()">Clear output</button>
+    <p>Output:</p>
+    <pre id="stdout"></pre>
+    <p id="stderr"></p>
+  </body>
 </html>
