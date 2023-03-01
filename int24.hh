@@ -12,8 +12,8 @@ struct int24_t {
     constexpr int24_t(char x) noexcept : value(x) {}
     constexpr int24_t(unsigned char x) noexcept : value(x) {}
     constexpr explicit int24_t(int32_t x) noexcept : value(x) {}
-    constexpr explicit int24_t(int64_t x) noexcept : value(x) {}
-    MAYBE_UNUSED constexpr explicit int24_t(wint_t x) noexcept : value(x) {}
+    constexpr explicit int24_t(int64_t x) noexcept : value(static_cast<int32_t>(x)) {}
+    MAYBE_UNUSED constexpr explicit int24_t(wint_t x) noexcept : value(static_cast<int32_t>(x)) {}
 
     constexpr operator int32_t() const noexcept {
         return value;
@@ -24,6 +24,12 @@ struct int24_t {
     constexpr explicit operator int64_t() const noexcept {
         return static_cast<int64_t>(value);
     }
+    
+#if SIZE_MAX != UINT32_MAX
+    constexpr explicit operator size_t() const noexcept {
+        return static_cast<size_t>(value);
+    }
+#endif
 
     constexpr bool operator==(const int24_t& other) const noexcept {
         return this->value == other.value;

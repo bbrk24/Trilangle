@@ -20,13 +20,13 @@ inline void execute(const std::string& prg, flags f) {
     }
 }
 
-int main(int argc, const char** argv) {
 #ifndef __EMSCRIPTEN__
+int main(int argc, const char** argv) {
     flags f;
     std::string program_text = parse_args(argc, argv, f);
     execute(program_text, f);
-#endif
 }
+#endif
 
 extern "C" {
     EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(

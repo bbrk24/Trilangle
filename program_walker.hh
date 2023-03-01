@@ -11,8 +11,18 @@ public:
     constexpr program_walker(const program& p) noexcept : m_program(p) { }
 
     // Pack this struct, so that the sizeof (size_t) - 1 bytes leftover at the end can be used by other variables in a
-    // larger object (i.e. disassembler and interpreter)
-    PACK(struct instruction_pointer { std::pair<size_t, size_t> coords; direction dir; });
+    // larger object (i.e. disassembler and interpreter). I know pragmas aren't generally portable, but pack(...) is
+    // supported by MSVC, clang, and gcc.
+#pragma pack(push, 1)
+    struct instruction_pointer {
+        std::pair<size_t, size_t> coords;
+        direction dir;
+
+        constexpr bool operator==(const instruction_pointer &rhs) const noexcept {
+            return this->coords == rhs.coords && this->dir == rhs.dir;
+        }
+    };
+#pragma pack(pop)
 
     // Advance the IP one step.
     static constexpr void advance(instruction_pointer& ip, size_t program_size) noexcept {
@@ -326,13 +336,6 @@ protected:
         }
     }
 };
-
-constexpr bool operator==(
-    const program_walker::instruction_pointer &lhs,
-    const program_walker::instruction_pointer &rhs
-) noexcept {
-    return lhs.coords == rhs.coords && lhs.dir == rhs.dir;
-}
 
 namespace std {
     template<>

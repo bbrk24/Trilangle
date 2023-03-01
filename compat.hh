@@ -144,17 +144,3 @@ using std::unreachable;
 #endif
 }
 #endif
-
-#ifdef __has_attribute
-#if __has_attribute(packed)
-#define PACK(...) __VA_ARGS__ __attribute__((packed))
-#endif
-#endif
-
-#ifndef PACK
-#ifdef _MSC_VER
-#define PACK(...) _Pragma("pack(push, 1)") __VA_ARGS__ _Pragma("pack(pop)")
-#else
-#define PACK(...) __VA_ARGS__
-#endif
-#endif

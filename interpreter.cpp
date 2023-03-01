@@ -305,13 +305,13 @@ void interpreter::run() {
                 m_stack.pop_back();
 
                 if (m_flags.warnings) {
-                    if (top < INT24_C(0) || m_stack.size() < top + 1) UNLIKELY {
+                    if (top < INT24_C(0) || m_stack.size() < static_cast<size_t>(top) + 1) UNLIKELY {
                         cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size()
                             << ", index = " << top << ")\n";
                     }
                 }
 
-                size_t i = m_stack.size() - top - 1;
+                size_t i = m_stack.size() - static_cast<size_t>(top) - 1;
                 m_stack.push_back(m_stack[i]);
 
                 break;
