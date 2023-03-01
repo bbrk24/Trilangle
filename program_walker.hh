@@ -348,14 +348,7 @@ namespace std {
 template<>
 struct hash<program_walker::instruction_pointer> {
     inline size_t operator()(const program_walker::instruction_pointer& key) const noexcept {
-        size_t first_hash = key.coords.first;
-
-        size_t second_hash = (key.coords.second << (4 * sizeof key.coords.second))
-                             | (key.coords.second >> (4 * sizeof key.coords.second));
-
-        size_t direction_hash = hash<direction>()(key.dir);
-
-        return first_hash ^ second_hash ^ direction_hash;
+        return key.coords.first ^ (key.coords.second << 3) ^ (static_cast<size_t>(key.dir) << 7);
     }
 };
 }  // namespace std

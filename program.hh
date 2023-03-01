@@ -21,10 +21,10 @@ public:
         m_code.erase(iter, m_code.end());
 
         // Determine the next triangular number
-        size_t capacity;
+        size_t capacity = 0;
         do {
             ++m_side_length;
-            capacity = triangular(m_side_length);
+            capacity += m_side_length;
         } while (capacity < m_code.size());
 
         // Fill the remaining space with NOPs

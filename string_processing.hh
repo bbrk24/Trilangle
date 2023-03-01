@@ -69,25 +69,26 @@ int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) {
 
 CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_shebang) {
     auto iter = s.begin();
+    const auto end = s.end();
 
     std::vector<int24_t> vec;
     vec.reserve(s.size() / 4);
 
     if (skip_shebang && s.size() > 2 && s[0] == '#' && s[1] == '!') {
-        while (*iter != '\n') {
+        while (*iter != '\n' && iter != end) {
             ++iter;
         }
     }
 
     do {
         vec.push_back(parse_unichar([&]() NOEXCEPT_T {
-            if (iter == s.end()) {
+            if (iter == end) {
                 return EOF;
             } else {
                 return static_cast<int>(*iter++);
             }
         }));
-    } while (iter != s.end());
+    } while (iter != end);
 
     return vec;
 }
