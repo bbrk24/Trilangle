@@ -31,18 +31,18 @@
 
 
 #ifdef __cpp_constinit
-// constinit, constexpr, or neither, depending on where lambdas are allowed
-#define CONSTINIT_LAMBDA constinit
+// constinit, constexpr, or just const, depending on where lambdas are allowed
+#define CONSTINIT_LAMBDA constinit const
 #elif defined(__cpp_constexpr)
 #if __cpp_constexpr >= 201603
-// constinit, constexpr, or neither, depending on where lambdas are allowed
+// constinit, constexpr, or just const, depending on where lambdas are allowed
 #define CONSTINIT_LAMBDA constexpr
 #endif
 #endif
 
 #ifndef CONSTINIT_LAMBDA
-// constinit, constexpr, or neither, depending on where lambdas are allowed
-#define CONSTINIT_LAMBDA
+// constinit, constexpr, or just const, depending on where lambdas are allowed
+#define CONSTINIT_LAMBDA const
 #endif
 
 

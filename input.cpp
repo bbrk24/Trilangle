@@ -31,7 +31,7 @@ static constexpr const char* FLAGS_HELP =
     "\t                 \t--disassemble.";
 
 namespace flag_container {
-static CONSTINIT_LAMBDA const std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
+static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
     { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
     { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
     { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
@@ -77,7 +77,7 @@ static inline void set_flag(const char* flagname, flags& f) {
         }
     }
 }
-};  // namespace flag_container
+}  // namespace flag_container
 
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
 static inline string read_istream(std::istream& stream) {
