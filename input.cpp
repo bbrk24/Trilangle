@@ -42,7 +42,7 @@ namespace flag_container {
 
     [[noreturn]] static inline void invalid_flags() {
         cerr << FLAGS_HELP << endl;
-        exit(1);
+        exit(EX_USAGE);
     }
 
     [[noreturn]] static inline void unrecognized_flag(const char* flag) {
@@ -111,7 +111,7 @@ string parse_args(int argc, const char** argv, flags& f) {
         } else {
             if (filename != nullptr) {
                 cerr << "Please specify only one filename." << endl;
-                exit(1);
+                exit(EX_USAGE);
             }
 
             filename = argv[i];
@@ -132,7 +132,7 @@ string parse_args(int argc, const char** argv, flags& f) {
             return read_istream(f_input);
         } else {
             cerr << "File could not be opened for reading: " << filename << endl;
-            exit(1);
+            exit(EX_NOINPUT);
         }
     }
 }

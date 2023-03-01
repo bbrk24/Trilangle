@@ -7,6 +7,10 @@
 #include <version>
 #define _INCLUDED_VERSION
 #endif
+
+#if __has_include(<sysexits.h>)
+#include <sysexits.h>
+#endif
 #endif
 
 #ifndef _INCLUDED_VERSION
@@ -16,6 +20,14 @@
 #endif
 
 #undef _INCLUDED_VERSION
+
+#ifndef EX_USAGE
+#define EX_USAGE 64
+#endif
+
+#ifndef EX_NOINPUT
+#define EX_NOINPUT 66
+#endif
 
 
 #ifdef __cpp_constinit

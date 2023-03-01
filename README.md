@@ -54,9 +54,31 @@ In this grid, it is no longer possible to run off a corner in the direction of t
 
 When the IP hits the "point" of any of these instructions, it deflects to the left if the value on top of the stack is negative, and it deflects to the right if the value on top of the stack is positive or zero. Besides the treatment of zero, `>` and `<` act the same as in Hexagony, and the other four are rotations thereof.
 
+For completeness, here's a table of them. The first column is the initial IP direction, and the other columns are the direction of the IP after the branch.
+
+| | `7` | `>` | `v` | `L` | `<` | `^` |
+|--|--|--|--|--|--|--|
+| NE | SW | E | SW | E/NW | SW | NW |
+| E | NE | W | SE | W | SE/NE | W |
+| SE | NW | E | NW | SW | NW | SW/E |
+| SW | W/SE | NE | SE | NE | W | NE |
+| W | E | NW/SW | E | SW | E | NW |
+| NW | NE | SE | NE/W | SE | W | SE |
+
 ### Mirrors
 
-Trilangle has the same four mirrors as Hexagony: `|`, `_`, `/`, and `\`.
+Trilangle has the same four mirrors as Hexagony: `|`, `_`, `/`, and `\`. They operate as follows:
+
+<!-- Since | is the column separator, I have to escape it. But I can't use an escape sequence inside backticks, so I have to use the HTML <code> tag instead. -->
+
+| | <code>\|</code> | `_` | `/` | `\` |
+|--|--|--|--|--|
+| NE | NW | SE | NE | W |
+| E | W | E | NW | SW |
+| SE | SW | NE | W | SE |
+| SW | SE | NW | SW | E |
+| W | E | W | SE | NE |
+| NW | NE | SW | E | NW |
 
 ### Other control flow
 
@@ -205,6 +227,20 @@ Reads in an integer, and prints '1' if it's prime.
   ! . \ S ) S ,
  , ) S < . . . .
 . @ > - . . . . .
+```
+
+### GCD
+
+Reads two numbers in and prints their GCD. Doesn't like zero as an input.
+
+```
+     ?
+    ? ,
+   < ! .
+  j . 1 '
+ > ( | # %
+. @ \ S ) <
+
 ```
 
 ### AAAAAAAAAA
