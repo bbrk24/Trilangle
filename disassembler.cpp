@@ -1,9 +1,12 @@
 #include "disassembler.hh"
-#include <sstream>
-#include <cstdlib>
 #include <cinttypes>
+#include <cstdlib>
+#include <sstream>
 
-#define PRINT_NAME(x) case x: os << buf << # x "\n"; break
+#define PRINT_NAME(x) \
+    case x: \
+        os << buf << #x "\n"; \
+        break
 
 void disassembler::print_op(std::ostream& os, disassembler::program_state& state, bool show_nops, bool show_branch) {
     int24_t op = m_program.at(state.first.coords.first, state.first.coords.second);
@@ -16,32 +19,42 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
         state.second = m_ins_num;
 
         switch (op) {
-            case BNG_E: FALLTHROUGH
-            case BNG_NE: FALLTHROUGH
-            case BNG_NW: FALLTHROUGH
-            case BNG_SE: FALLTHROUGH
-            case BNG_SW: FALLTHROUGH
+            case BNG_E:
+                FALLTHROUGH
+            case BNG_NE:
+                FALLTHROUGH
+            case BNG_NW:
+                FALLTHROUGH
+            case BNG_SE:
+                FALLTHROUGH
+            case BNG_SW:
+                FALLTHROUGH
             case BNG_W:
                 if (show_branch) {
                     os << buf << "BNG";
                     break;
                 }
                 FALLTHROUGH
-            case SKP: FALLTHROUGH
-            case MIR_EW: FALLTHROUGH
-            case MIR_NESW: FALLTHROUGH
-            case MIR_NS: FALLTHROUGH
-            case MIR_NWSE: FALLTHROUGH
+            case SKP:
+                FALLTHROUGH
+            case MIR_EW:
+                FALLTHROUGH
+            case MIR_NESW:
+                FALLTHROUGH
+            case MIR_NS:
+                FALLTHROUGH
+            case MIR_NWSE:
+                FALLTHROUGH
             case NOP:
                 if (show_nops) {
                     os << buf << "NOP\n";
                 }
                 break;
-            PRINT_NAME(ADD);
-            PRINT_NAME(SUB);
-            PRINT_NAME(MUL);
-            PRINT_NAME(DIV);
-            PRINT_NAME(MOD);
+                PRINT_NAME(ADD);
+                PRINT_NAME(SUB);
+                PRINT_NAME(MUL);
+                PRINT_NAME(DIV);
+                PRINT_NAME(MOD);
             case PSI: {
                 // Print in format "PSI #3"
                 auto newip = state.first;
@@ -67,23 +80,23 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
 
                 break;
             }
-            PRINT_NAME(POP);
-            PRINT_NAME(EXT);
-            PRINT_NAME(INC);
-            PRINT_NAME(DEC);
-            PRINT_NAME(AND);
-            PRINT_NAME(IOR);
-            PRINT_NAME(XOR);
-            PRINT_NAME(NOT);
-            PRINT_NAME(GTC);
-            PRINT_NAME(PTC);
-            PRINT_NAME(GTI);
-            PRINT_NAME(PTI);
-            PRINT_NAME(IDX);
-            PRINT_NAME(DUP);
-            PRINT_NAME(RND);
-            PRINT_NAME(EXP);
-            PRINT_NAME(SWP);
+                PRINT_NAME(POP);
+                PRINT_NAME(EXT);
+                PRINT_NAME(INC);
+                PRINT_NAME(DEC);
+                PRINT_NAME(AND);
+                PRINT_NAME(IOR);
+                PRINT_NAME(XOR);
+                PRINT_NAME(NOT);
+                PRINT_NAME(GTC);
+                PRINT_NAME(PTC);
+                PRINT_NAME(GTI);
+                PRINT_NAME(PTI);
+                PRINT_NAME(IDX);
+                PRINT_NAME(DUP);
+                PRINT_NAME(RND);
+                PRINT_NAME(EXP);
+                PRINT_NAME(SWP);
             default:
                 os << buf << "Invalid opcode '";
                 printunichar(op, os);
@@ -98,14 +111,16 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
 void disassembler::write_state(std::ostream& os) {
     build_state();
     m_ins_num = 0;
-    
+
     print_op(os, m_state_ptr->value, !m_flags.hide_nops);
     write(os, *m_state_ptr);
     os << std::flush;
 }
 
 void disassembler::write(std::ostream& os, state_element& state) {
-    if (!state.first_child) return;
+    if (!state.first_child) {
+        return;
+    }
 
     ++m_ins_num;
 
@@ -133,17 +148,25 @@ void disassembler::build_state() {
 
     int24_t op = m_program.at(0, 0);
     switch (op) {
-        case MIR_EW: FALLTHROUGH
-        case MIR_NESW: FALLTHROUGH
-        case MIR_NS: FALLTHROUGH
+        case MIR_EW:
+            FALLTHROUGH
+        case MIR_NESW:
+            FALLTHROUGH
+        case MIR_NS:
+            FALLTHROUGH
         case MIR_NWSE:
             program_walker::reflect(initial_ip.dir, op);
             break;
-        case BNG_E: FALLTHROUGH
-        case BNG_NE: FALLTHROUGH
-        case BNG_NW: FALLTHROUGH
-        case BNG_SE: FALLTHROUGH
-        case BNG_SW: FALLTHROUGH
+        case BNG_E:
+            FALLTHROUGH
+        case BNG_NE:
+            FALLTHROUGH
+        case BNG_NW:
+            FALLTHROUGH
+        case BNG_SE:
+            FALLTHROUGH
+        case BNG_SW:
+            FALLTHROUGH
         case BNG_W:
             program_walker::branch(initial_ip.dir, op, []() -> bool {
                 std::cerr << "Error: program starts with branch instruction. Behavior is undefined." << std::endl;
@@ -170,28 +193,33 @@ void disassembler::build(state_element& state) {
     instruction_pointer next = state.value.first;
     program_walker::advance(next, m_program.side_length());
 
-    if (
-        op == static_cast<int24_t>(opcode::PSC)
-        || op == static_cast<int24_t>(opcode::PSI)
-        || op == static_cast<int24_t>(opcode::SKP)
-    ) {
+    if (op == static_cast<int24_t>(opcode::PSC) || op == static_cast<int24_t>(opcode::PSI)
+        || op == static_cast<int24_t>(opcode::SKP)) {
         program_walker::advance(next, m_program.side_length());
     }
 
     op = m_program.at(next.coords.first, next.coords.second);
     bool branched = false;
     switch (op) {
-        case MIR_EW: FALLTHROUGH
-        case MIR_NESW: FALLTHROUGH
-        case MIR_NS: FALLTHROUGH
+        case MIR_EW:
+            FALLTHROUGH
+        case MIR_NESW:
+            FALLTHROUGH
+        case MIR_NS:
+            FALLTHROUGH
         case MIR_NWSE:
             program_walker::reflect(next.dir, op);
             break;
-        case BNG_E: FALLTHROUGH
-        case BNG_NE: FALLTHROUGH
-        case BNG_NW: FALLTHROUGH
-        case BNG_SE: FALLTHROUGH
-        case BNG_SW: FALLTHROUGH
+        case BNG_E:
+            FALLTHROUGH
+        case BNG_NE:
+            FALLTHROUGH
+        case BNG_NW:
+            FALLTHROUGH
+        case BNG_SE:
+            FALLTHROUGH
+        case BNG_SW:
+            FALLTHROUGH
         case BNG_W:
             program_walker::branch(next.dir, op, [&]() NOEXCEPT_T {
                 branched = true;

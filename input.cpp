@@ -1,83 +1,83 @@
 #include "input.hh"
-#include "string_processing.hh"
-#include <fstream>
 #include <cstring>
+#include <fstream>
 #include <tuple>
+#include "string_processing.hh"
 
-using std::string;
-using std::get;
 using std::cerr;
 using std::endl;
+using std::get;
+using std::string;
 
 constexpr size_t BUF_SIZE = 128;
 
-constexpr const char* HELP_HEADER = "TRILANGLE\n\n"
-"\tTrilangle is a 2-D, stack-based esoteric programming language.\n\n"
-"Usage: %s [flags] [--] [filename]\n"
-"For full documentation, see Github: https://github.com/bbrk24/Trilangle#readme\n\n"
-;
+constexpr const char* HELP_HEADER =
+    "TRILANGLE\n\n"
+    "\tTrilangle is a 2-D, stack-based esoteric programming language.\n\n"
+    "Usage: %s [flags] [--] [filename]\n"
+    "For full documentation, see Github: https://github.com/bbrk24/Trilangle#readme\n\n";
 
-static constexpr const char* FLAGS_HELP = "Flags:\n\n"
-"\t--help           \tShow this message then exit.\n\n"
-"\t--debug, -d      \tEnter debugging mode.\n"
-"\t--show-stack, -s \tShow the stack while debugging. Requires --debug.\n"
-"\t--warnings, -w   \tShow warnings for unspecified behavior.\n"
-"\t--pipekill, -f   \tEnd the program once STDOUT is closed.\n\n"
-"\t--disassemble, -D\tOutput a pseudo-assembly representation of the\n"
-"\t                 \tcode. Incompatible with --debug, --warnings, and\n"
-"\t                 \t--pipekill.\n"
-"\t--hide-nops, -n  \tDon't include NOPs in the disassembly. Requires\n"
-"\t                 \t--disassemble."
-;
+static constexpr const char* FLAGS_HELP =
+    "Flags:\n\n"
+    "\t--help           \tShow this message then exit.\n\n"
+    "\t--debug, -d      \tEnter debugging mode.\n"
+    "\t--show-stack, -s \tShow the stack while debugging. Requires --debug.\n"
+    "\t--warnings, -w   \tShow warnings for unspecified behavior.\n"
+    "\t--pipekill, -f   \tEnd the program once STDOUT is closed.\n\n"
+    "\t--disassemble, -D\tOutput a pseudo-assembly representation of the\n"
+    "\t                 \tcode. Incompatible with --debug, --warnings, and\n"
+    "\t                 \t--pipekill.\n"
+    "\t--hide-nops, -n  \tDon't include NOPs in the disassembly. Requires\n"
+    "\t                 \t--disassemble.";
 
 namespace flag_container {
-    static CONSTINIT_LAMBDA const std::tuple<const char*, char, void(*)(flags&) NOEXCEPT_T> FLAGS[] = {
-        { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
-        { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
-        { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
-        { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
-        { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },
-        { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
-    };
+static CONSTINIT_LAMBDA const std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
+    { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
+    { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
+    { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
+    { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
+    { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },
+    { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
+};
 
-    [[noreturn]] static inline void invalid_flags() {
-        cerr << FLAGS_HELP << endl;
-        exit(EX_USAGE);
-    }
+[[noreturn]] static inline void invalid_flags() {
+    cerr << FLAGS_HELP << endl;
+    exit(EX_USAGE);
+}
 
-    [[noreturn]] static inline void unrecognized_flag(const char* flag) {
-        cerr << "Unrecognized flag: " << flag << "\n\n";
-        invalid_flags();
-    }
-    
-    static inline void set_flag(const char* flagname, flags& f) {
-        if (flagname[1] == '-') {
+[[noreturn]] static inline void unrecognized_flag(const char* flag) {
+    cerr << "Unrecognized flag: " << flag << "\n\n";
+    invalid_flags();
+}
+
+static inline void set_flag(const char* flagname, flags& f) {
+    if (flagname[1] == '-') {
+        for (const auto& t : FLAGS) {
+            if (!strcmp(get<0>(t), flagname + 2)) {
+                get<2>(t)(f);
+                return;
+            }
+        }
+        unrecognized_flag(flagname);
+    } else {
+        for (string_index i = 1; flagname[i] != '\0'; ++i) {
+            bool known_flag = false;
+
             for (const auto& t : FLAGS) {
-                if (!strcmp(get<0>(t), flagname + 2)) {
+                if (get<1>(t) == flagname[i]) {
                     get<2>(t)(f);
-                    return;
+                    known_flag = true;
+                    break;
                 }
             }
-            unrecognized_flag(flagname);
-        } else {
-            for (string_index i = 1; flagname[i] != '\0'; ++i) {
-                bool known_flag = false;
 
-                for (const auto& t : FLAGS) {
-                    if (get<1>(t) == flagname[i]) {
-                        get<2>(t)(f);
-                        known_flag = true;
-                        break;
-                    }
-                }
-
-                if (!known_flag) {
-                    unrecognized_flag(flagname);
-                }
+            if (!known_flag) {
+                unrecognized_flag(flagname);
             }
         }
     }
-};
+}
+};  // namespace flag_container
 
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
 static inline string read_istream(std::istream& stream) {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "int24.hh"
-#include <vector>
-#include <string>
 #include <cstdio>
+#include <string>
+#include <vector>
+#include "int24.hh"
 
 constexpr int24_t INVALID_CHAR{ 0xfffd };
 
@@ -74,19 +74,19 @@ CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_
     vec.reserve(s.size() / 4);
 
     if (skip_shebang && s.size() > 2 && s[0] == '#' && s[1] == '!') {
-        while (*iter++ != '\n');
+        while (*iter != '\n') {
+            ++iter;
+        }
     }
 
     do {
-        vec.push_back(
-            parse_unichar([&]() NOEXCEPT_T {
-                if (iter == s.end()) {
-                    return EOF;
-                } else {
-                    return static_cast<int>(*iter++);
-                }
-            })
-        );
+        vec.push_back(parse_unichar([&]() NOEXCEPT_T {
+            if (iter == s.end()) {
+                return EOF;
+            } else {
+                return static_cast<int>(*iter++);
+            }
+        }));
     } while (iter != s.end());
 
     return vec;

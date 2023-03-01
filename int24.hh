@@ -15,16 +15,10 @@ struct int24_t {
     constexpr explicit int24_t(int64_t x) noexcept : value(static_cast<int32_t>(x)) {}
     MAYBE_UNUSED constexpr explicit int24_t(wint_t x) noexcept : value(static_cast<int32_t>(x)) {}
 
-    constexpr operator int32_t() const noexcept {
-        return value;
-    }
-    constexpr explicit operator uint32_t() const noexcept {
-        return static_cast<uint32_t>(value);
-    }
-    constexpr explicit operator int64_t() const noexcept {
-        return static_cast<int64_t>(value);
-    }
-    
+    constexpr operator int32_t() const noexcept { return value; }
+    constexpr explicit operator uint32_t() const noexcept { return static_cast<uint32_t>(value); }
+    constexpr explicit operator int64_t() const noexcept { return static_cast<int64_t>(value); }
+
 #if SIZE_MAX != UINT32_MAX
     constexpr explicit operator size_t() const noexcept {
         return static_cast<size_t>(value);
@@ -77,7 +71,8 @@ struct int24_t {
     }
 };
 
-#define INT24_C(x) int24_t{ INT32_C(x) }
+#define INT24_C(x) \
+    int24_t { INT32_C(x) }
 
 static inline void printunichar(int24_t c, std::ostream& os = std::cout) {
     // UTF-8

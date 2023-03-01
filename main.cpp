@@ -1,6 +1,6 @@
-#include "interpreter.hh"
-#include "disassembler.hh"
 #include <clocale>
+#include "disassembler.hh"
+#include "interpreter.hh"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -29,26 +29,21 @@ int main(int argc, const char** argv) {
 #endif
 
 extern "C" {
-    EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(
-        const char* program_text,
-        int warnings,
-        int disassemble,
-        int hide_nops
-    ) {
-        // Set locale so that putwchar works as expected
-        setlocale(LC_ALL, "");
-        // Reset EOF from previous runs
-        clearerr(stdin);
+EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int warnings, int disassemble, int hide_nops) {
+    // Set locale so that putwchar works as expected
+    setlocale(LC_ALL, "");
+    // Reset EOF from previous runs
+    clearerr(stdin);
 
-        flags f;
-        f.warnings = warnings;
-        f.disassemble = disassemble;
-        f.hide_nops = hide_nops;
+    flags f;
+    f.warnings = warnings;
+    f.disassemble = disassemble;
+    f.hide_nops = hide_nops;
 
-        execute(program_text, f);
-    }
+    execute(program_text, f);
+}
 
-    EMSCRIPTEN_KEEPALIVE void wasm_cancel() {
-        interpreter::stop_all();
-    }
+EMSCRIPTEN_KEEPALIVE void wasm_cancel() {
+    interpreter::stop_all();
+}
 }

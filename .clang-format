@@ -1,0 +1,20 @@
+---
+BasedOnStyle: Chromium
+AlignAfterOpenBracket: BlockIndent
+ColumnLimit: 120
+Cpp11BracedListStyle: false
+IndentWidth: 4
+---
+Language: Cpp
+AccessModifierOffset: -4
+AlignEscapedNewlines: DontAlign
+AttributeMacros:
+  - UNLIKELY
+BreakBeforeBinaryOperators: NonAssignment
+BreakConstructorInitializers: AfterColon
+EmptyLineBeforeAccessModifier: Never
+InsertBraces: true
+MaxEmptyLinesToKeep: 2
+WhitespaceSensitiveMacros:
+  - PRINT_NAME
+SpaceAfterTemplateKeyword: false

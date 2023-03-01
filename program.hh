@@ -1,9 +1,9 @@
 #pragma once
 
-#include "string_processing.hh"
-#include "opcode.hh"
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include "opcode.hh"
+#include "string_processing.hh"
 
 constexpr size_t triangular(size_t n) noexcept {
     return n * (n + 1) / 2;
@@ -15,13 +15,9 @@ public:
 
     CONSTEXPR_ALG program(const std::string& source) : m_code(parse_utf8(source, true)), m_side_length(0) {
         // remove all whitespace
-        auto iter = std::remove_if(
-            m_code.begin(),
-            m_code.end(),
-            [](int24_t c) {
-                return c == (int24_t)' ' || c == (int24_t)'\n';
-            }
-        );
+        auto iter = std::remove_if(m_code.begin(), m_code.end(), [](int24_t c) {
+            return c == (int24_t)' ' || c == (int24_t)'\n';
+        });
         m_code.erase(iter, m_code.end());
 
         // Determine the next triangular number

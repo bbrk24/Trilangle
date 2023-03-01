@@ -2,13 +2,11 @@
 
 #include "program.hh"
 
-enum class direction : char {
-    southwest, west, northwest, northeast, east, southeast
-};
+enum class direction : char { southwest, west, northwest, northeast, east, southeast };
 
 class program_walker {
 public:
-    constexpr program_walker(const program& p) noexcept : m_program(p) { }
+    constexpr program_walker(const program& p) noexcept : m_program(p) {}
 
     // Pack this struct, so that the sizeof (size_t) - 1 bytes leftover at the end can be used by other variables in a
     // larger object (i.e. disassembler and interpreter). I know pragmas aren't generally portable, but pack(...) is
@@ -18,7 +16,7 @@ public:
         std::pair<size_t, size_t> coords;
         direction dir;
 
-        constexpr bool operator==(const instruction_pointer &rhs) const noexcept {
+        constexpr bool operator==(const instruction_pointer& rhs) const noexcept {
             return this->coords == rhs.coords && this->dir == rhs.dir;
         }
     };
@@ -113,7 +111,8 @@ protected:
                     case direction::southeast:
                         dir = direction::northeast;
                         break;
-                    case direction::east: FALLTHROUGH
+                    case direction::east:
+                        FALLTHROUGH
                     case direction::west:
                         break;
                 }
@@ -154,7 +153,8 @@ protected:
                     case direction::northwest:
                         dir = direction::east;
                         break;
-                    case direction::northeast: FALLTHROUGH
+                    case direction::northeast:
+                        FALLTHROUGH
                     case direction::southwest:
                         break;
                 }
@@ -173,7 +173,8 @@ protected:
                     case direction::southwest:
                         dir = direction::east;
                         break;
-                    case direction::northwest: FALLTHROUGH
+                    case direction::northwest:
+                        FALLTHROUGH
                     case direction::southeast:
                         break;
                 }
@@ -196,7 +197,8 @@ protected:
                             dir = direction::northwest;
                         }
                         break;
-                    case direction::northeast: FALLTHROUGH
+                    case direction::northeast:
+                        FALLTHROUGH
                     case direction::southeast:
                         dir = direction::east;
                         break;
@@ -220,7 +222,8 @@ protected:
                             dir = direction::southeast;
                         }
                         break;
-                    case direction::northwest: FALLTHROUGH
+                    case direction::northwest:
+                        FALLTHROUGH
                     case direction::southwest:
                         dir = direction::west;
                         break;
@@ -244,7 +247,8 @@ protected:
                             dir = direction::west;
                         }
                         break;
-                    case direction::northwest: FALLTHROUGH
+                    case direction::northwest:
+                        FALLTHROUGH
                     case direction::east:
                         dir = direction::northeast;
                         break;
@@ -268,7 +272,8 @@ protected:
                             dir = direction::east;
                         }
                         break;
-                    case direction::southeast: FALLTHROUGH
+                    case direction::southeast:
+                        FALLTHROUGH
                     case direction::west:
                         dir = direction::southwest;
                         break;
@@ -292,7 +297,8 @@ protected:
                             dir = direction::southwest;
                         }
                         break;
-                    case direction::northeast: FALLTHROUGH
+                    case direction::northeast:
+                        FALLTHROUGH
                     case direction::west:
                         dir = direction::northwest;
                         break;
@@ -316,7 +322,8 @@ protected:
                             dir = direction::northeast;
                         }
                         break;
-                    case direction::southwest: FALLTHROUGH
+                    case direction::southwest:
+                        FALLTHROUGH
                     case direction::east:
                         dir = direction::southeast;
                         break;
@@ -338,17 +345,17 @@ protected:
 };
 
 namespace std {
-    template<>
-    struct hash<program_walker::instruction_pointer> {
-        inline size_t operator()(const program_walker::instruction_pointer& key) const noexcept {
-            size_t first_hash = key.coords.first;
+template<>
+struct hash<program_walker::instruction_pointer> {
+    inline size_t operator()(const program_walker::instruction_pointer& key) const noexcept {
+        size_t first_hash = key.coords.first;
 
-            size_t second_hash = (key.coords.second << (4 * sizeof (size_t)))
-                | (key.coords.second >> (4 * sizeof (size_t)));
-            
-            size_t direction_hash = hash<direction>()(key.dir);
+        size_t second_hash = (key.coords.second << (4 * sizeof key.coords.second))
+                             | (key.coords.second >> (4 * sizeof key.coords.second));
 
-            return first_hash ^ second_hash ^ direction_hash;
-        }
-    };
-}
+        size_t direction_hash = hash<direction>()(key.dir);
+
+        return first_hash ^ second_hash ^ direction_hash;
+    }
+};
+}  // namespace std

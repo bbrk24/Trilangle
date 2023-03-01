@@ -14,9 +14,9 @@
 #endif
 
 #ifndef _INCLUDED_VERSION
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <string>
+#include <vector>
 #endif
 
 #undef _INCLUDED_VERSION
@@ -125,10 +125,10 @@
 
 #ifdef __cpp_size_t_suffix
 // mark a literal as a size_t
-#define SIZE_C(x) x ## UZ
+#define SIZE_C(x) x##UZ
 #else
 // mark a literal as a size_t
-#define SIZE_C(x) x ## U
+#define SIZE_C(x) x##U
 #endif
 
 

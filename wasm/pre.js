@@ -16,10 +16,10 @@ Module = {
         const stdin = () => {
             if (inputIndex === 0)
                 stdinBuffer = encoder.encode(elements.input.value);
-            
+
             if (inputIndex >= stdinBuffer.length)
                 return null;
-            
+
             return stdinBuffer.at(inputIndex++);
         };
 
@@ -29,11 +29,9 @@ Module = {
                 if (char < 0) {
                     stdoutBuffer.push(char);
 
-                    if (
-                        stdoutBuffer.length === 4 ||
+                    if (stdoutBuffer.length === 4 ||
                         ((stdoutBuffer[0] + 256) & 0xf0 === 0xe0 && stdoutBuffer.length >= 3) ||
-                        ((stdoutBuffer[0] + 256) & 0xe0 === 0xc0 && stdoutBuffer.length >= 2)
-                    ) {
+                        ((stdoutBuffer[0] + 256) & 0xe0 === 0xc0 && stdoutBuffer.length >= 2)) {
                         elements.output.textContent += decoder.decode(new Int8Array(stdoutBuffer));
                         stdoutBuffer = [];
                     }
@@ -48,11 +46,9 @@ Module = {
                 if (char < 0) {
                     stderrBuffer.push(char);
 
-                    if (
-                        stderrBuffer.length === 4 ||
+                    if (stderrBuffer.length === 4 ||
                         ((stderrBuffer[0] + 256) & 0xf0 === 0xe0 && stderrBuffer.length >= 3) ||
-                        ((stderrBuffer[0] + 256) & 0xe0 === 0xc0 && stderrBuffer.length >= 2)
-                    ) {
+                        ((stderrBuffer[0] + 256) & 0xe0 === 0xc0 && stderrBuffer.length >= 2)) {
                         const text = decoder.decode(new Int8Array(stderrBuffer));
                         stderrBuffer = [];
                         if (elements.error.lastChild instanceof Text)
@@ -68,8 +64,7 @@ Module = {
                     else
                         elements.error.lastChild.nodeValue += String.fromCharCode(char);
                 } else
-                    elements.error.appendChild(
-                        document.createTextNode(char === 32 ? '\xa0' : String.fromCharCode(char))
+                    elements.error.appendChild(document.createTextNode(char === 32 ? '\xa0' : String.fromCharCode(char))
                     );
             }
         };

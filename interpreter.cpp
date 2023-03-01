@@ -1,8 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 
 #include "interpreter.hh"
-#include <cstdlib>
 #include <cinttypes>
+#include <cstdlib>
 #include <random>
 #include <type_traits>
 
@@ -18,15 +18,16 @@
 #define EMPTY_PROTECT(name, sleep) \
     if (m_stack.empty() && m_flags.warnings) UNLIKELY { \
         cerr << "Warning: Attempt to " name " empty stack.\n"; \
-        if (sleep) emscripten_sleep(0); \
+        if (sleep) \
+            emscripten_sleep(0); \
     } else
 
 #define SIZE_CHECK(name, count) \
-    if (m_flags.warnings && m_stack.size() < (count)) \
-       UNLIKELY cerr << "Warning: Attempt to " name " stack with fewer than " << (count) << " elements.\n"
+    if (m_flags.warnings && m_stack.size() < (count)) UNLIKELY \
+    cerr << "Warning: Attempt to " name " stack with fewer than " << (count) << " elements.\n"
 
-using std::cout;
 using std::cerr;
+using std::cout;
 
 constexpr int24_t INT24_MIN{ -0x800000 };
 constexpr int24_t INT24_MAX{ 0x7fffff };
@@ -152,17 +153,25 @@ void interpreter::run() {
                 m_stack.back() %= top;
                 break;
             }
-            case MIR_EW: FALLTHROUGH
-            case MIR_NESW: FALLTHROUGH
-            case MIR_NS: FALLTHROUGH
+            case MIR_EW:
+                FALLTHROUGH
+            case MIR_NESW:
+                FALLTHROUGH
+            case MIR_NS:
+                FALLTHROUGH
             case MIR_NWSE:
                 program_walker::reflect(m_ip.dir, op);
                 break;
-            case BNG_E: FALLTHROUGH
-            case BNG_NE: FALLTHROUGH
-            case BNG_NW: FALLTHROUGH
-            case BNG_SE: FALLTHROUGH
-            case BNG_SW: FALLTHROUGH
+            case BNG_E:
+                FALLTHROUGH
+            case BNG_NE:
+                FALLTHROUGH
+            case BNG_NW:
+                FALLTHROUGH
+            case BNG_SE:
+                FALLTHROUGH
+            case BNG_SW:
+                FALLTHROUGH
             case BNG_W:
                 program_walker::branch(m_ip.dir, op, [&]() NOEXCEPT_T {
                     EMPTY_PROTECT("branch on", false) {}
@@ -182,7 +191,7 @@ void interpreter::run() {
                 if (m_flags.warnings) {
                     if (next < (int24_t)'0' || next > (int24_t)'9') UNLIKELY {
                         cerr << "Warning: Pushing non-ASCII-decimal number with " << static_cast<char>(opcode::PSI)
-                            << " is implementation-defined behavior.\n";
+                             << " is implementation-defined behavior.\n";
                     }
                 }
 
@@ -307,7 +316,7 @@ void interpreter::run() {
                 if (m_flags.warnings) {
                     if (top < INT24_C(0) || m_stack.size() < static_cast<size_t>(top) + 1) UNLIKELY {
                         cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size()
-                            << ", index = " << top << ")\n";
+                             << ", index = " << top << ")\n";
                     }
                 }
 
