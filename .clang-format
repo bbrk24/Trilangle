@@ -1,9 +1,11 @@
 ---
 BasedOnStyle: Chromium
 AlignAfterOpenBracket: BlockIndent
+BinPackArguments: false
 ColumnLimit: 120
 Cpp11BracedListStyle: false
 IndentWidth: 4
+InsertTrailingCommas: Wrapped
 ---
 Language: Cpp
 AccessModifierOffset: -4

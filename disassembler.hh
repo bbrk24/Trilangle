@@ -5,44 +5,12 @@
 #include "input.hh"
 #include "program_walker.hh"
 
-// Moves a value if it's better than copying.
-template<
-    typename T,
-    std::enable_if_t<
-        sizeof(std::remove_reference_t<T>) <= sizeof(void*) && std::is_trivially_copy_constructible<T>::value,
-        bool> = false>
-constexpr const T& maybe_move(const T& value) noexcept {
-    return value;
-}
-
-// Moves a value if it's better than copying.
-template<
-    typename T,
-    std::enable_if_t<
-        std::is_nothrow_move_constructible<T>::value
-            && !(sizeof(std::remove_reference_t<T>) <= sizeof(void*) && std::is_trivially_copy_constructible<T>::value),
-        bool> = true>
-constexpr std::remove_reference_t<T>&& maybe_move(T&& value) noexcept {
-    return std::move(value);
-}
-
 class disassembler : public program_walker {
 public:
     using program_state = std::pair<const instruction_pointer, int32_t>;
 
     inline disassembler(const program& p, flags f) noexcept :
         program_walker(p), m_state_ptr(nullptr), m_visited(), m_ins_num(0), m_flags(f) {}
-
-    inline disassembler(disassembler&& other) noexcept :
-        program_walker(std::move(other)),
-        m_state_ptr(other.m_state_ptr),
-        m_visited(maybe_move(other.m_visited)),
-        m_ins_num(maybe_move(other.m_ins_num)),
-        m_flags(maybe_move(other.m_flags)) {
-        other.m_state_ptr = nullptr;
-    }
-
-    explicit disassembler(const disassembler&) = default;
 
     inline ~disassembler() noexcept {
         if (m_state_ptr != nullptr) {
