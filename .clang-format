@@ -15,6 +15,9 @@ BreakConstructorInitializers: AfterColon
 EmptyLineBeforeAccessModifier: Never
 InsertBraces: true
 MaxEmptyLinesToKeep: 2
+SpaceAfterTemplateKeyword: false
 WhitespaceSensitiveMacros:
   - PRINT_NAME
-SpaceAfterTemplateKeyword: false
+---
+Language: JavaScript
+RemoveBracesLLVM: true
