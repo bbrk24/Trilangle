@@ -343,8 +343,8 @@ namespace std {
         inline size_t operator()(const program_walker::instruction_pointer& key) const noexcept {
             size_t first_hash = key.coords.first;
 
-            size_t second_hash = (key.coords.second << (4 * sizeof(size_t)))
-                | (key.coords.second >> (4 * sizeof(size_t)));
+            size_t second_hash = (key.coords.second << (4 * sizeof (size_t)))
+                | (key.coords.second >> (4 * sizeof (size_t)));
             
             size_t direction_hash = hash<direction>()(key.dir);
 
