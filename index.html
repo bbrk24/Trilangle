@@ -29,6 +29,16 @@
         color: crimson;
       }
 
+      #out-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      #out-container > :not(:empty) {
+        flex-grow: 1;
+      }
+
       @media (prefers-color-scheme: dark) {
         body {
           background-color: #1c1c1c;
@@ -86,7 +96,9 @@ o &quot; &quot; &quot; o ' ( @ .</textarea><br />
     <button onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
     <button onclick="clearOutput()">Clear output</button>
     <p>Output:</p>
-    <pre id="stdout"></pre>
-    <p id="stderr"></p>
+    <div id="out-container">
+      <pre id="stdout"></pre>
+      <p id="stderr"></p>
+    </div>
   </body>
 </html>
