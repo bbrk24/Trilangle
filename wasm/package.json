@@ -5,6 +5,6 @@
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
-        "deploy": "gh-pages -d . -s \"{*.html,out.*,*.ico}\""
+        "deploy": "gh-pages -d . -s \"{index.*,out.*,favicon.ico}\""
     }
 }

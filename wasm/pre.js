@@ -1,13 +1,14 @@
-var inputIndex = 0;
+let inputIndex = 0;
+
+/** @type {{ input: HTMLTextAreaElement, output: HTMLPreElement, error: HTMLParagraphElement }} */
+const elements = {
+    input: document.getElementById('stdin'),
+    output: document.getElementById('stdout'),
+    error: document.getElementById('stderr'),
+};
+
 Module = {
     preInit() {
-        /** @type {{ input: HTMLTextAreaElement, output: HTMLPreElement, error: HTMLParagraphElement }} */
-        const elements = {
-            input: document.getElementById('stdin'),
-            output: document.getElementById('stdout'),
-            error: document.getElementById('stderr'),
-        };
-
         const encoder = new TextEncoder(), decoder = new TextDecoder();
         let stdoutBuffer = [], stderrBuffer = [];
         /** @type {Uint8Array?} */
@@ -30,8 +31,8 @@ Module = {
                     stdoutBuffer.push(char);
 
                     if (stdoutBuffer.length === 4 ||
-                        ((stdoutBuffer[0] + 256) & 0xf0 === 0xe0 && stdoutBuffer.length >= 3) ||
-                        ((stdoutBuffer[0] + 256) & 0xe0 === 0xc0 && stdoutBuffer.length >= 2)) {
+                        ((stdoutBuffer[0] + 256) & 0xf0 === 0xe0 && stdoutBuffer.length === 3) ||
+                        ((stdoutBuffer[0] + 256) & 0xe0 === 0xc0 && stdoutBuffer.length === 2)) {
                         elements.output.textContent += decoder.decode(new Int8Array(stdoutBuffer));
                         stdoutBuffer = [];
                     }

@@ -6,77 +6,7 @@
     <link rel="icon" href="./favicon.ico" />
     <script async src="./out.js"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-
-      textarea {
-        font-family: monospace;
-        background-color: inherit;
-        color: inherit;
-      }
-
-      button {
-        background-color: rgb(127 127 127 / 35%);
-        color: inherit;
-        border: none;
-        border-radius: 0.25em;
-        padding: 0.25em 0.45em;
-      }
-
-      #stderr {
-        color: crimson;
-      }
-
-      #out-container {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-
-      #out-container > :not(:empty) {
-        flex-grow: 1;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        body {
-          background-color: #1c1c1c;
-          color: whitesmoke;
-        }
-      }
-    </style>
-    <script>
-      function clearOutput() {
-        document.getElementById('stdout').innerHTML = '';
-        document.getElementById('stderr').innerHTML = '';
-      }
-
-      /** @type {(warnings: 0 | 1, disassemble: 0 | 1, hideNops: 0 | 1) => () => void} */
-      const callInterpreter = (warnings, disassemble, hideNops) => () => {
-        inputIndex = 0;
-        Module.ccall('wasm_cancel', null);
-        clearOutput();
-        // By adding a 5ms delay, the previous thread has a chance to clean up after itself.
-        // Without this, we may usurp its memory, and then it'll try to deallocate it in a problematic way.
-        // Is this a good thing? Probably not. Does it work? Usually. Worst case, just reload the page.
-        setTimeout(async () => {
-          try {
-            await Module.ccall(
-              'wasm_entrypoint',
-              null,
-              ['string', 'number', 'number', 'number'],
-              [document.getElementById('program').value, warnings, disassemble, hideNops]
-            );
-          } catch (e) {
-            if (!(e instanceof ExitStatus))
-              document.getElementById('stderr').innerText += String(e);
-          }
-        }, 5);
-      };
-
-      var interpretProgram = callInterpreter(1, 0, 0), disassembleProgram = callInterpreter(0, 1, 1);
-    </script>
+    <link rel="stylesheet" href="./index.css" />
   </head>
   <body>
     <label for="program">Program:</label><br />

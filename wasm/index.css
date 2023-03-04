@@ -1,0 +1,38 @@
+body {
+    font-family: sans-serif;
+}
+
+textarea {
+    font-family: monospace;
+    background-color: inherit;
+    color: inherit;
+}
+
+button {
+    background-color: rgb(127 127 127 / 35%);
+    color: inherit;
+    border: none;
+    border-radius: 0.25em;
+    padding: 0.25em 0.45em;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1c1c1c;
+        color: whitesmoke;
+    }
+}
+
+#stderr {
+    color: crimson;
+}
+
+#out-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+#out-container > :not(:empty) {
+    flex-grow: 1;
+}
