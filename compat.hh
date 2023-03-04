@@ -135,7 +135,7 @@
 #ifdef __cpp_lib_unreachable
 using std::unreachable;
 #else
-[[noreturn]] static inline void unreachable() {
+[[noreturn]] static inline void unreachable() noexcept {
     // Polyfill derived from https://en.cppreference.com/w/cpp/utility/unreachable
 #ifdef __GNUC__
     __builtin_unreachable();

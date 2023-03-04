@@ -9,7 +9,7 @@ class disassembler : public program_walker {
 public:
     using program_state = std::pair<const instruction_pointer, int32_t>;
 
-    inline disassembler(const program& p, flags f) noexcept :
+    inline disassembler(const program& p, flags f) :
         program_walker(p), m_state_ptr(nullptr), m_visited(), m_ins_num(0), m_flags(f) {}
 
     inline ~disassembler() noexcept {
