@@ -21,11 +21,11 @@
 o &quot; &quot; &quot; o ' ( @ .</textarea><br />
     <label for="stdin">Input:</label><br />
     <textarea id="stdin"></textarea><br />
-    <button onclick="interpretProgram()">Run!</button>
-    <button onclick="disassembleProgram()">Show disassembly</button>
-    <button onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
-    <button onclick="clearOutput()">Clear output</button>
-    <p>Output:</p>
+    <button type="button" onclick="interpretProgram()">Run!</button>
+    <button type="button" onclick="disassembleProgram()">Show disassembly</button>
+    <button type="button" onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
+    <button type="button" onclick="clearOutput()">Clear output</button>
+    <p id="out-label">Output:</p>
     <div id="out-container">
       <pre id="stdout"></pre>
       <p id="stderr"></p>

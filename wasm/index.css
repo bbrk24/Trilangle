@@ -1,5 +1,6 @@
 body {
     font-family: sans-serif;
+    -webkit-text-size-adjust: 100%;
 }
 
 textarea {
@@ -12,8 +13,19 @@ button {
     background-color: rgb(127 127 127 / 35%);
     color: inherit;
     border: none;
-    border-radius: 0.25em;
-    padding: 0.25em 0.45em;
+    border-radius: 0.35em;
+    font-size: 0.8em;
+    margin: 0.45em 0.25em 0.25em 0;
+    text-transform: none;
+    /*
+     * Vertical padding of 0.25em,0.25em centers it on Safari, but 0.3em,0.25em centers it on Chrome.
+     * I'll split the difference.
+     */
+    padding: 0.27em 0.45em 0.25em;
+}
+
+pre {
+    font-size: 1em;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,6 +37,10 @@ button {
 
 #stderr {
     color: crimson;
+}
+
+#out-label {
+    margin: 0.5em 0 0;
 }
 
 #out-container {
