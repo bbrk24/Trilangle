@@ -39,4 +39,6 @@ enum opcode : int32_t {
     RND = '$',        // random
     EXP = 'e',        // exponential
     SWP = 'S',        // swap
+    THR_W = '{',      // west thread operator
+    THR_E = '}',      // east thread operator
 };

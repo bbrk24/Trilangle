@@ -63,7 +63,7 @@ int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) {
                 ((buf[0] & 0x07) << 18) | ((buf[1] & 0x3f) << 12) | ((buf[2] & 0x3f) << 6) | (buf[3] & 0x3f)
             );
         default:
-            unreachable();
+            unreachable("buf_max is only set to 2, 3, or 4");
     }
 }
 

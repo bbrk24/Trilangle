@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <utility>
 
 #ifdef __has_include
@@ -131,16 +132,10 @@
 #define SIZE_C(x) x##U
 #endif
 
+#if !defined(__GNUC__) && defined(_MSC_VER)
+#define __builtin_unreachable() __assume(0)
+#endif
 
-#ifdef __cpp_lib_unreachable
-using std::unreachable;
-#else
-[[noreturn]] static inline void unreachable() noexcept {
-    // Polyfill derived from https://en.cppreference.com/w/cpp/utility/unreachable
-#ifdef __GNUC__
-    __builtin_unreachable();
-#elif defined(_MSC_VER)
-    __assume(0);
-#endif
-}
-#endif
+#define unreachable(reason) \
+    assert(("Assumption violated: " reason, false)); \
+    __builtin_unreachable()

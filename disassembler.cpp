@@ -9,7 +9,7 @@
         break
 
 void disassembler::print_op(std::ostream& os, disassembler::program_state& state, bool show_nops, bool show_branch) {
-    int24_t op = m_program.at(state.first.coords.first, state.first.coords.second);
+    int24_t op = m_program->at(state.first.coords.first, state.first.coords.second);
 
     // Store the label in a temporary buffer, in case it's not actually printed.
     char buf[10];
@@ -58,8 +58,8 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
             case PSI: {
                 // Print in format "PSI #3"
                 auto newip = state.first;
-                program_walker::advance(newip, m_program.side_length());
-                int24_t arg = m_program.at(newip.coords.first, newip.coords.second);
+                program_walker::advance(newip, m_program->side_length());
+                int24_t arg = m_program->at(newip.coords.first, newip.coords.second);
                 os << buf << "PSI #";
                 printunichar(arg, os);
                 os << '\n';
@@ -69,8 +69,8 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
             case PSC: {
                 // Print in format "PSC 'A' ; 0x65"
                 auto newip = state.first;
-                program_walker::advance(newip, m_program.side_length());
-                int24_t arg = m_program.at(newip.coords.first, newip.coords.second);
+                program_walker::advance(newip, m_program->side_length());
+                int24_t arg = m_program->at(newip.coords.first, newip.coords.second);
                 os << buf << "PSC '";
                 printunichar(arg, os);
                 os << "' ; 0x";
@@ -146,7 +146,7 @@ void disassembler::build_state() {
 
     instruction_pointer initial_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest };
 
-    int24_t op = m_program.at(0, 0);
+    int24_t op = m_program->at(0, 0);
     switch (op) {
         case MIR_EW:
             FALLTHROUGH
@@ -185,20 +185,20 @@ void disassembler::build_state() {
 }
 
 void disassembler::build(state_element& state) {
-    int24_t op = m_program.at(state.value.first.coords.first, state.value.first.coords.second);
+    int24_t op = m_program->at(state.value.first.coords.first, state.value.first.coords.second);
     if (op == static_cast<int24_t>(opcode::EXT)) {
         return;
     }
 
     instruction_pointer next = state.value.first;
-    program_walker::advance(next, m_program.side_length());
+    program_walker::advance(next, m_program->side_length());
 
     if (op == static_cast<int24_t>(opcode::PSC) || op == static_cast<int24_t>(opcode::PSI)
         || op == static_cast<int24_t>(opcode::SKP)) {
-        program_walker::advance(next, m_program.side_length());
+        program_walker::advance(next, m_program->side_length());
     }
 
-    op = m_program.at(next.coords.first, next.coords.second);
+    op = m_program->at(next.coords.first, next.coords.second);
     bool branched = false;
     switch (op) {
         case MIR_EW:

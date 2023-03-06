@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <cassert>
 #include "opcode.hh"
 #include "string_processing.hh"
 

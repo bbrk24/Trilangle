@@ -6,7 +6,7 @@ enum class direction : char { southwest, west, northwest, northeast, east, south
 
 class program_walker {
 public:
-    constexpr program_walker(const program& p) noexcept : m_program(p) {}
+    constexpr program_walker(const program& p) noexcept : m_program(&p) {}
 
     // Pack this struct, so that the sizeof (size_t) - 1 bytes leftover at the end can be used by other variables in a
     // larger object (i.e. disassembler and interpreter). I know pragmas aren't generally portable, but pack(...) is
@@ -92,7 +92,7 @@ public:
         }
     }
 protected:
-    const program& m_program;
+    const program* m_program;
 
     // Reflect the IP according to the mirror.
     static inline void reflect(direction& dir, int24_t mir) noexcept {
@@ -180,7 +180,7 @@ protected:
                 }
                 break;
             default:
-                unreachable();
+                unreachable("program_walker::reflect() should only be passed a mirror");
         }
     }
 
@@ -339,7 +339,7 @@ protected:
                 }
                 break;
             default:
-                unreachable();
+                unreachable("program_walker::branch() should only be passed a branch");
         }
     }
 };
