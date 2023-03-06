@@ -128,6 +128,25 @@ Trilangle has five instructions for I/O: two for console input, two for console 
 
 Note that the input functions push to the stack, but the output functions do not pop from it.
 
+### Threading
+
+`{` and `}` can be used for thread manipulation. They behave nearly identically (with `}` behaving as the mirror image of `{`), so only one will be described in detail.
+
+When `{` is approached from the west, the interpreter splits into two "threads": one going northeast, and one going southeast. The threads receive a deep copy of the stack: that is, they start with the same contents, but mutating one does not affect the other.
+
+When `{` is approached from the east, the thread is removed. If no more threads remain, the program is terminated. (Note that `@` can terminate the whole program without waiting for other threads.)
+
+When `{` is approached from the northwest or southwest, the interpreter passes right over it, as with `.`.
+
+When `{` is approached from the northeast or southeast, that interpreter thread pauses until a second one reaches the same location from the northeast or southeast. When two threads are waiting at the same place, they are merged and the resulting thread continues to the west. The top value on each stack indicates how many values to move into the resulting stack, for example:
+
+| First thread | Second thread | Result |
+|--|--|--|
+| 3 | 1 | f |
+| c | f | c |
+| b | e | b |
+| a | d | a |
+
 ## Interpreter flags
 
 When run with the `-d` flag, the interpreter enters "debug mode." Before executing each instruction, it prints the location of the IP and the opcode that it is pointing at, and it waits for you to press enter before continuing. If the `-s` flag is also set, the interpreter will print the stack contents as well as the IP.
@@ -142,7 +161,7 @@ As you may have noticed above, every instruction has a three-letter name. When t
 
 In additon to actual NOPs, it reports mirrors, skips, and some branch instructions as NOPS. Since this results in an excess of NOPs in the output, you may additionally pass the `-n` flag to hide NOPs.
 
-When laying out the program linearly, the disassembler represents branch instructions as `BNG` (branch if negative) statements, and loops as `JMP` (jump) statements.
+When laying out the program linearly, the disassembler represents branch instructions as `BNG` (branch if negative) statements, and loops as `JMP` (jump) statements. The threading operations are represented as `TSP` (thread spawn), `TJN` (thread join), and `TKL` (thread kill).
 
 For example, when passing [the cat program below](#cat) with the flags `-Dn`, the output is as follows:
 

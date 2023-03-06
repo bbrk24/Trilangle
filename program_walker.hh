@@ -2,7 +2,11 @@
 
 #include "program.hh"
 
-enum class direction : char { southwest, west, northwest, northeast, east, southeast };
+enum class direction : char { southwest, west, northwest, northeast, east, southeast, invalid };
+
+#define UNREACHABLE_INVALID_DIR \
+    case direction::invalid: \
+        unreachable("invalid direction must never be passed")
 
 class program_walker {
 public:
@@ -26,6 +30,7 @@ public:
     static constexpr void advance(instruction_pointer& ip, size_t program_size) noexcept {
         // I don't remember how this works, it just does.
         switch (ip.dir) {
+            UNREACHABLE_INVALID_DIR;
             case direction::southwest:
                 if (++ip.coords.first == program_size) {
                     ip.coords.second = (ip.coords.second + 1) % program_size;
@@ -99,6 +104,7 @@ protected:
         switch (mir) {
             case MIR_EW:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::southwest:
                         dir = direction::northwest;
                         break;
@@ -119,6 +125,7 @@ protected:
                 break;
             case MIR_NS:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::southwest:
                         dir = direction::southeast;
                         break;
@@ -141,6 +148,7 @@ protected:
                 break;
             case MIR_NESW:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::west:
                         dir = direction::southeast;
                         break;
@@ -161,6 +169,7 @@ protected:
                 break;
             case MIR_NWSE:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::west:
                         dir = direction::northeast;
                         break;
@@ -188,8 +197,27 @@ protected:
     template<typename T>
     static void branch(direction& dir, int24_t bng, T go_left) noexcept(noexcept(go_left())) {
         switch (bng) {
+            case THR_E:
+                switch (dir) {
+                    case direction::west:
+                        if (go_left()) {
+                            dir = direction::southwest;
+                        } else {
+                            dir = direction::northwest;
+                        }
+                        break;
+                    case direction::northeast:
+                        FALLTHROUGH
+                    case direction::southeast:
+                        dir = direction::east;
+                        break;
+                    default:
+                        break;
+                }
+                break;
             case BNG_E:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::west:
                         if (go_left()) {
                             dir = direction::southwest;
@@ -213,8 +241,27 @@ protected:
                         break;
                 }
                 break;
+            case THR_W:
+                switch (dir) {
+                    case direction::east:
+                        if (go_left()) {
+                            dir = direction::northeast;
+                        } else {
+                            dir = direction::southeast;
+                        }
+                        break;
+                    case direction::northwest:
+                        FALLTHROUGH
+                    case direction::southwest:
+                        dir = direction::west;
+                        break;
+                    default:
+                        break;
+                }
+                break;
             case BNG_W:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::east:
                         if (go_left()) {
                             dir = direction::northeast;
@@ -240,6 +287,7 @@ protected:
                 break;
             case BNG_NE:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::southwest:
                         if (go_left()) {
                             dir = direction::southeast;
@@ -265,6 +313,7 @@ protected:
                 break;
             case BNG_SW:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::northeast:
                         if (go_left()) {
                             dir = direction::northwest;
@@ -290,6 +339,7 @@ protected:
                 break;
             case BNG_NW:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::southeast:
                         if (go_left()) {
                             dir = direction::east;
@@ -315,6 +365,7 @@ protected:
                 break;
             case BNG_SE:
                 switch (dir) {
+                    UNREACHABLE_INVALID_DIR;
                     case direction::northwest:
                         if (go_left()) {
                             dir = direction::west;

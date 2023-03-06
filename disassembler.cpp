@@ -8,7 +8,13 @@
         os << buf << #x "\n"; \
         break
 
-void disassembler::print_op(std::ostream& os, disassembler::program_state& state, bool show_nops, bool show_branch) {
+void disassembler::print_op(
+    std::ostream& os,
+    disassembler::program_state& state,
+    bool show_nops,
+    direction from_dir,
+    bool show_branch
+) {
     int24_t op = m_program->at(state.first.coords.first, state.first.coords.second);
 
     // Store the label in a temporary buffer, in case it's not actually printed.
@@ -19,6 +25,52 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
         state.second = m_ins_num;
 
         switch (op) {
+            case THR_E:
+                switch (from_dir) {
+                    UNREACHABLE_INVALID_DIR;
+                    case direction::east:
+                        os << buf << "TKL\n";
+                        break;
+                    case direction::west:
+                        os << buf << "TSP ";
+                        break;
+                    case direction::northeast:
+                        FALLTHROUGH
+                    case direction::southeast:
+                        os << buf << "TJN\n";
+                        break;
+                    case direction::northwest:
+                        FALLTHROUGH
+                    case direction::southwest:
+                        if (show_nops) {
+                            os << buf << "NOP\n";
+                        }
+                        break;
+                }
+                break;
+            case THR_W:
+                switch (from_dir) {
+                    UNREACHABLE_INVALID_DIR;
+                    case direction::west:
+                        os << buf << "TKL\n";
+                        break;
+                    case direction::east:
+                        os << buf << "TSP ";
+                        break;
+                    case direction::northwest:
+                        FALLTHROUGH
+                    case direction::southwest:
+                        os << buf << "TJN\n";
+                        break;
+                    case direction::northeast:
+                        FALLTHROUGH
+                    case direction::southeast:
+                        if (show_nops) {
+                            os << buf << "NOP\n";
+                        }
+                        break;
+                }
+                break;
             case BNG_E:
                 FALLTHROUGH
             case BNG_NE:
@@ -31,7 +83,7 @@ void disassembler::print_op(std::ostream& os, disassembler::program_state& state
                 FALLTHROUGH
             case BNG_W:
                 if (show_branch) {
-                    os << buf << "BNG";
+                    os << buf << "BNG ";
                     break;
                 }
                 FALLTHROUGH
@@ -112,7 +164,7 @@ void disassembler::write_state(std::ostream& os) {
     build_state();
     m_ins_num = 0;
 
-    print_op(os, m_state_ptr->value, !m_flags.hide_nops);
+    print_op(os, m_state_ptr->value, !m_flags.hide_nops, direction::southwest);
     write(os, *m_state_ptr);
     os << std::flush;
 }
@@ -125,16 +177,16 @@ void disassembler::write(std::ostream& os, state_element& state) {
     ++m_ins_num;
 
     if (state.second_child) {
-        print_op(os, state.first_child->value, !m_flags.hide_nops, true);
+        print_op(os, state.first_child->value, !m_flags.hide_nops, state.value.first.dir, true);
 
         std::ostringstream ss;
         write(ss, *state.first_child);
 
-        os << ' ' << (m_ins_num + 1) << '\n' << ss.str();
+        os << (m_ins_num + 1) << '\n' << ss.str();
 
         write(os, *state.second_child);
     } else {
-        print_op(os, state.first_child->value, !m_flags.hide_nops);
+        print_op(os, state.first_child->value, !m_flags.hide_nops, state.value.first.dir);
         write(os, *state.first_child);
     }
 }
@@ -173,6 +225,9 @@ void disassembler::build_state() {
                 exit(1);
             });
             break;
+        case THR_W:
+            std::cerr << "Error: program starts with join instruction. This will wait forever." << std::endl;
+            exit(1);
         default:
             break;
     }
@@ -199,6 +254,14 @@ void disassembler::build(state_element& state) {
     }
 
     op = m_program->at(next.coords.first, next.coords.second);
+
+    if ((op == static_cast<int24_t>(opcode::THR_W) && state.value.first.dir == direction::west)
+        || (op == static_cast<int24_t>(opcode::THR_E) && state.value.first.dir == direction::east)) {
+        auto pair = m_visited.insert({ { next.coords, direction::invalid }, -1 });
+        state.first_child = new state_element{ *pair.first, nullptr, nullptr };
+        return;
+    }
+
     bool branched = false;
     switch (op) {
         case MIR_EW:
@@ -210,6 +273,10 @@ void disassembler::build(state_element& state) {
         case MIR_NWSE:
             program_walker::reflect(next.dir, op);
             break;
+        case THR_E:
+            FALLTHROUGH
+        case THR_W:
+            FALLTHROUGH
         case BNG_E:
             FALLTHROUGH
         case BNG_NE:

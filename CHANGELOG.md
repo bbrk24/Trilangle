@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- There are now threading operators, `{` and `}`.
+
 ### Changed
 
 - Various improvements have been made to the CSS for the web interface.

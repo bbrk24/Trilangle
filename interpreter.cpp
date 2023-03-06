@@ -88,7 +88,9 @@ void interpreter::run() {
                         }
 
                         vector<int24_t> new_stack(
-                            other_thread.m_stack.end() - static_cast<ptrdiff_t>(other_stack_amount),
+                            other_stack_amount < INT24_C(0)
+                                ? other_thread.m_stack.begin()
+                                : (other_thread.m_stack.end() - static_cast<ptrdiff_t>(other_stack_amount)),
                             other_thread.m_stack.end()
                         );
 
@@ -103,7 +105,9 @@ void interpreter::run() {
 
                         new_stack.insert(
                             new_stack.end(),
-                            curr_thread.m_stack.end() - static_cast<ptrdiff_t>(this_stack_amount),
+                            this_stack_amount < INT24_C(0)
+                                ? curr_thread.m_stack.begin()
+                                : (curr_thread.m_stack.end() - static_cast<ptrdiff_t>(this_stack_amount)),
                             curr_thread.m_stack.end()
                         );
 

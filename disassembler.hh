@@ -41,7 +41,7 @@ private:
 
     void write(std::ostream& os, state_element& state);
 
-    void print_op(std::ostream& os, program_state& state, bool show_nops, bool show_branch = false);
+    void print_op(std::ostream& os, program_state& state, bool show_nops, direction from_dir, bool show_branch = false);
 
     // A binary tree of possible program states. build_state() fills it via DFS.
     state_element* m_state_ptr;
