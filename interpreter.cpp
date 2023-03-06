@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+using std::vector;
+
 using status = thread::status;
 
 static bool should_run;
@@ -20,20 +22,20 @@ void interpreter::run() {
 
     // Begin the execution loop.
     while (should_run) {
-        std::vector<size_t> removal_indices;
-        std::vector<thread> pending_threads;
+        vector<size_t> removal_indices;
+        vector<thread> pending_threads;
         std::unordered_map<std::pair<size_t, size_t>, size_t, pair_hash> waiting_coords;
 
         for (size_t i = 0; i < m_threads.size(); ++i) {
-            auto& curr_thread = m_threads[i];
+            thread& curr_thread = m_threads[i];
 
-            if (curr_thread.get_status() != status::waiting) {
+            if (curr_thread.m_status != status::waiting) {
                 curr_thread.tick();
             }
 
-            switch (curr_thread.get_status()) {
+            switch (curr_thread.m_status) {
                 case status::splitting:
-                    switch (curr_thread.get_ip().dir) {
+                    switch (curr_thread.m_ip.dir) {
                         case direction::east:
                             pending_threads.emplace_back(curr_thread, direction::northeast);
                             pending_threads.emplace_back(curr_thread, direction::southeast);
@@ -50,16 +52,17 @@ void interpreter::run() {
                     removal_indices.push_back(i);
                     break;
                 case status::waiting: {
-                    auto location = waiting_coords.find(curr_thread.get_ip().coords);
+                    auto location = waiting_coords.find(curr_thread.m_ip.coords);
 
                     if (location != waiting_coords.end()) {
                         size_t value = location->second;
+                        thread& other_thread = m_threads[value];
 
                         removal_indices.push_back(value);
                         removal_indices.push_back(i);
 
                         direction new_dir;
-                        switch (curr_thread.get_ip().dir) {
+                        switch (curr_thread.m_ip.dir) {
                             case direction::northeast:
                                 FALLTHROUGH
                             case direction::southeast:
@@ -74,11 +77,41 @@ void interpreter::run() {
                                 unreachable("East- and west-going IPs cannot merge");
                         }
 
-                        pending_threads.emplace_back(m_threads[value], new_dir);
+                        int24_t other_stack_amount = other_thread.m_stack.back();
+                        other_thread.m_stack.pop_back();
+
+                        if (curr_thread.m_flags.warnings
+                            && static_cast<size_t>(other_stack_amount) > other_thread.m_stack.size()) UNLIKELY {
+                            std::cerr << "Warning: Attempt to move " << other_stack_amount
+                                      << " values out of thread with stack size " << other_thread.m_stack.size()
+                                      << '\n';
+                        }
+
+                        vector<int24_t> new_stack(
+                            other_thread.m_stack.end() - static_cast<ptrdiff_t>(other_stack_amount),
+                            other_thread.m_stack.end()
+                        );
+
+                        int24_t this_stack_amount = curr_thread.m_stack.back();
+                        curr_thread.m_stack.pop_back();
+
+                        if (curr_thread.m_flags.warnings
+                            && static_cast<size_t>(this_stack_amount) > curr_thread.m_stack.size()) UNLIKELY {
+                            std::cerr << "Warning: Attempt to move " << this_stack_amount
+                                      << " values out of thread with stack size " << curr_thread.m_stack.size() << '\n';
+                        }
+
+                        new_stack.insert(
+                            new_stack.end(),
+                            curr_thread.m_stack.end() - static_cast<ptrdiff_t>(this_stack_amount),
+                            curr_thread.m_stack.end()
+                        );
+
+                        pending_threads.emplace_back(m_threads[value], new_dir, std::move(new_stack));
 
                         waiting_coords.erase(location);
                     } else {
-                        waiting_coords.insert({ curr_thread.get_ip().coords, i });
+                        waiting_coords.insert({ curr_thread.m_ip.coords, i });
                     }
 
                     break;

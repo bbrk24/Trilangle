@@ -4,6 +4,7 @@
 #include "program_walker.hh"
 
 class thread : public program_walker {
+    friend class interpreter;
 public:
     static unsigned long thread_count;
 
@@ -23,9 +24,11 @@ public:
         m_flags(f),
         m_number(thread_count++) {}
 
-    CONSTEXPR_ALLOC thread(const thread& other, direction d) noexcept :
+
+    template<typename T>
+    CONSTEXPR_ALLOC thread(const thread& other, direction d, T&& stack) noexcept :
         program_walker(*other.m_program),
-        m_stack(other.m_stack),
+        m_stack(std::move(stack)),
         m_ip{ other.m_ip.coords, d },
         m_status(status::active),
         m_flags(other.m_flags),
@@ -33,12 +36,12 @@ public:
         advance();
     }
 
-    constexpr status get_status() const noexcept { return m_status; }
-    constexpr const instruction_pointer& get_ip() const noexcept { return m_ip; }
-    constexpr void advance() noexcept { program_walker::advance(m_ip, m_program->side_length()); }
+    CONSTEXPR_ALLOC thread(const thread& other, direction d) noexcept : thread(other, d, other.m_stack) {}
 
     void tick();
 private:
+    constexpr void advance() noexcept { program_walker::advance(m_ip, m_program->side_length()); }
+
     std::vector<int24_t> m_stack;
     instruction_pointer m_ip;
     status m_status;
