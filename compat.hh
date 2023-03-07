@@ -12,6 +12,10 @@
 #if __has_include(<sysexits.h>)
 #include <sysexits.h>
 #endif
+
+#if __has_include(<sal.h>)
+#include <sal.h>
+#endif
 #endif
 
 #ifndef _INCLUDED_VERSION
@@ -132,6 +136,7 @@
 #define SIZE_C(x) x##U
 #endif
 
+
 #if !defined(__GNUC__) && defined(_MSC_VER)
 #define __builtin_unreachable() __assume(0)
 #endif
@@ -139,3 +144,16 @@
 #define unreachable(reason) \
     assert(("Assumption violated: " reason, false)); \
     __builtin_unreachable()
+
+
+#ifdef __clang__
+// A non-nullable pointer to the specified type.
+#define NONNULL_PTR(...) __VA_ARGS__* _Nonnull
+#elif defined(_Notnull_)
+// A non-nullable pointer to the specified type.
+#define NONNULL_PTR(...) _Notnull_ __VA_ARGS__*
+#else
+// A non-nullable pointer to the specified type.
+#define NONNULL_PTR(...) __VA_ARGS__*
+// gcc's __attribute__((nonnull)) works differently, so I can't wrap it like this.
+#endif

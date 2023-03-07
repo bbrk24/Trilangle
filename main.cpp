@@ -12,10 +12,10 @@ inline void execute(const std::string& prg, flags f) {
     program p(prg);
 
     if (f.disassemble) {
-        disassembler d(p, f);
+        disassembler d(&p, f);
         d.write_state(std::cout);
     } else {
-        interpreter i(p, f);
+        interpreter i(&p, f);
         i.run();
     }
 }

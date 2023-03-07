@@ -5,7 +5,7 @@
 
 class interpreter {
 public:
-    CONSTEXPR_ALLOC interpreter(const program& p, flags f) noexcept : m_threads{ thread(p, f) } {}
+    CONSTEXPR_ALLOC interpreter(NONNULL_PTR(const program) p, flags f) noexcept : m_threads{ thread(p, f) } {}
 
     void run();
 

@@ -18,7 +18,7 @@ public:
 
     template<typename T>
     CONSTEXPR_ALLOC thread(const thread& other, direction d, T&& stack) noexcept :
-        program_walker(*other.m_program),
+        program_walker(other.m_program),
         m_stack(std::move(stack)),
         m_ip{ other.m_ip.coords, d },
         m_status(status::active),
@@ -31,7 +31,7 @@ public:
 
     void tick();
 protected:
-    CONSTEXPR_ALLOC thread(const program& p, flags f) noexcept :
+    CONSTEXPR_ALLOC thread(NONNULL_PTR(const program) p, flags f) noexcept :
         program_walker(p),
         m_stack(),
         m_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest },
