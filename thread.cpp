@@ -45,12 +45,12 @@ void thread::tick() {
             return;
         case status::waiting:
             return;
+        case status::active:
+            break;
         case status::terminated:
             unreachable("tick() should not be called on terminated thread");
         case status::splitting:
             unreachable("thread with m_status = splitting should be split");
-        case status::active:
-            break;
     }
 
     // The operation currently being executed
@@ -60,8 +60,9 @@ void thread::tick() {
     if (m_flags.debug) {
         // TODO: Figure out debugging on the web
 #ifndef __EMSCRIPTEN__
+        cout << "Thread " << m_number << '\n';
         if (m_flags.show_stack) {
-            cout << "Thread " << m_number << "\nStack: [";
+            cout << "Stack: [";
 
             for (size_t i = 0; i < m_stack.size(); ++i) {
                 if (i != 0) {

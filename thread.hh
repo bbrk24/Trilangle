@@ -16,6 +16,21 @@ public:
         terminated,  // The thread is no longer executing
     };
 
+    template<typename T>
+    CONSTEXPR_ALLOC thread(const thread& other, direction d, T&& stack) noexcept :
+        program_walker(*other.m_program),
+        m_stack(std::move(stack)),
+        m_ip{ other.m_ip.coords, d },
+        m_status(status::active),
+        m_flags(other.m_flags),
+        m_number(++thread_count) {
+        advance();
+    }
+
+    CONSTEXPR_ALLOC thread(const thread& other, direction d) noexcept : thread(other, d, other.m_stack) {}
+
+    void tick();
+protected:
     CONSTEXPR_ALLOC thread(const program& p, flags f) noexcept :
         program_walker(p),
         m_stack(),
@@ -24,22 +39,6 @@ public:
         m_flags(f),
         m_number(thread_count++) {}
 
-
-    template<typename T>
-    CONSTEXPR_ALLOC thread(const thread& other, direction d, T&& stack) noexcept :
-        program_walker(*other.m_program),
-        m_stack(std::move(stack)),
-        m_ip{ other.m_ip.coords, d },
-        m_status(status::active),
-        m_flags(other.m_flags),
-        m_number(thread_count++) {
-        advance();
-    }
-
-    CONSTEXPR_ALLOC thread(const thread& other, direction d) noexcept : thread(other, d, other.m_stack) {}
-
-    void tick();
-protected:
     constexpr void advance() noexcept { program_walker::advance(m_ip, m_program->side_length()); }
 
     std::vector<int24_t> m_stack;

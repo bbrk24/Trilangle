@@ -223,7 +223,6 @@ protected:
                 break;
             case BNG_E:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::west:
                         if (go_left()) {
                             dir = direction::southwest;
@@ -245,6 +244,7 @@ protected:
                     case direction::northwest:
                         dir = direction::southeast;
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case THR_W:
@@ -267,7 +267,6 @@ protected:
                 break;
             case BNG_W:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::east:
                         if (go_left()) {
                             dir = direction::northeast;
@@ -289,11 +288,11 @@ protected:
                     case direction::northeast:
                         dir = direction::southwest;
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case BNG_NE:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::southwest:
                         if (go_left()) {
                             dir = direction::southeast;
@@ -315,11 +314,11 @@ protected:
                     case direction::southeast:
                         dir = direction::northwest;
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case BNG_SW:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::northeast:
                         if (go_left()) {
                             dir = direction::northwest;
@@ -341,11 +340,11 @@ protected:
                     case direction::southwest:
                         dir = direction::northeast;
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case BNG_NW:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::southeast:
                         if (go_left()) {
                             dir = direction::east;
@@ -367,11 +366,11 @@ protected:
                     case direction::southwest:
                         dir = direction::northeast;
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case BNG_SE:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::northwest:
                         if (go_left()) {
                             dir = direction::west;
@@ -393,6 +392,7 @@ protected:
                     case direction::southeast:
                         dir = direction::northwest;
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             default:
