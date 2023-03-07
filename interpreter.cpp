@@ -81,7 +81,7 @@ void interpreter::run() {
                         other_thread.m_stack.pop_back();
 
                         if (curr_thread.m_flags.warnings
-                            && static_cast<size_t>(other_stack_amount) > other_thread.m_stack.size()) UNLIKELY {
+                            && other_stack_amount > static_cast<int24_t>(other_thread.m_stack.size())) UNLIKELY {
                             std::cerr << "Warning: Attempt to move " << other_stack_amount
                                       << " values out of thread with stack size " << other_thread.m_stack.size()
                                       << '\n';
@@ -98,7 +98,7 @@ void interpreter::run() {
                         curr_thread.m_stack.pop_back();
 
                         if (curr_thread.m_flags.warnings
-                            && static_cast<size_t>(this_stack_amount) > curr_thread.m_stack.size()) UNLIKELY {
+                            && this_stack_amount > static_cast<int24_t>(curr_thread.m_stack.size())) UNLIKELY {
                             std::cerr << "Warning: Attempt to move " << this_stack_amount
                                       << " values out of thread with stack size " << curr_thread.m_stack.size() << '\n';
                         }

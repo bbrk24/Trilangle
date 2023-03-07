@@ -39,12 +39,13 @@ public:
     CONSTEXPR_ALLOC thread(const thread& other, direction d) noexcept : thread(other, d, other.m_stack) {}
 
     void tick();
-private:
+protected:
     constexpr void advance() noexcept { program_walker::advance(m_ip, m_program->side_length()); }
 
     std::vector<int24_t> m_stack;
     instruction_pointer m_ip;
     status m_status;
     flags m_flags;
+private:
     unsigned long m_number;
 };

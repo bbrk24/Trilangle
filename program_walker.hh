@@ -30,7 +30,6 @@ public:
     static constexpr void advance(instruction_pointer& ip, size_t program_size) noexcept {
         // I don't remember how this works, it just does.
         switch (ip.dir) {
-            UNREACHABLE_INVALID_DIR;
             case direction::southwest:
                 if (++ip.coords.first == program_size) {
                     ip.coords.second = (ip.coords.second + 1) % program_size;
@@ -94,6 +93,7 @@ public:
                     ip.coords.second = 0;
                 }
                 break;
+                UNREACHABLE_INVALID_DIR;
         }
     }
 protected:
@@ -104,7 +104,6 @@ protected:
         switch (mir) {
             case MIR_EW:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::southwest:
                         dir = direction::northwest;
                         break;
@@ -121,11 +120,11 @@ protected:
                         FALLTHROUGH
                     case direction::west:
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case MIR_NS:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::southwest:
                         dir = direction::southeast;
                         break;
@@ -144,11 +143,11 @@ protected:
                     case direction::east:
                         dir = direction::west;
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case MIR_NESW:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::west:
                         dir = direction::southeast;
                         break;
@@ -165,11 +164,11 @@ protected:
                         FALLTHROUGH
                     case direction::southwest:
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case MIR_NWSE:
                 switch (dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::west:
                         dir = direction::northeast;
                         break;
@@ -186,12 +185,19 @@ protected:
                         FALLTHROUGH
                     case direction::southeast:
                         break;
+                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             default:
                 unreachable("program_walker::reflect() should only be passed a mirror");
         }
     }
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4702 \
+)  // Unreachable code, which it complains about when constant-folding the template instantiation
+#endif
 
     // Move the IP according to the branch instruction.
     template<typename T>
@@ -393,6 +399,10 @@ protected:
                 unreachable("program_walker::branch() should only be passed a branch");
         }
     }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 };
 
 namespace std {
