@@ -2,7 +2,18 @@
 
 #include "program.hh"
 
-enum class direction : char { southwest, west, northwest, northeast, east, southeast, invalid };
+enum class direction : char {
+    // Bitfield representation: { north, !(north || south), east }. This is designed so the default direction
+    // (southwest) is 0 and using this bitfield rather than consecutive values reduces binary size slightly.
+
+    southwest = 0b000,
+    west = 0b010,
+    northwest = 0b100,
+    northeast = 0b101,
+    east = 0b011,
+    southeast = 0b001,
+    invalid = 0b110,
+};
 
 #define UNREACHABLE_INVALID_DIR \
     case direction::invalid: \
