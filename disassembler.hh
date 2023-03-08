@@ -39,7 +39,7 @@ private:
     void build_state();
     void build(state_element& state);
 
-    void write(std::ostream& os, state_element& state);
+    void write(std::ostream& os, const state_element& state);
 
     void print_op(std::ostream& os, program_state& state, bool show_nops, direction from_dir, bool show_branch = false);
 

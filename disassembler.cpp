@@ -169,7 +169,7 @@ void disassembler::write_state(std::ostream& os) {
     os << std::flush;
 }
 
-void disassembler::write(std::ostream& os, state_element& state) {
+void disassembler::write(std::ostream& os, const state_element& state) {
     if (!state.first_child) {
         return;
     }
