@@ -5,20 +5,11 @@
 #include <cstdlib>
 #include <random>
 
-// When targeting the web, the page can't re-render until the C++ code finishes.
-// emscripten_sleep is asynchronous (so it allows a re-render), but it looks synchronous from the C side.
-// Insert a call to emscripten_sleep(0) whenever the page needs a chance to redraw, such as after a print statement.
-#ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
-#else
-#define emscripten_sleep(x) ((void)0)
-#endif
-
 #define EMPTY_PROTECT(name, sleep) \
     if (m_stack.empty() && m_flags.warnings) UNLIKELY { \
         cerr << "Warning: Attempt to " name " empty stack.\n"; \
         if (sleep) \
-            emscripten_sleep(0); \
+            should_sleep = true; \
     } else
 
 #define SIZE_CHECK(name, count) \
@@ -35,7 +26,7 @@ constexpr int24_t INT24_MAX{ 0x7fffff };
 
 unsigned long thread::thread_count;
 
-void thread::tick() {
+void thread::tick(bool& should_sleep) {
     static std::default_random_engine reng(std::move(std::random_device())());
     static std::uniform_int_distribution<int32_t> rdist(INT24_MIN, INT24_MAX);
 
@@ -219,7 +210,7 @@ void thread::tick() {
             if (m_flags.warnings) {
                 if (m_stack.empty()) UNLIKELY {
                     cerr << "Warning: Attempt to increment empty stack.\n";
-                    emscripten_sleep(0);
+                    should_sleep = true;
                     break;
                 }
                 if (m_stack.back() == INT24_MAX) UNLIKELY {
@@ -234,7 +225,7 @@ void thread::tick() {
             if (m_flags.warnings) {
                 if (m_stack.empty()) UNLIKELY {
                     cerr << "Warning: Attempt to decrement empty stack.\n";
-                    emscripten_sleep(0);
+                    should_sleep = true;
                     break;
                 }
                 if (m_stack.back() == INT24_MAX) UNLIKELY {
@@ -275,15 +266,13 @@ void thread::tick() {
             m_stack.push_back(getunichar());
             break;
         case PTC:
-            EMPTY_PROTECT("print from", false) {
+            EMPTY_PROTECT("print from", true) {
                 printunichar(m_stack.back());
             }
 
             if (m_flags.pipekill && ferror(stdout)) {
                 return;
             }
-
-            emscripten_sleep(0);
 
             break;
         case GTI: {
@@ -297,15 +286,13 @@ void thread::tick() {
             break;
         }
         case PTI:
-            EMPTY_PROTECT("print from", false) {
+            EMPTY_PROTECT("print from", true) {
                 printf("%" PRId32 "\n", static_cast<int32_t>(m_stack.back()));
             }
 
             if (m_flags.pipekill && ferror(stdout)) {
                 return;
             }
-
-            emscripten_sleep(0);
 
             break;
         case SKP:
@@ -315,7 +302,7 @@ void thread::tick() {
         case IDX: {
             if (m_flags.warnings && m_stack.empty()) UNLIKELY {
                 cerr << "Warning: Attempt to read index from empty stack.\n";
-                emscripten_sleep(0);
+                should_sleep = true;
                 break;
             }
 

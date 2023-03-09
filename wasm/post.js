@@ -3,8 +3,8 @@ function clearOutput() {
     elements.error.innerHTML = '';
 }
 
-/** @type {(warnings: 0 | 1, disassemble: 0 | 1, hideNops: 0 | 1) => () => void} */
-const callInterpreter = (warnings, disassemble, hideNops) => () => {
+/** @type {(warnings: 0 | 1, disassemble: 0 | 1) => () => void} */
+const callInterpreter = (warnings, disassemble) => () => {
     inputIndex = 0;
     Module.ccall('wasm_cancel', null);
     clearOutput();
@@ -16,8 +16,8 @@ const callInterpreter = (warnings, disassemble, hideNops) => () => {
             await Module.ccall(
                 'wasm_entrypoint',
                 null,
-                ['string', 'number', 'number', 'number'],
-                [document.getElementById('program').value, warnings, disassemble, hideNops]
+                ['string', 'number', 'number'],
+                [document.getElementById('program').value, warnings, disassemble]
             );
         } catch (e) {
             if (!(e instanceof ExitStatus))
@@ -26,4 +26,4 @@ const callInterpreter = (warnings, disassemble, hideNops) => () => {
     }, 5);
 };
 
-var interpretProgram = callInterpreter(1, 0, 0), disassembleProgram = callInterpreter(0, 1, 1);
+var interpretProgram = callInterpreter(1, 0), disassembleProgram = callInterpreter(0, 1);

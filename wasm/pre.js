@@ -31,8 +31,8 @@ Module = {
                     stdoutBuffer.push(char);
 
                     if (stdoutBuffer.length === 4 ||
-                        ((stdoutBuffer[0] + 256) & 0xf0 === 0xe0 && stdoutBuffer.length === 3) ||
-                        ((stdoutBuffer[0] + 256) & 0xe0 === 0xc0 && stdoutBuffer.length === 2)) {
+                        (((stdoutBuffer[0] + 256) & 0xf0) === 0xe0 && stdoutBuffer.length === 3) ||
+                        (((stdoutBuffer[0] + 256) & 0xe0) === 0xc0 && stdoutBuffer.length === 2)) {
                         elements.output.textContent += decoder.decode(new Int8Array(stdoutBuffer));
                         stdoutBuffer = [];
                     }
@@ -48,8 +48,8 @@ Module = {
                     stderrBuffer.push(char);
 
                     if (stderrBuffer.length === 4 ||
-                        ((stderrBuffer[0] + 256) & 0xf0 === 0xe0 && stderrBuffer.length >= 3) ||
-                        ((stderrBuffer[0] + 256) & 0xe0 === 0xc0 && stderrBuffer.length >= 2)) {
+                        (((stderrBuffer[0] + 256) & 0xf0) === 0xe0 && stderrBuffer.length >= 3) ||
+                        (((stderrBuffer[0] + 256) & 0xe0) === 0xc0 && stderrBuffer.length >= 2)) {
                         const text = decoder.decode(new Int8Array(stderrBuffer));
                         stderrBuffer = [];
                         if (elements.error.lastChild instanceof Text)

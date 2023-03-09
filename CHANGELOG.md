@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- Some UTF-8 handling edge cases have been fixed.
+
 ### Added
 
 - There are now threading operators, `{` and `}`.
