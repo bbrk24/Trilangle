@@ -1,5 +1,6 @@
 #include "program.hh"
 #include <sstream>
+#include "output.hh"
 
 std::string program::with_spaces() const {
     std::ostringstream oss;

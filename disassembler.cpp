@@ -2,6 +2,7 @@
 #include <cinttypes>
 #include <cstdlib>
 #include <sstream>
+#include "output.hh"
 
 // FIXME: This class is held together by an uncomfortable amount of spaghetti. It seems to work, for now, but it's prone
 // to error if you look at it funny. It is nontrivial to add new kinds of operations to it. The entire class may have to
@@ -11,6 +12,12 @@
     case x: \
         os << buf << #x "\n"; \
         break
+
+disassembler::~disassembler() noexcept {
+    if (m_state_ptr != nullptr) {
+        delete m_state_ptr;
+    }
+}
 
 void disassembler::print_op(
     std::ostream& os,

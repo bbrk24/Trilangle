@@ -1,4 +1,5 @@
 #include <clocale>
+#include <iostream>
 #include "disassembler.hh"
 #include "interpreter.hh"
 

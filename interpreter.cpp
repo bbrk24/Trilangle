@@ -1,5 +1,6 @@
 #include "interpreter.hh"
 #include <algorithm>
+#include <iostream>
 #include <unordered_map>
 
 // When targeting the web, the page can't re-render until the C++ code finishes.

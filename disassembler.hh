@@ -12,11 +12,8 @@ public:
     inline disassembler(NONNULL_PTR(const program) p, flags f) :
         program_walker(p), m_state_ptr(nullptr), m_visited(), m_ins_num(0), m_flags(f) {}
 
-    inline ~disassembler() noexcept {
-        if (m_state_ptr != nullptr) {
-            delete m_state_ptr;
-        }
-    }
+    disassembler(const disassembler&) = delete;
+    ~disassembler() noexcept;
 
     // Write the state to the specified output stream.
     void write_state(std::ostream& os);

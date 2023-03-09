@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
+- Added a `--expand` flag to add spaces to code.
 - There are now threading operators, `{` and `}`.
 
 ### Changed

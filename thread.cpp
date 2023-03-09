@@ -4,6 +4,7 @@
 #include <cinttypes>
 #include <cstdlib>
 #include <random>
+#include "output.hh"
 
 #define EMPTY_PROTECT(name, sleep) \
     if (m_stack.empty() && m_flags.warnings) UNLIKELY { \

@@ -4,17 +4,17 @@
 #include <utility>
 
 #ifdef __has_include
-#if __has_include(<version>)
-#include <version>
-#define _INCLUDED_VERSION
+#if __has_include(<sal.h>)
+#include <sal.h>
 #endif
 
 #if __has_include(<sysexits.h>)
 #include <sysexits.h>
 #endif
 
-#if __has_include(<sal.h>)
-#include <sal.h>
+#if __has_include(<version>)
+#include <version>
+#define _INCLUDED_VERSION
 #endif
 #endif
 
