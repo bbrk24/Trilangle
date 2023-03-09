@@ -14,6 +14,8 @@ inline void execute(const std::string& prg, flags f) {
     if (f.disassemble) {
         disassembler d(&p, f);
         d.write_state(std::cout);
+    } else if (f.expand) {
+        std::cout << p.with_spaces() << std::flush;
     } else {
         interpreter i(&p, f);
         i.run();

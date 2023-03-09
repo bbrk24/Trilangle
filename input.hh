@@ -10,13 +10,21 @@ struct flags {
     bool pipekill : 1;
     bool disassemble : 1;
     bool hide_nops : 1;
+    bool expand : 1;
 
     constexpr flags() noexcept :
-        debug(false), show_stack(false), warnings(false), pipekill(false), disassemble(false), hide_nops(false) {}
+        debug(false),
+        show_stack(false),
+        warnings(false),
+        pipekill(false),
+        disassemble(false),
+        hide_nops(false),
+        expand(false) {}
 
     constexpr bool is_valid() const noexcept {
         return !(
             (show_stack && !debug) || ((debug || warnings || pipekill) && disassemble) || (hide_nops && !disassemble)
+            || (expand && (debug || warnings || pipekill || disassemble))
         );
     }
 };

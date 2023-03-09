@@ -38,6 +38,8 @@ public:
     }
 
     constexpr size_t side_length() const noexcept { return m_side_length; }
+
+    std::string with_spaces() const;
 private:
     std::vector<int24_t> m_code;
     size_t m_side_length;

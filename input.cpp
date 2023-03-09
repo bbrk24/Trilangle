@@ -28,7 +28,9 @@ static constexpr const char* FLAGS_HELP =
     "\t                 \tcode. Incompatible with --debug, --warnings, and\n"
     "\t                 \t--pipekill.\n"
     "\t--hide-nops, -n  \tDon't include NOPs in the disassembly. Requires\n"
-    "\t                 \t--disassemble.";
+    "\t                 \t--disassemble.\n\n"
+    "\t--expand, -e     \tSpace the program out to fit the triangle.\n"
+    "\t                 \tIncompatible with all other flags.";
 
 namespace flag_container {
 static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
@@ -38,6 +40,7 @@ static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_
     { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
     { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },
     { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
+    { "expand", 'e', [](flags& f) NOEXCEPT_T { f.expand = true; } },
 };
 
 [[noreturn]] static inline void invalid_flags() {
