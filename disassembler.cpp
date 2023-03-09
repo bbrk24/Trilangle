@@ -3,6 +3,10 @@
 #include <cstdlib>
 #include <sstream>
 
+// FIXME: This class is held together by an uncomfortable amount of spaghetti. It seems to work, for now, but it's prone
+// to error if you look at it funny. It is nontrivial to add new kinds of operations to it. The entire class may have to
+// be redesigned from the ground up.
+
 #define PRINT_NAME(x) \
     case x: \
         os << buf << #x "\n"; \
@@ -27,7 +31,6 @@ void disassembler::print_op(
         switch (op) {
             case THR_E:
                 switch (from_dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::east:
                         os << buf << "TKL\n";
                         break;
@@ -50,7 +53,6 @@ void disassembler::print_op(
                 break;
             case THR_W:
                 switch (from_dir) {
-                    UNREACHABLE_INVALID_DIR;
                     case direction::west:
                         os << buf << "TKL\n";
                         break;
@@ -255,9 +257,12 @@ void disassembler::build(state_element& state) {
 
     op = m_program->at(next.coords.first, next.coords.second);
 
-    if ((op == static_cast<int24_t>(opcode::THR_W) && state.value.first.dir == direction::west)
-        || (op == static_cast<int24_t>(opcode::THR_E) && state.value.first.dir == direction::east)) {
-        auto pair = m_visited.insert({ { next.coords, direction::invalid }, -1 });
+    if (op == static_cast<int24_t>(opcode::THR_W) && state.value.first.dir == direction::west) {
+        auto pair = m_visited.insert({ { next.coords, direction::east }, -1 });
+        state.first_child = new state_element{ *pair.first, nullptr, nullptr };
+        return;
+    } else if (op == static_cast<int24_t>(opcode::THR_E) && state.value.first.dir == direction::east) {
+        auto pair = m_visited.insert({ { next.coords, direction::west }, -1 });
         state.first_child = new state_element{ *pair.first, nullptr, nullptr };
         return;
     }

@@ -11,8 +11,8 @@ public:
     enum class status : char {
         active,      // Currently executing code
         idle,        // Inactive for a single tick due to e.g. a "skip" operation
-        splitting,   // Arrived at a thread split and waiting to be split in two
         waiting,     // Waiting for a second thread to merge with
+        splitting,   // Arrived at a thread split and waiting to be split in two
         terminated,  // The thread is no longer executing
     };
 

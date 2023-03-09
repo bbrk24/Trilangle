@@ -12,12 +12,7 @@ enum class direction : char {
     northeast = 0b101,
     east = 0b011,
     southeast = 0b001,
-    invalid = 0b110,
 };
-
-#define UNREACHABLE_INVALID_DIR \
-    case direction::invalid: \
-        unreachable("invalid direction must never be passed")
 
 class program_walker {
 public:
@@ -104,7 +99,6 @@ public:
                     ip.coords.second = 0;
                 }
                 break;
-                UNREACHABLE_INVALID_DIR;
         }
     }
 protected:
@@ -131,7 +125,6 @@ protected:
                         FALLTHROUGH
                     case direction::west:
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case MIR_NS:
@@ -154,7 +147,6 @@ protected:
                     case direction::east:
                         dir = direction::west;
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case MIR_NESW:
@@ -175,7 +167,6 @@ protected:
                         FALLTHROUGH
                     case direction::southwest:
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case MIR_NWSE:
@@ -196,7 +187,6 @@ protected:
                         FALLTHROUGH
                     case direction::southeast:
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             default:
@@ -255,7 +245,6 @@ protected:
                     case direction::northwest:
                         dir = direction::southeast;
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case THR_W:
@@ -299,7 +288,6 @@ protected:
                     case direction::northeast:
                         dir = direction::southwest;
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case BNG_NE:
@@ -325,7 +313,6 @@ protected:
                     case direction::southeast:
                         dir = direction::northwest;
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case BNG_SW:
@@ -351,7 +338,6 @@ protected:
                     case direction::southwest:
                         dir = direction::northeast;
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case BNG_NW:
@@ -377,7 +363,6 @@ protected:
                     case direction::southwest:
                         dir = direction::northeast;
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             case BNG_SE:
@@ -403,7 +388,6 @@ protected:
                     case direction::southeast:
                         dir = direction::northwest;
                         break;
-                        UNREACHABLE_INVALID_DIR;
                 }
                 break;
             default:
