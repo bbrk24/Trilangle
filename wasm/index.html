@@ -37,14 +37,14 @@
   &quot; , W r &quot; ! 3
  l o o o d o : o
 o &quot; &quot; &quot; o ' ( @ .</textarea><br />
+    <button type="button" onclick="contractInput()">Condense</button>
+    <button type="button" onclick="expandInput()">Unfold</button><br />
     <label for="stdin">Input:</label><br />
     <textarea id="stdin"></textarea><br />
     <button type="button" onclick="interpretProgram()">Run!</button>
+    <button type="button" onclick="Module.ccall('wasm_cancel', null)">Stop</button>
     <button type="button" onclick="disassembleProgram()">Show disassembly</button>
-    <button type="button" onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
     <button type="button" onclick="clearOutput()">Clear output</button>
-    <button type="button" onclick="contractInput()">Condense source</button>
-    <button type="button" onclick="expandInput()">Unfold source</button>
     <p id="out-label">Output:</p>
     <div id="out-container">
       <pre id="stdout"></pre>
