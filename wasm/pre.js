@@ -1,10 +1,18 @@
 let inputIndex = 0;
 
-/** @type {{ input: HTMLTextAreaElement, output: HTMLPreElement, error: HTMLParagraphElement }} */
+/**
+ * @type {{
+ *  input: HTMLTextAreaElement,
+ *  output: HTMLPreElement,
+ *  error: HTMLParagraphElement,
+ *  program: HTMLTextAreaElement,
+ * }}
+ */
 const elements = {
     input: document.getElementById('stdin'),
     output: document.getElementById('stdout'),
     error: document.getElementById('stderr'),
+    program: document.getElementById('program'),
 };
 
 Module = {

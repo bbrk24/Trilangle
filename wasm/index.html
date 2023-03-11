@@ -7,6 +7,24 @@
     <script async src="./out.js"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <link rel="stylesheet" href="./index.css" />
+    <script>
+      // For some reason, these functions are considered dead code if I put them in post.js, but the other ones aren't.
+      function expandInput() {
+        clearOutput();
+        Module.ccall(
+          'wasm_entrypoint',
+          null,
+          ['string', 'number', 'number', 'number'],
+          [elements.program.value, 0, 0, 1]
+        );
+        elements.program.value = elements.output.innerText;
+        elements.output.innerHTML = '';
+      }
+      function contractInput() {
+        clearOutput();
+        elements.program.value = elements.program.value.replace(/ |\n/gu, '');
+      }
+    </script>
   </head>
   <body>
     <label for="program">Program:</label><br />
@@ -25,6 +43,8 @@ o &quot; &quot; &quot; o ' ( @ .</textarea><br />
     <button type="button" onclick="disassembleProgram()">Show disassembly</button>
     <button type="button" onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
     <button type="button" onclick="clearOutput()">Clear output</button>
+    <button type="button" onclick="contractInput()">Condense source</button>
+    <button type="button" onclick="expandInput()">Unfold source</button>
     <p id="out-label">Output:</p>
     <div id="out-container">
       <pre id="stdout"></pre>

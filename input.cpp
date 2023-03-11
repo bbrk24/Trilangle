@@ -36,12 +36,12 @@ static constexpr const char* FLAGS_HELP =
 namespace flag_container {
 static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
     { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
-    { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
+    { "expand", 'e', [](flags& f) NOEXCEPT_T { f.expand = true; } },
     { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
     { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
-    { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },
     { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
-    { "expand", 'e', [](flags& f) NOEXCEPT_T { f.expand = true; } },
+    { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
+    { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },
 };
 
 [[noreturn]] static inline void invalid_flags() {

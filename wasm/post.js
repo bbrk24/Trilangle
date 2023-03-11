@@ -16,8 +16,8 @@ const callInterpreter = (warnings, disassemble) => () => {
             await Module.ccall(
                 'wasm_entrypoint',
                 null,
-                ['string', 'number', 'number'],
-                [document.getElementById('program').value, warnings, disassemble]
+                ['string', 'number', 'number', 'number'],
+                [elements.program.value, warnings, disassemble, 0]
             );
         } catch (e) {
             if (!(e instanceof ExitStatus))

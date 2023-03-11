@@ -32,7 +32,7 @@ int main(int argc, const char** argv) {
 #endif
 
 extern "C" {
-EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int warnings, int disassemble) {
+EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int warnings, int disassemble, int expand) {
     // Set locale so that putwchar works as expected
     setlocale(LC_ALL, "");
     // Reset EOF from previous runs
@@ -42,6 +42,7 @@ EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int warnings
     f.warnings = warnings;
     f.disassemble = disassemble;
     f.hide_nops = disassemble;
+    f.expand = expand;
 
     execute(program_text, f);
 }
