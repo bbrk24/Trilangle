@@ -1,0 +1,54 @@
+body {
+    font-family: sans-serif;
+    -webkit-text-size-adjust: 100%;
+}
+
+textarea {
+    font-family: monospace;
+    background-color: inherit;
+    color: inherit;
+}
+
+button {
+    background-color: rgb(127 127 127 / 35%);
+    color: inherit;
+    border: none;
+    border-radius: 0.35em;
+    font-size: 0.8em;
+    margin: 0.45em 0.25em 0.25em 0;
+    text-transform: none;
+    /*
+     * Vertical padding of 0.25em,0.25em centers it on Safari, but 0.3em,0.25em centers it on Chrome.
+     * I'll split the difference.
+     */
+    padding: 0.27em 0.45em 0.25em;
+}
+
+pre {
+    font-size: 1em;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1c1c1c;
+        color: whitesmoke;
+    }
+}
+
+#stderr {
+    color: crimson;
+}
+
+#out-label {
+    margin: 0.5em 0 0;
+}
+
+#out-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+#out-container > :not(:empty) {
+    flex-grow: 1;
+}

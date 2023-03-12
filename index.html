@@ -6,76 +6,24 @@
     <link rel="icon" href="./favicon.ico" />
     <script async src="./out.js"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-
-      textarea {
-        font-family: monospace;
-        background-color: inherit;
-        color: inherit;
-      }
-
-      button {
-        background-color: rgb(127 127 127 / 35%);
-        color: inherit;
-        border: none;
-        border-radius: 0.25em;
-        padding: 0.25em 0.45em;
-      }
-
-      #stderr {
-        color: crimson;
-      }
-
-      #out-container {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-
-      #out-container > :not(:empty) {
-        flex-grow: 1;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        body {
-          background-color: #1c1c1c;
-          color: whitesmoke;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="./index.css" />
     <script>
-      function clearOutput() {
-        document.getElementById('stdout').innerHTML = '';
-        document.getElementById('stderr').innerHTML = '';
-      }
-
-      /** @type {(warnings: 0 | 1, disassemble: 0 | 1, hideNops: 0 | 1) => () => void} */
-      const callInterpreter = (warnings, disassemble, hideNops) => () => {
-        inputIndex = 0;
-        Module.ccall('wasm_cancel', null);
+      // For some reason, these functions are considered dead code if I put them in post.js, but the other ones aren't.
+      function expandInput() {
         clearOutput();
-        // By adding a 5ms delay, the previous thread has a chance to clean up after itself.
-        // Without this, we may usurp its memory, and then it'll try to deallocate it in a problematic way.
-        // Is this a good thing? Probably not. Does it work? Usually. Worst case, just reload the page.
-        setTimeout(async () => {
-          try {
-            await Module.ccall(
-              'wasm_entrypoint',
-              null,
-              ['string', 'number', 'number', 'number'],
-              [document.getElementById('program').value, warnings, disassemble, hideNops]
-            );
-          } catch (e) {
-            if (!(e instanceof ExitStatus))
-              document.getElementById('stderr').innerText += String(e);
-          }
-        }, 5);
-      };
-
-      var interpretProgram = callInterpreter(1, 0, 0), disassembleProgram = callInterpreter(0, 1, 1);
+        Module.ccall(
+          'wasm_entrypoint',
+          null,
+          ['string', 'number', 'number', 'number'],
+          [elements.program.value, 0, 0, 1]
+        );
+        elements.program.value = elements.output.innerText;
+        elements.output.innerHTML = '';
+      }
+      function contractInput() {
+        clearOutput();
+        elements.program.value = elements.program.value.replace(/ |\n|[ .\n]+$/g, '');
+      }
     </script>
   </head>
   <body>
@@ -89,13 +37,15 @@
   &quot; , W r &quot; ! 3
  l o o o d o : o
 o &quot; &quot; &quot; o ' ( @ .</textarea><br />
+    <button type="button" onclick="contractInput()">Condense</button>
+    <button type="button" onclick="expandInput()">Unfold</button><br />
     <label for="stdin">Input:</label><br />
     <textarea id="stdin"></textarea><br />
-    <button onclick="interpretProgram()">Run!</button>
-    <button onclick="disassembleProgram()">Show disassembly</button>
-    <button onclick="Module.ccall('wasm_cancel', null)">Stop program</button>
-    <button onclick="clearOutput()">Clear output</button>
-    <p>Output:</p>
+    <button type="button" onclick="interpretProgram()">Run!</button>
+    <button type="button" onclick="Module.ccall('wasm_cancel', null)">Stop</button>
+    <button type="button" onclick="disassembleProgram()">Show disassembly</button>
+    <button type="button" onclick="clearOutput()">Clear output</button>
+    <p id="out-label">Output:</p>
     <div id="out-container">
       <pre id="stdout"></pre>
       <p id="stderr"></p>
