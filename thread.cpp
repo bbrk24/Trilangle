@@ -272,8 +272,10 @@ void thread::tick(bool& should_sleep) {
             }
 
             if (m_flags.pipekill && ferror(stdout)) {
-                return;
+                exit(0);
             }
+
+            should_sleep = true;
 
             break;
         case GTI: {
@@ -292,8 +294,10 @@ void thread::tick(bool& should_sleep) {
             }
 
             if (m_flags.pipekill && ferror(stdout)) {
-                return;
+                exit(0);
             }
+
+            should_sleep = true;
 
             break;
         case SKP:

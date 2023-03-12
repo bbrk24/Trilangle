@@ -22,7 +22,7 @@
       }
       function contractInput() {
         clearOutput();
-        elements.program.value = elements.program.value.replace(/ |\n/gu, '');
+        elements.program.value = elements.program.value.replace(/ |\n|[ .\n]+$/g, '');
       }
     </script>
   </head>
