@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Changed
+
+- The program and input fields in the web interface are larger.
+
 ## [1.1.0] - 2023-03-12
 
 ### Fixed

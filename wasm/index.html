@@ -28,7 +28,7 @@
   </head>
   <body>
     <label for="program">Program:</label><br />
-    <textarea id="program" rows="10" spellcheck="false">        &quot;
+    <textarea id="program" rows="10" cols="45" spellcheck="false">        &quot;
        H o
       o &quot; !
      &quot; o ( o
@@ -36,11 +36,12 @@
    o &quot; &quot; &quot; o &quot;
   &quot; , W r &quot; ! 3
  l o o o d o : o
-o &quot; &quot; &quot; o ' ( @ .</textarea><br />
+o &quot; &quot; &quot; o ' ( @ .
+</textarea><br />
     <button type="button" onclick="contractInput()">Condense</button>
     <button type="button" onclick="expandInput()">Unfold</button><br />
     <label for="stdin">Input:</label><br />
-    <textarea id="stdin"></textarea><br />
+    <textarea id="stdin" rows="4" cols="45"></textarea><br />
     <button type="button" onclick="interpretProgram()">Run!</button>
     <button type="button" onclick="Module.ccall('wasm_cancel', null)">Stop</button>
     <button type="button" onclick="disassembleProgram()">Show disassembly</button>
