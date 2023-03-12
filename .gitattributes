@@ -1,0 +1,2 @@
+*   text=auto eol=lf
+wasm/build_wasm.sh  -linguist-detectable
