@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- Added a warning for invalid characters.
+
 ### Changed
 
 - The program and input fields in the web interface are larger.
