@@ -267,8 +267,22 @@ void thread::tick(bool& should_sleep) {
             m_stack.push_back(getunichar());
             break;
         case PTC:
-            EMPTY_PROTECT("print from", true) {
-                printunichar(m_stack.back());
+            EMPTY_PROTECT("print from", false) {
+                bool should_print = true;
+
+                if (m_stack.back() < INT24_C(0)) {
+                    if (m_flags.warnings) {
+                        cerr << "Warning: Attempt to print character with negative value.\n";
+                        should_print = false;
+                    }
+                    if (m_flags.pipekill) {
+                        exit(1);
+                    }
+                }
+
+                if (should_print) {
+                    printunichar(m_stack.back());
+                }
             }
 
             if (m_flags.pipekill && ferror(stdout)) {
@@ -289,7 +303,7 @@ void thread::tick(bool& should_sleep) {
             break;
         }
         case PTI:
-            EMPTY_PROTECT("print from", true) {
+            EMPTY_PROTECT("print from", false) {
                 printf("%" PRId32 "\n", static_cast<int32_t>(m_stack.back()));
             }
 
@@ -314,11 +328,9 @@ void thread::tick(bool& should_sleep) {
             int24_t top = m_stack.back();
             m_stack.pop_back();
 
-            if (m_flags.warnings) {
-                if (top < INT24_C(0) || m_stack.size() < static_cast<size_t>(top) + 1) UNLIKELY {
-                    cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size()
-                         << ", index = " << top << ")\n";
-                }
+            if (m_flags.warnings && (top < INT24_C(0) || m_stack.size() < static_cast<size_t>(top) + 1)) UNLIKELY {
+                cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size()
+                     << ", index = " << top << ")\n";
             }
 
             size_t i = m_stack.size() - static_cast<size_t>(top) - 1;

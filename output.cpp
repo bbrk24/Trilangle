@@ -1,4 +1,8 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+
 #include "output.hh"
+#include <cinttypes>
+#include <cstdio>
 
 void printunichar(int24_t c, std::ostream& os) {
     // Convert to UTF-8
@@ -19,7 +23,7 @@ void printunichar(int24_t c, std::ostream& os) {
             0,
         };
         os << buffer;
-    } else {
+    } else if (c.value <= 0x1fffff) {
         char buffer[] = {
             static_cast<char>(0xf0 | (c.value >> 18)),
             static_cast<char>(0x80 | ((c.value >> 12) & 0x3f)),
@@ -28,7 +32,7 @@ void printunichar(int24_t c, std::ostream& os) {
             0,
         };
         os << buffer;
+    } else UNLIKELY {
+        fprintf(stderr, "Error: 0x%" PRIx32 " is too large to express in UTF-8.", c.value);
     }
-
-    os.clear();
 }
