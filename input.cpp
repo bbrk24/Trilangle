@@ -104,7 +104,7 @@ string parse_args(int argc, const char** argv, flags& f) {
         if (parse_flags && argv[i][0] == '-') {
             if (!strcmp(argv[i] + 1, "-help")) {
                 printf(HELP_HEADER, argv[0]);
-                std::cout << FLAGS_HELP << endl;
+                puts(FLAGS_HELP);
                 exit(0);
             } else if (!strcmp(argv[i] + 1, "-")) {
                 parse_flags = false;

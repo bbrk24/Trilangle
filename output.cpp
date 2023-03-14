@@ -33,6 +33,7 @@ void printunichar(int24_t c, std::ostream& os) {
         };
         os << buffer;
     } else UNLIKELY {
+        std::cerr << std::flush;
         fprintf(stderr, "Error: 0x%" PRIx32 " is too large to express in UTF-8.", c.value);
     }
 }

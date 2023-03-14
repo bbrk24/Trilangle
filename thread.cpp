@@ -402,6 +402,7 @@ void thread::tick(bool& should_sleep) {
             break;
         case INVALID_CHAR:
             cout << flush;
+            cerr << flush;
             fprintf(
                 stderr,
                 "Unicode replacement character (U+%0.4" PRIX32 ") detected in source. Please check encoding.\n",

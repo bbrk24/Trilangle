@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
+- Minor performance improvements with I/O, especially for the web interface.
 - Fixed a race condition in loading the web interface.
 
 ### Added

@@ -10,6 +10,9 @@
 #endif
 
 inline void execute(const std::string& prg, flags f) {
+    // The only thing cstdio and iostream need to be synced for is the ferror check when pipekill is set.
+    std::ios::sync_with_stdio(f.pipekill);
+
     program p(prg);
 
     if (f.disassemble) {
