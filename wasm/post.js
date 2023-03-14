@@ -1,10 +1,14 @@
 function clearOutput() {
+    'use strict';
+
     elements.output.innerHTML = '';
     elements.error.innerHTML = '';
 }
 
 /** @type {(warnings: 0 | 1, disassemble: 0 | 1) => () => void} */
 const callInterpreter = (warnings, disassemble) => () => {
+    'use strict';
+
     inputIndex = 0;
     Module.ccall('wasm_cancel', null);
     clearOutput();

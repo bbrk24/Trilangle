@@ -17,6 +17,8 @@ const elements = {
 
 Module = {
     preInit() {
+        'use strict';
+
         const encoder = new TextEncoder(), decoder = new TextDecoder();
         let stdoutBuffer = [], stderrBuffer = [];
         /** @type {Uint8Array?} */
