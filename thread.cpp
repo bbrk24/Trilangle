@@ -19,6 +19,7 @@
 
 using std::cerr;
 using std::cout;
+using std::flush;
 
 using status = thread::status;
 
@@ -26,6 +27,13 @@ constexpr int24_t INT24_MIN{ -0x800000 };
 constexpr int24_t INT24_MAX{ 0x7fffff };
 
 unsigned long thread::thread_count;
+
+// Emscripten doesn't flush after every putchar call, so ensure we flush at all
+[[noreturn]] static inline void flush_and_exit(int code) {
+    cout << flush;
+    cerr << flush;
+    exit(code);
+}
 
 void thread::tick(bool& should_sleep) {
     static std::default_random_engine reng(std::move(std::random_device())());
@@ -204,9 +212,7 @@ void thread::tick(bool& should_sleep) {
             }
             break;
         case EXT:
-            // Emscripten doesn't flush after every putchar call, so ensure we flush at all
-            cout << std::flush;
-            exit(0);
+            flush_and_exit(0);
         case INC:
             if (m_flags.warnings) {
                 if (m_stack.empty()) UNLIKELY {
@@ -276,7 +282,7 @@ void thread::tick(bool& should_sleep) {
                         should_print = false;
                     }
                     if (m_flags.pipekill) {
-                        exit(1);
+                        flush_and_exit(1);
                     }
                 }
 
@@ -286,6 +292,8 @@ void thread::tick(bool& should_sleep) {
             }
 
             if (m_flags.pipekill && ferror(stdout)) {
+                // No need to flush stdout, it's already closed
+                cerr << flush;
                 exit(0);
             }
 
@@ -304,10 +312,11 @@ void thread::tick(bool& should_sleep) {
         }
         case PTI:
             EMPTY_PROTECT("print from", false) {
-                printf("%" PRId32 "\n", static_cast<int32_t>(m_stack.back()));
+                cout << m_stack.back() << '\n';
             }
 
             if (m_flags.pipekill && ferror(stdout)) {
+                cerr << flush;
                 exit(0);
             }
 
@@ -392,6 +401,7 @@ void thread::tick(bool& should_sleep) {
             }
             break;
         case INVALID_CHAR:
+            cout << flush;
             fprintf(
                 stderr,
                 "Unicode replacement character (U+%0.4" PRIX32 ") detected in source. Please check encoding.\n",
@@ -401,7 +411,7 @@ void thread::tick(bool& should_sleep) {
         default:
             cerr << "Unrecognized opcode '";
             printunichar(op, cerr);
-            cerr << "' (at (" << m_ip.coords.first << ", " << m_ip.coords.second << "))" << std::endl;
-            exit(1);
+            cerr << "' (at (" << m_ip.coords.first << ", " << m_ip.coords.second << "))\n";
+            flush_and_exit(1);
     }
 }

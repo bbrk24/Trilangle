@@ -49,12 +49,12 @@ static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_
     exit(EX_USAGE);
 }
 
-[[noreturn]] static inline void unrecognized_flag(const char* flag) {
+[[noreturn]] static inline void unrecognized_flag(NONNULL_PTR(const char) flag) {
     cerr << "Unrecognized flag: " << flag << "\n\n";
     invalid_flags();
 }
 
-static inline void set_flag(const char* flagname, flags& f) {
+static inline void set_flag(NONNULL_PTR(const char) flagname, flags& f) {
     if (flagname[1] == '-') {
         for (const auto& t : FLAGS) {
             if (!strcmp(get<0>(t), flagname + 2)) {
@@ -84,7 +84,7 @@ static inline void set_flag(const char* flagname, flags& f) {
 }  // namespace flag_container
 
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
-static inline string read_istream(std::istream& stream) {
+static string read_istream(std::istream& stream) {
     string retval;
     char buf[BUF_SIZE];
 

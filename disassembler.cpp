@@ -19,7 +19,7 @@ disassembler::~disassembler() noexcept {
     }
 }
 
-void disassembler::print_op(
+bool disassembler::print_op(
     std::ostream& os,
     disassembler::program_state& state,
     bool show_nops,
@@ -162,11 +162,12 @@ void disassembler::print_op(
                 os << buf << "Invalid opcode '";
                 printunichar(op, os);
                 os << "'\n";
-                break;
+                return false;
         }
     } else {
         os << buf << "JMP " << state.second << '\n';
     }
+    return true;
 }
 
 void disassembler::write_state(std::ostream& os) {
@@ -194,8 +195,7 @@ void disassembler::write(std::ostream& os, const state_element& state) {
         os << (m_ins_num + 1) << '\n' << ss.str();
 
         write(os, *state.second_child);
-    } else {
-        print_op(os, state.first_child->value, !m_flags.hide_nops, state.value.first.dir);
+    } else if (print_op(os, state.first_child->value, !m_flags.hide_nops, state.value.first.dir)) {
         write(os, *state.first_child);
     }
 }

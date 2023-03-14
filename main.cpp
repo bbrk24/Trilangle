@@ -25,6 +25,9 @@ inline void execute(const std::string& prg, flags f) {
 
 #ifndef __EMSCRIPTEN__
 int main(int argc, const char** argv) {
+    // Set locale so that getwchar works as expected
+    setlocale(LC_ALL, "");
+
     flags f;
     std::string program_text = parse_args(argc, argv, f);
     execute(program_text, f);
@@ -33,10 +36,10 @@ int main(int argc, const char** argv) {
 
 extern "C" {
 EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int warnings, int disassemble, int expand) {
-    // Set locale so that putwchar works as expected
-    setlocale(LC_ALL, "");
     // Reset EOF from previous runs
     clearerr(stdin);
+    // Input and output don't need to be synced on the web
+    std::cin.tie(nullptr);
 
     flags f;
     f.warnings = warnings;

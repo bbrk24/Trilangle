@@ -4,12 +4,17 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- Fixed a race condition in loading the web interface.
+
 ### Added
 
 - Added a warning for invalid characters.
 
 ### Changed
 
+- The disassembler no longer continues after an invalid opcode.
 - The program and input fields in the web interface are larger.
 
 ## [1.1.0] - 2023-03-12

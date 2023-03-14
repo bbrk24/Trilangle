@@ -1,6 +1,7 @@
 ---
 BasedOnStyle: Chromium
 AlignAfterOpenBracket: BlockIndent
+AlignEscapedNewlines: DontAlign
 BinPackArguments: false
 ColumnLimit: 120
 Cpp11BracedListStyle: false
@@ -9,7 +10,6 @@ InsertTrailingCommas: Wrapped
 ---
 Language: Cpp
 AccessModifierOffset: -4
-AlignEscapedNewlines: DontAlign
 AttributeMacros:
   - UNLIKELY
 BreakBeforeBinaryOperators: NonAssignment
