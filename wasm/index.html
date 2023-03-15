@@ -7,26 +7,7 @@
     <script defer src="./out.js"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <link rel="stylesheet" href="./index.css" />
-    <script>
-      'use strict';
-      
-      // For some reason, these functions are considered dead code if I put them in post.js, but the other ones aren't.
-      function expandInput() {
-        clearOutput();
-        Module.ccall(
-          'wasm_entrypoint',
-          null,
-          ['string', 'number', 'number', 'number'],
-          [elements.program.value, 0, 0, 1]
-        );
-        elements.program.value = elements.output.innerText;
-        elements.output.innerHTML = '';
-      }
-      function contractInput() {
-        clearOutput();
-        elements.program.value = elements.program.value.replace(/ |\n|[ .\n]+$/g, '');
-      }
-    </script>
+    <script async src="./index.js"></script>
   </head>
   <body>
     <label for="program">Program:</label><br />

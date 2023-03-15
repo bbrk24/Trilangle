@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- Fixed handling of trailing `.`s when condensing code.
+
 ## [1.1.1] - 2023-03-15
 
 ### Fixed
