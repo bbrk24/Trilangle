@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.1.1] - 2023-03-15
+
 ### Fixed
 
 - Minor performance improvements with I/O, especially for the web interface.
@@ -40,3 +42,4 @@ First versioned release.
 [Keep a Changelog]: https://keepachangelog.com/en/
 [1.0.0]: https://github.com/bbrk24/Trilangle/tree/1.0.0
 [1.1.0]: https://github.com/bbrk24/Trilangle/tree/1.1.0
+[1.1.1]: https://github.com/bbrk24/Trilangle/tree/1.1.1
