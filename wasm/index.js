@@ -9,7 +9,6 @@ function expandInput() {
 function contractInput() {
     clearOutput();
     // Remove spaces and newlines (intentionally not other whitespace)
-    /** @type {string} */
     let programText = elements.program.value.replace(/ |\n/g, '');
     // programText.length is wrong when there's high Unicode characters
     const programLength = [...programText].length;
