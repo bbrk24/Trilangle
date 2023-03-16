@@ -24,6 +24,7 @@ button {
     padding: 0.27em 0.45em 0.25em;
 }
 
+code,
 pre {
     font-size: 1em;
 }
@@ -33,6 +34,16 @@ pre {
         background-color: #1c1c1c;
         color: whitesmoke;
     }
+}
+
+.content-hidden * {
+    display: none;
+}
+
+.hide-slow {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 2s, opacity 2s linear;
 }
 
 #stderr {

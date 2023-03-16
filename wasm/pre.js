@@ -6,6 +6,9 @@ let inputIndex = 0;
  *  output: HTMLPreElement,
  *  error: HTMLParagraphElement,
  *  program: HTMLTextAreaElement,
+ *  urlOutBox: HTMLDivElement,
+ *  urlOut: HTMLCodeElement,
+ *  copyAlert: HTMLSpanElement,
  * }}
  */
 const elements = {
@@ -13,6 +16,9 @@ const elements = {
     output: document.getElementById('stdout'),
     error: document.getElementById('stderr'),
     program: document.getElementById('program'),
+    urlOutBox: document.getElementById('url-out-box'),
+    urlOut: document.getElementById('url-out'),
+    copyAlert: document.getElementById('copy-alert'),
 };
 
 Module = {

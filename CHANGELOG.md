@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- Added custom URL generation for the online interpreter.
+
 ### Fixed
 
 - Fixed handling of trailing `.`s when condensing code.

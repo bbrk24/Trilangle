@@ -31,3 +31,16 @@ const callInterpreter = (warnings, disassemble) => () => {
 };
 
 const interpretProgram = callInterpreter(1, 0), disassembleProgram = callInterpreter(0, 1);
+
+(() => {
+    'use strict';
+    // Code here runs immediately. I'm using an IIFE here so that any variables declared don't pollute the global
+    // object.
+
+    const p = new URL(location).searchParams.get('p');
+    if (p !== null) {
+        elements.program.value = p;
+    }
+
+    elements.program.oninput = () => elements.urlOutBox.className = 'content-hidden';
+})();
