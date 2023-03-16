@@ -1,9 +1,9 @@
-function clearOutput() {
+const clearOutput = () => {
     'use strict';
 
     elements.output.innerHTML = '';
     elements.error.innerHTML = '';
-}
+};
 
 /** @type {(warnings: 0 | 1, disassemble: 0 | 1) => () => void} */
 const callInterpreter = (warnings, disassemble) => () => {
@@ -30,4 +30,4 @@ const callInterpreter = (warnings, disassemble) => () => {
     }, 5);
 };
 
-var interpretProgram = callInterpreter(1, 0), disassembleProgram = callInterpreter(0, 1);
+const interpretProgram = callInterpreter(1, 0), disassembleProgram = callInterpreter(0, 1);

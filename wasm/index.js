@@ -1,12 +1,11 @@
 'use strict';
-// For some reason, these functions are considered dead code if I put them in post.js, but the other ones aren't.
-function expandInput() {
+const expandInput = () => {
     clearOutput();
     Module.ccall('wasm_entrypoint', null, ['string', 'number', 'number', 'number'], [elements.program.value, 0, 0, 1]);
     elements.program.value = elements.output.innerText;
     elements.output.innerHTML = '';
-}
-function contractInput() {
+};
+const contractInput = () => {
     clearOutput();
     // Remove spaces and newlines (intentionally not other whitespace)
     let programText = elements.program.value.replace(/ |\n/g, '');
@@ -20,4 +19,4 @@ function contractInput() {
         programText = programText.replace(new RegExp(`\\.{0,${programLength - minLength}}\$`), '');
     }
     elements.program.value = programText;
-}
+};
