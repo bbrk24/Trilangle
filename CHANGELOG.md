@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
+- Fixed shebang handling when condensing code.
 - Fixed handling of trailing `.`s when condensing code.
 
 ## [1.1.1] - 2023-03-15

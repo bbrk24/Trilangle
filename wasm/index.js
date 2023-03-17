@@ -1,7 +1,9 @@
 'use strict';
 const generateContracted = () => {
+    // Remove an unnecessary shebang
+    let programText = elements.program.value.replace(/^#![^\n]*\n/, '');
     // Remove spaces and newlines (intentionally not other whitespace)
-    const programText = elements.program.value.replace(/ |\n/g, '');
+    programText = programText.replace(/ |\n/g, '');
     // programText.length is wrong when there's high Unicode characters
     const programLength = [...programText].length;
     // Calculate the largest triangular number less than the length. minLength is 1 more than that
@@ -9,8 +11,10 @@ const generateContracted = () => {
     const minLength = 1 + temp * (temp + 1) / 2;
     // Remove trailing dots, but not too many
     if (programLength !== minLength) {
-        return programText.replace(new RegExp(`\\.{0,${programLength - minLength}}\$`), '');
+        programText = programText.replace(new RegExp(`\\.{0,${programLength - minLength}}\$`), '');
     }
+    // Fix an accidentally-created shebang
+    programText = programText.replace(/^#!/, '#\n!');
     return programText;
 }, expandInput = () => {
     clearOutput();
