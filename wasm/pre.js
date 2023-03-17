@@ -9,6 +9,7 @@ let inputIndex = 0;
  *  urlOutBox: HTMLDivElement,
  *  urlOut: HTMLCodeElement,
  *  copyAlert: HTMLSpanElement,
+ *  copyButton: HTMLButtonElement,
  * }}
  */
 const elements = {
@@ -19,6 +20,7 @@ const elements = {
     urlOutBox: document.getElementById('url-out-box'),
     urlOut: document.getElementById('url-out'),
     copyAlert: document.getElementById('copy-alert'),
+    copyButton: document.getElementById('copy-button'),
 };
 
 Module = {

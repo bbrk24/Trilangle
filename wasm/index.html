@@ -24,16 +24,16 @@ o &quot; &quot; &quot; o ' ( @ .
     <button type="button" onclick="contractInput()">Condense</button>
     <button type="button" onclick="expandInput()">Unfold</button>
     <button type="button" onclick="generateURL()">Generate URL</button>
+    <button type="button" onclick="copyURL()" id="copy-button" disabled>Copy URL</button>
+    <span id="copy-alert" class="hide-slow">Copied!</span>
     <div id="url-out-box" class="content-hidden">
       <span>URL:</span>
       <code id="url-out"></code>
-      <button type="button" onclick="copyURL()">Copy</button>
-      <span id="copy-alert" class="hide-slow">Copied!</span>
     </div>
     <label for="stdin">Input:</label><br />
     <textarea id="stdin" rows="4" cols="45"></textarea><br />
     <button type="button" onclick="interpretProgram()">Run!</button>
-    <button type="button" onclick="Module.ccall('wasm_cancel', null)">Stop</button>
+    <button type="button" onclick="wasmCancel()">Stop</button>
     <button type="button" onclick="disassembleProgram()">Show disassembly</button>
     <button type="button" onclick="clearOutput()">Clear output</button>
     <p id="out-label">Output:</p>

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Changed
+
+- The buttons in the web interface now give a visual indication when pressed.
+
 ### Added
 
 - Added custom URL generation for the online interpreter.

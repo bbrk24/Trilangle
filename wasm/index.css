@@ -12,16 +12,12 @@ textarea {
 button {
     background-color: rgb(127 127 127 / 35%);
     color: inherit;
-    border: none;
-    border-radius: 0.35em;
+    border: 2px solid transparent;
+    border-radius: 0.4em;
     font-size: 0.8em;
     margin: 0.45em 0.25em 0.25em 0;
     text-transform: none;
-    /*
-     * Vertical padding of 0.25em,0.25em centers it on Safari, but 0.3em,0.25em centers it on Chrome.
-     * I'll split the difference.
-     */
-    padding: 0.27em 0.45em 0.25em;
+    padding: 0.22em 0.4em 0.2em;
 }
 
 code,
@@ -44,6 +40,21 @@ pre {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s 2s, opacity 2s linear;
+}
+
+button:disabled {
+    opacity: 60%;
+}
+
+button:active {
+    border-style: inset;
+    border-color: #d2d2d2;
+}
+
+@media (prefers-color-scheme: dark) {
+    button:active {
+        border-color: #3e3e3e;
+    }
 }
 
 #stderr {

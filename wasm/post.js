@@ -1,3 +1,8 @@
+/** @type {(program: string, warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1) => (undefined | Promise<void>)} */
+const wasmEntrypoint = Module.cwrap('wasm_entrypoint', null, ['string', 'number', 'number', 'number']);
+/** @type {() => void} */
+const wasmCancel = Module.cwrap('wasm_cancel', null);
+
 const clearOutput = () => {
     'use strict';
 
@@ -10,19 +15,14 @@ const callInterpreter = (warnings, disassemble) => () => {
     'use strict';
 
     inputIndex = 0;
-    Module.ccall('wasm_cancel', null);
+    wasmCancel();
     clearOutput();
     // By adding a 5ms delay, the previous thread has a chance to clean up after itself.
     // Without this, we may usurp its memory, and then it'll try to deallocate it in a problematic way.
     // Is this a good thing? Probably not. Does it work? Usually. Worst case, just reload the page.
     setTimeout(async () => {
         try {
-            await Module.ccall(
-                'wasm_entrypoint',
-                null,
-                ['string', 'number', 'number', 'number'],
-                [elements.program.value, warnings, disassemble, 0]
-            );
+            await wasmEntrypoint(elements.program.value, warnings, disassemble, 0);
         } catch (e) {
             if (!(e instanceof ExitStatus))
                 elements.error.innerText += String(e);
@@ -32,15 +32,11 @@ const callInterpreter = (warnings, disassemble) => () => {
 
 const interpretProgram = callInterpreter(1, 0), disassembleProgram = callInterpreter(0, 1);
 
-(() => {
-    'use strict';
-    // Code here runs immediately. I'm using an IIFE here so that any variables declared don't pollute the global
-    // object.
+if (location.hash.length > 1) {
+    elements.program.value = decodeURIComponent(location.hash.slice(1));
+}
 
-    const p = new URL(location).searchParams.get('p');
-    if (p !== null) {
-        elements.program.value = p;
-    }
-
-    elements.program.oninput = () => elements.urlOutBox.className = 'content-hidden';
-})();
+elements.program.oninput = () => {
+    elements.urlOutBox.className = 'content-hidden';
+    elements.copyButton.disabled = true;
+};

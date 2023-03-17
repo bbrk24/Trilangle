@@ -14,17 +14,18 @@ const generateContracted = () => {
     return programText;
 }, expandInput = () => {
     clearOutput();
-    Module.ccall('wasm_entrypoint', null, ['string', 'number', 'number', 'number'], [elements.program.value, 0, 0, 1]);
+    wasmEntrypoint(elements.program.value, 0, 0, 1);
     elements.program.value = elements.output.innerText;
     elements.output.innerHTML = '';
 }, contractInput = () => {
     clearOutput();
     elements.program.value = generateContracted();
 }, generateURL = () => {
-    const newURL = `${location.href.split('?')[0]}?p=${encodeURIComponent(generateContracted())}`;
+    const newURL = `${location.href.split('#')[0]}#${encodeURIComponent(generateContracted())}`;
     history.pushState({}, '', newURL);
     elements.urlOut.textContent = newURL;
     elements.urlOutBox.className = '';
+    elements.copyButton.disabled = false;
 }, copyURL = () => {
     const url = elements.urlOut.textContent;
     elements.urlOut.setSelectionRange?.(0, url.length);
