@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Changed
 
-- The buttons in the web interface now give a visual indication when pressed.
+- Gave the web interface a complete redesign.
 
 ### Added
 

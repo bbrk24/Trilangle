@@ -9,7 +9,14 @@ let inputIndex = 0;
  *  urlOutBox: HTMLDivElement,
  *  urlOut: HTMLCodeElement,
  *  copyAlert: HTMLSpanElement,
- *  copyButton: HTMLButtonElement,
+ *  urlButton: HTMLButtonElement,
+ *  programFieldset: HTMLFieldSetElement,
+ *  clearContainer: HTMLDivElement,
+ *  footer: HTMLFooterElement,
+ *  outputLabel: HTMLDivElement,
+ *  runStopButton: HTMLButtonElement,
+ *  disassembleButton: HTMLButtonElement,
+ *  expandButton: HTMLButtonElement,
  * }}
  */
 const elements = {
@@ -20,7 +27,14 @@ const elements = {
     urlOutBox: document.getElementById('url-out-box'),
     urlOut: document.getElementById('url-out'),
     copyAlert: document.getElementById('copy-alert'),
-    copyButton: document.getElementById('copy-button'),
+    urlButton: document.getElementById('url-button'),
+    programFieldset: document.getElementById('program-container'),
+    clearContainer: document.getElementById('clear-button-container'),
+    footer: document.querySelector('footer'),
+    outputLabel: document.getElementById('out-label'),
+    runStopButton: document.getElementById('run-stop'),
+    disassembleButton: document.getElementById('disassemble'),
+    expandButton: document.getElementById('expand'),
 };
 
 Module = {

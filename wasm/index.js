@@ -25,11 +25,21 @@ const generateContracted = () => {
     history.pushState({}, '', newURL);
     elements.urlOut.textContent = newURL;
     elements.urlOutBox.className = '';
-    elements.copyButton.disabled = false;
+    elements.urlButton.textContent = 'Copy URL'
 }, copyURL = () => {
     const url = elements.urlOut.textContent;
     elements.urlOut.setSelectionRange?.(0, url.length);
     navigator.clipboard.writeText(url);
     elements.copyAlert.className = '';
     setTimeout(() => elements.copyAlert.className = 'hide-slow');
+}, runStopClicked = () => {
+    if (elements.disassembleButton.disabled)
+        wasmCancel();
+    else
+        interpretProgram();
+}, urlButtonClicked = () => {
+    if (elements.urlButton.textContent === 'Copy URL')
+        copyURL();
+    else
+        generateURL();
 };

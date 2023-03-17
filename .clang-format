@@ -3,6 +3,7 @@ BasedOnStyle: Chromium
 AlignAfterOpenBracket: BlockIndent
 AlignEscapedNewlines: DontAlign
 BinPackArguments: false
+BreakBeforeTernaryOperators: true
 ColumnLimit: 120
 Cpp11BracedListStyle: false
 IndentWidth: 4

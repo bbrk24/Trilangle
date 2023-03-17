@@ -10,8 +10,21 @@
     <script async src="./index.js"></script>
   </head>
   <body>
-    <label for="program">Program:</label><br />
-    <textarea id="program" rows="10" cols="45" spellcheck="false">        &quot;
+    <main>
+      <div class="grid">
+        <fieldset id="program-container">
+          <legend>Program</legend>
+          <button type="button" id="run-stop" onclick="runStopClicked()">Stop</button>
+          <button type="button" id="disassemble" onclick="disassembleProgram()">Show disassembly</button>
+          <button type="button" onclick="contractInput()">Condense</button>
+          <button type="button" id="expand" onclick="expandInput()">Unfold</button>
+          <button type="button" id="url-button" onclick="urlButtonClicked()">Generate URL</button>
+          <span id="copy-alert" class="hide-slow">Copied!</span>
+          <div id="url-out-box" class="content-hidden">
+            <span>URL:</span>
+            <code id="url-out"></code>
+          </div>
+          <textarea id="program" rows="10" cols="42" spellcheck="false">        &quot;
        H o
       o &quot; !
      &quot; o ( o
@@ -20,26 +33,36 @@
   &quot; , W r &quot; ! 3
  l o o o d o : o
 o &quot; &quot; &quot; o ' ( @ .
-</textarea><br />
-    <button type="button" onclick="contractInput()">Condense</button>
-    <button type="button" onclick="expandInput()">Unfold</button>
-    <button type="button" onclick="generateURL()">Generate URL</button>
-    <button type="button" onclick="copyURL()" id="copy-button" disabled>Copy URL</button>
-    <span id="copy-alert" class="hide-slow">Copied!</span>
-    <div id="url-out-box" class="content-hidden">
-      <span>URL:</span>
-      <code id="url-out"></code>
-    </div>
-    <label for="stdin">Input:</label><br />
-    <textarea id="stdin" rows="4" cols="45"></textarea><br />
-    <button type="button" onclick="interpretProgram()">Run!</button>
-    <button type="button" onclick="wasmCancel()">Stop</button>
-    <button type="button" onclick="disassembleProgram()">Show disassembly</button>
-    <button type="button" onclick="clearOutput()">Clear output</button>
-    <p id="out-label">Output:</p>
-    <div id="out-container">
-      <pre id="stdout"></pre>
-      <p id="stderr"></p>
-    </div>
+</textarea>
+        </fieldset>
+        <fieldset id="input-container">
+          <legend>Input</legend>
+          <textarea id="stdin" rows="10" cols="42"></textarea>
+        </fieldset>
+        <div id="clear-button-container">
+          <button type="button" onclick="clearOutput()">Clear output &amp; errors</button>
+        </div>
+        <div><!-- This div intentionally left blank. --></div>
+        <div id="out-label">Output</div>
+        <div>Errors</div>
+        <div class="out-container">
+          <pre id="stdout"></pre>
+        </div>
+        <div class="out-container">
+          <p id="stderr"></p>
+        </div>
+      </div>
+    </main>
+    <div class="spacer"></div>
+    <footer>
+      <div>
+        © 2023 William Baker<br />
+        <a href="https://github.com/bbrk24/Trilangle/blob/master/LICENSE">MIT License</a>
+      </div>
+      <div class="center">
+        <a href="https://github.com/bbrk24/Trilangle">GitHub page</a>
+      </div>
+      <div><!-- This div intentionally left blank. --></div>
+    </footer>
   </body>
 </html>
