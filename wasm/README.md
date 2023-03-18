@@ -4,11 +4,15 @@ This file outlines the file structure of this folder. For an overview of compili
 
 ## build_wasm.sh
 
-This file simply invokes emscripten with the appropriate flags.
+This file simply invokes emscripten and sass with the appropriate flags.
 
 ## index.*
 
 These files are included as-is in the website -- they aren't minified in any way. GitHub compresses them to about a third of their original size, so file size isn't a great concern.
+
+## input.scss
+
+This file is transformed into out.css. Prefer putting styling information here when possible.
 
 ## pre.js and post.js
 

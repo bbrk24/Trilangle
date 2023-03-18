@@ -1,3 +1,17 @@
+$dark-background: #1c1c1c;
+
+a {
+    &:visited {
+        color: darkviolet;
+    }
+    @media screen and (prefers-color-scheme: dark) {
+        color: royalblue;
+        &:visited {
+            color: blueviolet;
+        }
+    }
+}
+
 body {
     font-family: sans-serif;
     -webkit-text-size-adjust: 100%;
@@ -5,6 +19,10 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    @media screen and (prefers-color-scheme: dark) {
+        color: whitesmoke;
+        background-color: $dark-background;
+    }
 }
 
 fieldset {
@@ -22,6 +40,15 @@ button {
     text-transform: none;
     padding: 0.15em 0.33em 0.13em;
     text-align: center;
+    &:disabled {
+        opacity: 60%;
+    }
+    &:active {
+        border-color: #d2d2d2;
+        @media screen and (prefers-color-scheme: dark) {
+            border-color: #3e3e3e;
+        }
+    }
 }
 
 code {
@@ -42,6 +69,7 @@ textarea {
 
 main {
     margin: 0 auto;
+    width: clamp(min(100%, 600px), 78vw, 1200px);
 }
 
 footer {
@@ -50,81 +78,32 @@ footer {
     background-color: #ebebeb;
     display: flex;
     justify-content: space-between;
-}
-
-@media screen and (max-width: 600px) {
-    main {
-        width: 100%;
+    @media screen and (prefers-color-scheme: dark) {
+        background-color: #2c2c2c;
     }
-}
-
-@media screen and (min-width: 601px) and (max-width: 769px) {
-    main {
-        width: 600px;
-    }
-}
-
-@media screen and (max-width: 539px) {
-    footer {
+    @media screen and (max-width: 539px) {
         flex-direction: column-reverse;
         padding: 0.5em;
+        * {
+            text-align: center;
+        }
     }
-
-    footer * {
-        text-align: center;
-    }
-}
-
-@media only screen and (min-width: 540px) {
-    footer {
+    @media screen and (min-width: 540px) {
         align-items: last baseline;
-    }
-
-    @media (max-width: 769px) {
-        footer {
+        @media (max-width: 769px) {
             padding: 1em calc(50vw - 262px);
         }
     }
-}
-
-@media screen and (min-width: 935px) {
-    footer > * {
-        flex: 1 0;
-    }
-}
-
-@media screen and (min-width: 770px) and (max-width: 1538px) {
-    main {
-        width: 78vw;
-    }
-
-    footer {
+    @media screen and (min-width: 770px) and (max-width: 1538px) {
         padding: 1em 16vw;
     }
-} 
-
-@media screen and (min-width: 1539px) {
-    main {
-        width: 1200px;
+    @media screen and (min-width: 935px) {
+        >* {
+            flex: 1 0;
+        }
     }
-
-    footer {
-        padding: 1em calc(50vw - 523px);
-    }
-}
-
-@media screen and (prefers-color-scheme: dark) {
-    body {
-        background-color: #1c1c1c;
-        color: whitesmoke;
-    }
-
-    a {
-        color: royalblue;
-    }
-
-    footer {
-        background-color: #2c2c2c;
+    @media screen and (min-width: 1539px) {
+        padding: 1em ;
     }
 }
 
@@ -158,38 +137,14 @@ footer {
     width: 100%;
     overflow: hidden;
     box-sizing: border-box;
+    >* {
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+    }
 }
 
-.grid > * {
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-}
-
-p:empty,
-pre:empty {
+:empty {
     margin: 0;
-}
-
-button:disabled {
-    opacity: 60%;
-}
-
-button:active {
-    border-color: #d2d2d2;
-}
-
-a:visited {
-    color: darkviolet;
-}
-
-@media screen and (prefers-color-scheme: dark) {
-    button:active {
-        border-color: #3e3e3e;
-    }
-
-    a:visited {
-        color: blueviolet;
-    }
 }
 
 .out-container :first-child {
@@ -197,11 +152,8 @@ a:visited {
     padding: 0.5em 0;
     background-color: white;
     top: 0;
-}
-
-@media screen and (prefers-color-scheme: dark) {
-    .out-container :first-child {
-        background-color: #1c1c1c;
+    @media screen and (prefers-color-scheme: dark) {
+        background-color: $dark-background;
     }
 }
 
