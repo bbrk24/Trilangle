@@ -1,4 +1,8 @@
+@use "sass:color";
+
 $dark-background: #1c1c1c;
+$button-color: #7f7f7f;
+$button-opacity: 35%;
 
 a {
     &:visited {
@@ -31,7 +35,7 @@ fieldset {
 }
 
 button {
-    background-color: rgb(127 127 127 / 35%);
+    background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
     color: inherit;
     border: 2px inset transparent;
     border-radius: 0.38em;
@@ -44,9 +48,9 @@ button {
         opacity: 60%;
     }
     &:active {
-        border-color: #d2d2d2;
+        border-color: color.mix($button-color, white, $button-opacity);
         @media screen and (prefers-color-scheme: dark) {
-            border-color: #3e3e3e;
+            border-color: color.mix($button-color, $dark-background, $button-opacity);
         }
     }
 }
@@ -103,7 +107,7 @@ footer {
         }
     }
     @media screen and (min-width: 1539px) {
-        padding: 1em ;
+        padding: 1em;
     }
 }
 
