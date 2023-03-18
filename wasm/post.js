@@ -53,6 +53,7 @@ const callInterpreter = (warnings, disassemble) => () => {
 
     elements.disassembleButton.disabled = true;
     elements.expandButton.disabled = true;
+    elements.condenseButton.disabled = true;
 
     // By adding a 5ms delay, the previous thread has a chance to clean up after itself.
     // Without this, we may usurp its memory, and then it'll try to deallocate it in a problematic way.
@@ -70,6 +71,7 @@ const callInterpreter = (warnings, disassemble) => () => {
         }
         elements.expandButton.disabled = false;
         elements.disassembleButton.disabled = false;
+        elements.condenseButton.disabled = false;
         elements.runStopButton.textContent = 'Run!';
         elements.runStopButton.onclick = interpretProgram;
     }, 5);
@@ -92,7 +94,7 @@ elements.program.oninput = () => {
     const width = elements.runStopButton.offsetWidth;
     elements.runStopButton.textContent = 'Run!';
     setTimeout(
-        () => elements.runStopButton.style.width = `${0.5 + Math.max(width, elements.runStopButton.offsetWidth)}px`
+        () => elements.runStopButton.style.width = `${0.49 + Math.max(width, elements.runStopButton.offsetWidth)}px`
     );
     elements.runStopButton.onclick = interpretProgram;
     elements.urlButton.onclick = generateURL;
@@ -111,7 +113,7 @@ elements.program.oninput = () => {
             styleEl.innerHTML = `.grid { grid-template-columns: 1fr 1fr; max-height: 100vh; }
 .out-container {
     max-height: calc(100vh - 0.5em - ${
-                1 + elements.programFieldset.offsetHeight + elements.clearContainer.offsetHeight +
+                1.49 + elements.programFieldset.offsetHeight + elements.clearContainer.offsetHeight +
                 elements.footer.offsetHeight}px);
     padding-bottom: 1em;
 }

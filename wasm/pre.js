@@ -16,6 +16,7 @@ let inputIndex = 0;
  *  runStopButton: HTMLButtonElement,
  *  disassembleButton: HTMLButtonElement,
  *  expandButton: HTMLButtonElement,
+ *  condenseButton: HTMLButtonElement,
  * }}
  */
 const elements = {
@@ -33,6 +34,7 @@ const elements = {
     runStopButton: document.getElementById('run-stop'),
     disassembleButton: document.getElementById('disassemble'),
     expandButton: document.getElementById('expand'),
+    condenseButton: document.getElementById('condense'),
 };
 
 Module = {
