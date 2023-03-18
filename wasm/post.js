@@ -1,6 +1,6 @@
 /** @type {(program: string, warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1) => (undefined | Promise<void>)} */
 const wasmEntrypoint = Module.cwrap('wasm_entrypoint', null, ['string', 'number', 'number', 'number']);
-/** @type {() => void} */
+/** @type {(...args: never[]) => void} */
 const wasmCancel = Module.cwrap('wasm_cancel', null);
 
 const clearOutput = () => {
@@ -110,16 +110,17 @@ elements.program.oninput = () => {
     const emSize = parseFloat(getComputedStyle(document.body).fontSize);
     onresize = () => {
         if (document.querySelector('main').clientWidth / 2 > elements.program.offsetWidth + emSize)
-            styleEl.innerHTML = `.grid { grid-template-columns: 1fr 1fr; max-height: 100vh; }
-.out-container {
-    max-height: calc(100vh - 0.5em - ${
-                1.49 + elements.programFieldset.offsetHeight + elements.clearContainer.offsetHeight +
-                elements.footer.offsetHeight}px);
-    padding-bottom: 1em;
+            styleEl.innerHTML = `.grid {
+    grid-template-columns: 1fr 1fr;
+    max-height: 100vh;
+    grid-template-areas: "p i" "c ." "o e";
 }
-.out-container :first-child { position: sticky; top: 0; }`;
+.out-container { max-height: calc(100vh - 0.5em - ${
+                1.49 + elements.programFieldset.offsetHeight + elements.clearContainer.offsetHeight +
+                elements.footer.offsetHeight}px); padding-bottom: 1em; }
+.out-container :first-child { position: sticky; }`;
         else
-            styleEl.innerHTML = '.grid { grid-template-columns: 1fr; }';
+            styleEl.innerHTML = '.grid { grid-template-columns: 1fr; grid-template-areas: "p" "i" "c" "o" "e"; }';
     };
     new ResizeObserver(onresize).observe(elements.programFieldset);
     onresize();

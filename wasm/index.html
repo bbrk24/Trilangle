@@ -20,10 +20,7 @@
           <button type="button" id="expand" onclick="expandInput()">Unfold</button>
           <button type="button" id="url-button">Generate URL</button>
           <span id="copy-alert" class="hide-slow">Copied!</span>
-          <div id="url-out-box" class="content-hidden">
-            <span>URL:</span>
-            <code id="url-out"></code>
-          </div>
+          <div id="url-out-box" class="content-hidden"><span>URL:</span><code id="url-out"></code></div>
           <textarea id="program" rows="10" cols="42" spellcheck="false">        &quot;
        H o
       o &quot; !
@@ -39,18 +36,9 @@ o &quot; &quot; &quot; o ' ( @ .
           <legend>Input</legend>
           <textarea id="stdin" rows="10" cols="42"></textarea>
         </fieldset>
-        <div id="clear-button-container">
-          <button type="button" onclick="clearOutput()">Clear output &amp; errors</button>
-        </div>
-        <div><!-- This div intentionally left blank. --></div>
-        <div class="out-container">
-          <p>Output</p>
-          <pre id="stdout"></pre>
-        </div>
-        <div class="out-container">
-          <p>Errors</p>
-          <p id="stderr"></p>
-        </div>
+        <div id="clear-container"><button type="button" onclick="clearOutput()">Clear output &amp; errors</button></div>
+        <div class="out-container" id="stdout-container"><p>Output</p><pre id="stdout"></pre></div>
+        <div class="out-container" id="stderr-container"><p>Errors</p><p id="stderr"></p></div>
       </div>
     </main>
     <div class="spacer"></div>
@@ -59,9 +47,7 @@ o &quot; &quot; &quot; o ' ( @ .
         © 2023 William Baker<br />
         <a href="https://github.com/bbrk24/Trilangle/blob/master/LICENSE">MIT License</a>
       </div>
-      <div class="center">
-        <a href="https://github.com/bbrk24/Trilangle">GitHub page</a>
-      </div>
+      <div class="center"><a href="https://github.com/bbrk24/Trilangle">GitHub page</a></div>
       <div><!-- This div intentionally left blank. --></div>
     </footer>
   </body>

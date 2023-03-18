@@ -70,26 +70,26 @@ footer {
         padding: 0.5em;
     }
 
-    footer > * {
+    footer * {
         text-align: center;
     }
 }
 
-@media screen and (min-width: 540px) {
+@media only screen and (min-width: 540px) {
     footer {
         align-items: last baseline;
     }
-}
 
-@media screen and (min-width: 540px) and (max-width: 769px) {
-    footer {
-        padding: 1em calc(50vw - 262px);
+    @media (max-width: 769px) {
+        footer {
+            padding: 1em calc(50vw - 262px);
+        }
     }
 }
 
 @media screen and (min-width: 935px) {
     footer > * {
-        flex: 1 0 0;
+        flex: 1 0;
     }
 }
 
@@ -135,7 +135,7 @@ footer {
 }
 
 .spacer {
-    flex: 1 2 0;
+    flex: 1 2;
 }
 
 .out-container {
@@ -165,6 +165,11 @@ footer {
     margin-right: 0.5em;
 }
 
+p:empty,
+pre:empty {
+    margin: 0;
+}
+
 button:disabled {
     opacity: 60%;
 }
@@ -191,6 +196,7 @@ a:visited {
     margin: 0;
     padding: 0.5em 0;
     background-color: white;
+    top: 0;
 }
 
 @media screen and (prefers-color-scheme: dark) {
@@ -212,4 +218,21 @@ a:visited {
     flex-direction: column;
     justify-content: end;
     align-items: start;
+    grid-area: i;
+}
+
+#program-container {
+    grid-area: p;
+}
+
+#clear-container {
+    grid-area: c;
+}
+
+#stdout-container {
+    grid-area: o;
+}
+
+#stderr-container {
+    grid-area: e;
 }
