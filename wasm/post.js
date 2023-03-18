@@ -8,6 +8,39 @@ const clearOutput = () => {
 
     elements.output.innerHTML = '';
     elements.error.innerHTML = '';
+}, generateContracted = () => {
+    'use strict';
+    // Remove an unnecessary shebang
+    let programText = elements.program.value.replace(/^#![^\n]*\n/, '');
+    // Remove spaces and newlines (intentionally not other whitespace)
+    programText = programText.replace(/ |\n/g, '');
+    // programText.length is wrong when there's high Unicode characters
+    const programLength = [...programText].length;
+    // Calculate the largest triangular number less than the length. minLength is 1 more than that
+    const temp = Math.ceil(Math.sqrt(2 * programLength) - 1.5);
+    const minLength = 1 + temp * (temp + 1) / 2;
+    // Remove trailing dots, but not too many
+    if (programLength !== minLength)
+        programText = programText.replace(new RegExp(`\\.{0,${programLength - minLength}}\$`), '');
+    // Fix an accidentally-created shebang
+    programText = programText.replace(/^#!/, '#\n!');
+    return programText;
+}, generateURL = () => {
+    'use strict';
+    const newURL = `${location.href.split('#')[0]}#${encodeURIComponent(generateContracted())}`;
+    history.pushState({}, '', newURL);
+    elements.urlOut.textContent = newURL;
+    elements.urlOutBox.className = '';
+    elements.urlButton.textContent = 'Copy URL'
+    elements.urlButton.onclick = copyURL;
+}, copyURL = () => {
+    'use strict';
+    const url = elements.urlOut.textContent;
+    if (typeof elements.urlOut.setSelectionRange == 'function')
+        elements.urlOut.setSelectionRange(0, url.length);
+    navigator.clipboard.writeText(url);
+    elements.copyAlert.className = '';
+    setTimeout(() => elements.copyAlert.className = 'hide-slow');
 };
 
 /** @type {(warnings: 0 | 1, disassemble: 0 | 1) => () => void} */
@@ -26,6 +59,7 @@ const callInterpreter = (warnings, disassemble) => () => {
     // Is this a good thing? Probably not. Does it work? Usually. Worst case, just reload the page.
     setTimeout(async () => {
         elements.runStopButton.textContent = 'Stop';
+        elements.runStopButton.onclick = () => wasmCancel();
         try {
             const result = wasmEntrypoint(elements.program.value, warnings, disassemble, 0);
             if (typeof result == 'object' && 'then' in result)
@@ -37,6 +71,7 @@ const callInterpreter = (warnings, disassemble) => () => {
         elements.expandButton.disabled = false;
         elements.disassembleButton.disabled = false;
         elements.runStopButton.textContent = 'Run!';
+        elements.runStopButton.onclick = interpretProgram;
     }, 5);
 };
 
@@ -46,18 +81,21 @@ elements.program.oninput = () => {
     'use strict';
     elements.urlOutBox.className = 'content-hidden';
     elements.urlButton.textContent = 'Generate URL';
+    elements.urlButton.onclick = generateURL;
 };
 
 // Use an IIFE to prevent polluting the global object
 (() => {
-    'use strict';
+    'use strict';  // and also for that
 
-    // Set the button width
+    // Configure the buttons
     const width = elements.runStopButton.offsetWidth;
     elements.runStopButton.textContent = 'Run!';
     setTimeout(
         () => elements.runStopButton.style.width = `${0.5 + Math.max(width, elements.runStopButton.offsetWidth)}px`
     );
+    elements.runStopButton.onclick = interpretProgram;
+    elements.urlButton.onclick = generateURL;
 
     // Get the program from the URL, if present
     if (location.hash.length > 1) {
