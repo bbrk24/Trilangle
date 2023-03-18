@@ -112,9 +112,10 @@ elements.program.oninput = () => {
 .out-container {
     max-height: calc(100vh - 0.5em - ${
                 1 + elements.programFieldset.offsetHeight + elements.clearContainer.offsetHeight +
-                elements.outputLabel.offsetHeight + elements.footer.offsetHeight}px);
+                elements.footer.offsetHeight}px);
     padding-bottom: 1em;
-}`;
+}
+.out-container :first-child { position: sticky; top: 0; }`;
         else
             styleEl.innerHTML = '.grid { grid-template-columns: 1fr; }';
     };

@@ -50,7 +50,6 @@ footer {
     background-color: #ebebeb;
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
 @media screen and (max-width: 600px) {
@@ -73,6 +72,12 @@ footer {
 
     footer > * {
         text-align: center;
+    }
+}
+
+@media screen and (min-width: 540px) {
+    footer {
+        align-items: last baseline;
     }
 }
 
@@ -179,6 +184,18 @@ a:visited {
 
     a:visited {
         color: blueviolet;
+    }
+}
+
+.out-container :first-child {
+    margin: 0;
+    padding: 0.5em 0;
+    background-color: white;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .out-container :first-child {
+        background-color: #1c1c1c;
     }
 }
 
