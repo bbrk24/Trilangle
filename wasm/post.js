@@ -110,17 +110,13 @@ elements.program.oninput = () => {
     const emSize = parseFloat(getComputedStyle(document.body).fontSize);
     onresize = () => {
         if (document.querySelector('main').clientWidth / 2 > elements.program.offsetWidth + emSize)
-            styleEl.innerHTML = `.grid {
-    grid-template-columns: 1fr 1fr;
-    max-height: 100vh;
-    grid-template-areas: "p i" "c ." "o e";
-}
+            styleEl.innerHTML = `.grid { max-height: 100vh; grid-template: "p i" "c ." "o e" / 1fr 1fr; }
 .out-container { max-height: calc(100vh - 0.5em - ${
                 1.49 + elements.programFieldset.offsetHeight + elements.clearContainer.offsetHeight +
                 elements.footer.offsetHeight}px); padding-bottom: 1em; }
 .out-container :first-child { position: sticky; }`;
         else
-            styleEl.innerHTML = '.grid { grid-template-columns: 1fr; grid-template-areas: "p" "i" "c" "o" "e"; }';
+            styleEl.innerHTML = '.grid { grid-template: "p" "i" "c" "o" "e" / 1fr; }';
     };
     new ResizeObserver(onresize).observe(elements.programFieldset);
     onresize();
