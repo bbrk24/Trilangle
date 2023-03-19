@@ -158,6 +158,8 @@ bool disassembler::print_op(
                 PRINT_NAME(RND);
                 PRINT_NAME(EXP);
                 PRINT_NAME(SWP);
+                PRINT_NAME(GDT);
+                PRINT_NAME(GTM);
             default:
                 os << buf << "Invalid opcode '";
                 printunichar(op, os);

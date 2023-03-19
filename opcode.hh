@@ -41,4 +41,6 @@ enum opcode : int32_t {
     SWP = 'S',        // swap
     THR_W = '{',      // west thread operator
     THR_E = '}',      // east thread operator
+    GTM = 'T',        // get time
+    GDT = 'D',        // get date
 };

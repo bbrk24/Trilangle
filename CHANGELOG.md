@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
+- Added GDT and GTM opcodes.
 - Added custom URL generation for the online interpreter.
 
 ### Fixed

@@ -118,13 +118,15 @@ There are a few instructions that operate on the stack directly.
 
 ### I/O instructions
 
-Trilangle has five instructions for I/O: two for console input, two for console output, and one for randomness.
+Trilangle has seven instructions for I/O: two for console input, two for console output, two for time, and one for randomness.
 
 - `i` (GTC): read a single UTF-8 character from STDIN and push it to the stack. Pushes -1 on EOF.
 - `?` (GTI): read an integer from STDIN and push it to the stack. Pushes -1 on EOF.
 - `o` (PTC): write the top of the stack as a single character to STDOUT. This currently does not work for multi-byte characters on Windows due to console limitations.
 - `!` (PTI): write the value of the top of the stack as a decimal number to STDOUT.
 - `$` (RND): push a random 24-bit integer to the stack.
+- `D` (GDT): get the current date (number of days since 1970-01-01).
+- `T` (GTM): get the time of day. 0 corresponds to 00:00:00 and the maximum value corresponds to 23:59:59, so the unit is approximately 1/97 second.
 
 Note that the input functions push to the stack, but the output functions do not pop from it.
 
@@ -278,7 +280,7 @@ See [turing_completeness.md].
 
 ### Compiling natively
 
-The specific compiler used shouldn't matter. I've been using MSVC 14.34 (Visual Studio 2022 version 17.4), but it should be compatible with clang and GCC, as well as some earlier versions of MSVC (Visual Studio 2017 or later). Incompatibility with these compilers is considered a bug, and any issues should be reported on [the issues page][issues].
+The specific compiler used shouldn't matter. I've been using MSVC 14.35 (Visual Studio 2022 version 17.5), but it should be compatible with clang and GCC, as well as some earlier versions of MSVC (Visual Studio 2017 or later). Incompatibility with these compilers is considered a bug, and any issues should be reported on [the issues page][issues].
 
 C++14 (`201304L`) or later is required to compile this project. Certain features from newer versions will be used if they are available, which may affect the performance of the compiled binary. These features include, but are not limited to:
 

@@ -1,8 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 
 #include "thread.hh"
+#include <chrono>
 #include <cinttypes>
 #include <cstdlib>
+#include <ctime>
 #include <random>
 #include "output.hh"
 
@@ -20,11 +22,16 @@
 using std::cerr;
 using std::cout;
 using std::flush;
+using std::chrono::system_clock;
 
 using status = thread::status;
 
 constexpr int24_t INT24_MIN{ -0x800000 };
 constexpr int24_t INT24_MAX{ 0x7fffff };
+
+constexpr time_t DAY_LENGTH = 24 * 60 * 60;
+constexpr auto ONE_DAY = std::chrono::duration_cast<system_clock::duration>(std::chrono::seconds(DAY_LENGTH));
+constexpr long double TICKS_PER_UNIT = ONE_DAY.count() / static_cast<long double>(INT24_MAX);
 
 unsigned long thread::thread_count;
 
@@ -400,6 +407,16 @@ void thread::tick(bool& should_sleep) {
                     break;
             }
             break;
+        case GTM: {
+            long double time = (system_clock::now().time_since_epoch() % ONE_DAY).count() / TICKS_PER_UNIT;
+            m_stack.emplace_back(time);
+            break;
+        }
+        case GDT: {
+            time_t day = time(nullptr) / DAY_LENGTH;
+            m_stack.emplace_back(day);
+            break;
+        }
         case INVALID_CHAR:
             cout << flush;
             cerr << flush;

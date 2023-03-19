@@ -13,11 +13,13 @@ struct int24_t {
     constexpr explicit int24_t(int32_t x) noexcept : value(x) {}
     constexpr explicit int24_t(int64_t x) noexcept : value(static_cast<int32_t>(x)) {}
     constexpr explicit int24_t(size_t x) noexcept : value(static_cast<int32_t>(x)) {}
+    constexpr explicit int24_t(long double x) noexcept : value(static_cast<int32_t>(x)) {}
     MAYBE_UNUSED constexpr explicit int24_t(wint_t x) noexcept : value(static_cast<int32_t>(x)) {}
 
     constexpr operator int32_t() const noexcept { return value; }
     constexpr explicit operator uint32_t() const noexcept { return static_cast<uint32_t>(value); }
     constexpr explicit operator int64_t() const noexcept { return static_cast<int64_t>(value); }
+    constexpr explicit operator long double() const noexcept { return static_cast<long double>(value); }
     MAYBE_UNUSED constexpr explicit operator int16_t() const noexcept { return static_cast<int16_t>(value); }
 
 #if SIZE_MAX != UINT32_MAX
