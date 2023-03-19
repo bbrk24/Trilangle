@@ -1,41 +1,15 @@
 let inputIndex = 0;
 
-/**
- * @type {{
- *  input: HTMLTextAreaElement,
- *  output: HTMLPreElement,
- *  error: HTMLParagraphElement,
- *  program: HTMLTextAreaElement,
- *  urlOutBox: HTMLDivElement,
- *  urlOut: HTMLElement,
- *  copyAlert: HTMLSpanElement,
- *  urlButton: HTMLButtonElement,
- *  programFieldset: HTMLFieldSetElement,
- *  clearContainer: HTMLDivElement,
- *  footer: HTMLElement,
- *  runStopButton: HTMLButtonElement,
- *  disassembleButton: HTMLButtonElement,
- *  expandButton: HTMLButtonElement,
- *  condenseButton: HTMLButtonElement,
- * }}
- */
-const elements = {
-    input: document.getElementById('stdin'),
-    output: document.getElementById('stdout'),
-    error: document.getElementById('stderr'),
-    program: document.getElementById('program'),
-    urlOutBox: document.getElementById('url-out-box'),
-    urlOut: document.getElementById('url-out'),
-    copyAlert: document.getElementById('copy-alert'),
-    urlButton: document.getElementById('url-button'),
-    programFieldset: document.getElementById('program-container'),
-    clearContainer: document.getElementById('clear-container'),
-    footer: document.querySelector('footer'),
-    runStopButton: document.getElementById('run-stop'),
-    disassembleButton: document.getElementById('disassemble'),
-    expandButton: document.getElementById('expand'),
-    condenseButton: document.getElementById('condense'),
-};
+const elements = new Proxy({ footer: document.querySelector('footer'), main: document.querySelector('main') }, {
+    get(target, p) {
+        'use strict';
+        if (typeof p == 'string' && !(p in target)) {
+            const id = p.replace(/[A-Z]/g, s => '-' + s.toLowerCase());
+            target[p] = document.getElementById(id);
+        }
+        return target[p];
+    },
+});
 
 Module = {
     preInit() {
@@ -48,7 +22,7 @@ Module = {
 
         const stdin = () => {
             if (inputIndex === 0)
-                stdinBuffer = encoder.encode(elements.input.value);
+                stdinBuffer = encoder.encode(elements.stdin.value);
 
             if (inputIndex >= stdinBuffer.length)
                 return null;
@@ -65,11 +39,11 @@ Module = {
                     if (stdoutBuffer.length === 4 ||
                         (((stdoutBuffer[0] + 256) & 0xf0) === 0xe0 && stdoutBuffer.length === 3) ||
                         (((stdoutBuffer[0] + 256) & 0xe0) === 0xc0 && stdoutBuffer.length === 2)) {
-                        elements.output.textContent += decoder.decode(new Int8Array(stdoutBuffer));
+                        elements.stdout.textContent += decoder.decode(new Int8Array(stdoutBuffer));
                         stdoutBuffer = [];
                     }
                 } else
-                    elements.output.textContent += String.fromCharCode(char);
+                    elements.stdout.textContent += String.fromCharCode(char);
             }
         };
 
@@ -84,20 +58,21 @@ Module = {
                         (((stderrBuffer[0] + 256) & 0xe0) === 0xc0 && stderrBuffer.length >= 2)) {
                         const text = decoder.decode(new Int8Array(stderrBuffer));
                         stderrBuffer = [];
-                        if (elements.error.lastChild instanceof Text)
-                            elements.error.lastChild.nodeValue += text;
+                        if (elements.stderr.lastChild instanceof Text)
+                            elements.stderr.lastChild.nodeValue += text;
                         else
-                            elements.error.appendChild(document.createTextNode(text));
+                            elements.stderr.appendChild(document.createTextNode(text));
                     }
                 } else if (char === 10)
-                    elements.error.appendChild(document.createElement('br'));
-                else if (elements.error.lastChild instanceof Text) {
-                    if (char === 32 && elements.error.lastChild.nodeValue.endsWith(' '))
-                        elements.error.lastChild.nodeValue += '\xa0';
+                    elements.stderr.appendChild(document.createElement('br'));
+                else if (elements.stderr.lastChild instanceof Text) {
+                    if (char === 32 && elements.stderr.lastChild.nodeValue.endsWith(' '))
+                        elements.stderr.lastChild.nodeValue += '\xa0';
                     else
-                        elements.error.lastChild.nodeValue += String.fromCharCode(char);
+                        elements.stderr.lastChild.nodeValue += String.fromCharCode(char);
                 } else
-                    elements.error.appendChild(document.createTextNode(char === 32 ? '\xa0' : String.fromCharCode(char))
+                    elements.stderr.appendChild(
+                        document.createTextNode(char === 32 ? '\xa0' : String.fromCharCode(char))
                     );
             }
         };

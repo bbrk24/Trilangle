@@ -6,8 +6,8 @@ const wasmCancel = Module.cwrap('wasm_cancel', null);
 const clearOutput = () => {
     'use strict';
 
-    elements.output.innerHTML = '';
-    elements.error.innerHTML = '';
+    elements.stdout.innerHTML = '';
+    elements.stderr.innerHTML = '';
 }, generateContracted = () => {
     'use strict';
     // Remove an unnecessary shebang
@@ -51,16 +51,16 @@ const callInterpreter = (warnings, disassemble) => () => {
     wasmCancel();
     clearOutput();
 
-    elements.disassembleButton.disabled = true;
-    elements.expandButton.disabled = true;
-    elements.condenseButton.disabled = true;
+    elements.disassemble.disabled = true;
+    elements.expand.disabled = true;
+    elements.condense.disabled = true;
 
     // By adding a 5ms delay, the previous thread has a chance to clean up after itself.
     // Without this, we may usurp its memory, and then it'll try to deallocate it in a problematic way.
     // Is this a good thing? Probably not. Does it work? Usually. Worst case, just reload the page.
     setTimeout(async () => {
-        elements.runStopButton.textContent = 'Stop';
-        elements.runStopButton.onclick = () => wasmCancel();
+        elements.runStop.textContent = 'Stop';
+        elements.runStop.onclick = () => wasmCancel();
         try {
             const result = wasmEntrypoint(elements.program.value, warnings, disassemble, 0);
             if (typeof result == 'object' && 'then' in result)
@@ -69,11 +69,11 @@ const callInterpreter = (warnings, disassemble) => () => {
             if (!(e instanceof ExitStatus))
                 elements.error.innerText += String(e);
         }
-        elements.expandButton.disabled = false;
-        elements.disassembleButton.disabled = false;
-        elements.condenseButton.disabled = false;
-        elements.runStopButton.textContent = 'Run!';
-        elements.runStopButton.onclick = interpretProgram;
+        elements.expand.disabled = false;
+        elements.disassemble.disabled = false;
+        elements.condense.disabled = false;
+        elements.runStop.textContent = 'Run!';
+        elements.runStop.onclick = interpretProgram;
     }, 5);
 };
 
@@ -91,12 +91,10 @@ elements.program.oninput = () => {
     'use strict';  // and also for that
 
     // Configure the buttons
-    const width = elements.runStopButton.offsetWidth;
-    elements.runStopButton.textContent = 'Run!';
-    setTimeout(
-        () => elements.runStopButton.style.width = `${0.49 + Math.max(width, elements.runStopButton.offsetWidth)}px`
-    );
-    elements.runStopButton.onclick = interpretProgram;
+    const width = elements.runStop.offsetWidth;
+    elements.runStop.textContent = 'Run!';
+    setTimeout(() => elements.runStop.style.width = `${0.49 + Math.max(width, elements.runStop.offsetWidth)}px`);
+    elements.runStop.onclick = interpretProgram;
     elements.urlButton.onclick = generateURL;
 
     // Get the program from the URL, if present
@@ -109,19 +107,17 @@ elements.program.oninput = () => {
     document.head.appendChild(styleEl);
     const emSize = parseFloat(getComputedStyle(document.body).fontSize);
     onresize = () => {
-        if (document.querySelector('main').clientWidth / 2 > elements.program.offsetWidth + emSize)
+        elements.urlOut.style.width = `${elements.program.clientWidth}px`;
+        elements.urlOutBox.style.width = `${elements.program.clientWidth}px`;
+        if (elements.main.clientWidth / 2 > elements.program.offsetWidth + emSize)
             styleEl.innerHTML = `.grid { max-height: 100vh; grid-template: "p i" "c ." "o e" / 1fr 1fr; }
 .out-container { max-height: calc(100vh - 0.5em - ${
-                1.49 + elements.programFieldset.offsetHeight + elements.clearContainer.offsetHeight +
+                1.49 + elements.programContainer.offsetHeight + elements.clearContainer.offsetHeight +
                 elements.footer.offsetHeight}px); padding-bottom: 1em; }
-.out-container :first-child { position: sticky; }`;
+.out-container :first-child { position: sticky; }\n#stdin { resize: horizontal; }`;
         else
             styleEl.innerHTML = '.grid { grid-template: "p" "i" "c" "o" "e" / 1fr; }';
     };
-    new ResizeObserver(onresize).observe(elements.programFieldset);
+    new ResizeObserver(onresize).observe(elements.programContainer);
     onresize();
-
-    // Restrict the URL width
-    elements.urlOut.style.width = `${elements.program.clientWidth}px`;
-    elements.urlOutBox.style.width = `${elements.program.clientWidth}px`;
 })();
