@@ -107,7 +107,7 @@ footer {
         }
     }
     @media screen and (min-width: 1539px) {
-        padding: 1em;
+        padding: 1em calc(50vw - 523px);
     }
 }
 
