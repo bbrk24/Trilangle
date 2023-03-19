@@ -1,8 +1,16 @@
 @use "sass:color";
 
+@import url("https://fonts.googleapis.com/css2?family=Martian+Mono:wdth@99&display=swap");
+
 $dark-background: #1c1c1c;
 $button-color: #7f7f7f;
 $button-opacity: 35%;
+
+pre,
+code,
+textarea {
+    font: 0.8em / 1.23 "Martian Mono", monospace;
+}
 
 a {
     &:visited {
@@ -56,17 +64,11 @@ button {
 }
 
 code {
-    font-size: 1em;
     display: inline-block;
     word-wrap: break-word;
 }
 
-pre {
-    font-size: 1em;
-}
-
 textarea {
-    font-family: monospace;
     background-color: inherit;
     color: inherit;
 }
