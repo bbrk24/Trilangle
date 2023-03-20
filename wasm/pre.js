@@ -1,47 +1,48 @@
 // JSDoc comments with type info are used by the optimizer. I wouldn't otherwise include all of them.
 
-let inputIndex = 0, ready = false,
-    /** @type {Uint8Array} */
-    stdinBuffer,
-    /** @type {string} */
-    programText,
-    /** @type {?string} */
-    funcName = null;
+let /** number */ inputIndex = 0, /** boolean */ ready = false;
+/** @type {Uint8Array} */
+let stdinBuffer;
+/** @type {string} */
+let programText;
+/** @type {?string} */
+let funcName = null;
 
-const encoder = new TextEncoder(),
-      /** @type {Map.<string, Function>} */
-    signals = new Map(),
-      /** @param {string=} arg */
-    halfReady = arg => {
-        'use strict';
-        funcName = arg ?? funcName;
-        if (ready) {
-            const signal = signals.get(funcName);
-            if (typeof signal == 'undefined')
-                console.error('Unrecognized signal ' + funcName);
-            else
-                signal();
-            self.postMessage([0, null]);
-        } else
-            ready = true;
-    };
+const encoder = new TextEncoder();
+/** @type {!Map.<string, function():void>} */
+const signals = new Map();
+/** @param {string=} arg */
+const halfReady = arg => {
+    funcName = arg ?? funcName;
+    if (ready) {
+        /** @type {undefined|function():void} */
+        const signal = signals.get(funcName);
+        if (typeof signal == 'undefined')
+            console.error('Unrecognized signal ' + funcName);
+        else
+            signal();
+        self.postMessage([0, null]);
+    } else
+        ready = true;
+};
 
 Module = {
     'preInit': () => {
-        'use strict';
-
+        /** @returns {?number} */
         const stdin = () => {
             if (inputIndex >= stdinBuffer.length)
                 return null;
 
             return stdinBuffer.at(inputIndex++);
-        }, stdout = char => self.postMessage([1, char]), stderr = char => self.postMessage([2, char]);
+        };
+        /** @param {?number} char */
+        const stdout = char => self.postMessage([1, char]);
+        /** @param {?number} char */
+        const stderr = char => self.postMessage([2, char]);
 
         FS.init(stdin, stdout, stderr);
     },
-    'onRuntimeInitialized': () => {
-        halfReady();
-    },
+    'onRuntimeInitialized': halfReady,
     'noExitRuntime': true,
 };
 
@@ -49,10 +50,10 @@ Module = {
  * @param {number} warnings
  * @param {number} disassemble
  * @param {number} expand
+ * @returns {function():void}
  */
 const callInterpreter = (warnings, disassemble, expand) => () => {
-    'use strict';
-
+    inputIndex = 0;
     try {
         Module['ccall'](
             'wasm_entrypoint',
@@ -60,9 +61,9 @@ const callInterpreter = (warnings, disassemble, expand) => () => {
             ['string', 'number', 'number', 'number'],
             [programText, warnings, disassemble, expand]
         );
-    } catch (e) {
-        if (!(e instanceof ExitStatus))
-            self.postMessage([2, String(e)]);
+    } catch (/** string|Error= */ e) {
+        if (typeof e != 'undefined' && !(e instanceof ExitStatus))
+            self.postMessage([2, e.toString()]);
     }
 };
 
