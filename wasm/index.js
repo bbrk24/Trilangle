@@ -2,6 +2,12 @@
 
 let inputIndex = 0, stdoutBuffer = [], stderrBuffer = [], worker = null, onFinishHook = null;
 
+/**
+ * This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
+ * first access, but then saves it for fast access later. I've also included the main and footer elements here for
+ * convenience.
+ * @type {{ [key: string]: HTMLElement | null; }}
+ */
 const elements = new Proxy({ footer: document.querySelector('footer'), main: document.querySelector('main') }, {
     get(target, p) {
         if (typeof p == 'string' && !(p in target)) {
@@ -99,7 +105,7 @@ const contractInput = () => {
     elements.runStop.textContent = 'Stop';
     elements.runStop.onclick = wasmCancel;
 
-    worker = new Worker('out.js');
+    worker = worker ?? new Worker('out.js');
     worker.onmessage = ({ data: [fd, content] }) => {
         switch (fd) {
             case 0:
@@ -147,12 +153,14 @@ elements.program.oninput = () => {
     elements.urlButton.onclick = generateURL;
 };
 
-// Configure the buttons
-const width = elements.runStop.offsetWidth;
-elements.runStop.textContent = 'Run!';
-setTimeout(() => elements.runStop.style.width = `${0.49 + Math.max(width, elements.runStop.offsetWidth)}px`);
-elements.runStop.onclick = interpretProgram;
-elements.urlButton.onclick = generateURL;
+// Configure the buttons. Use an IIFE as not to pollute the global namespace.
+(() => {
+    const width = elements.runStop.offsetWidth;
+    elements.runStop.textContent = 'Run!';
+    setTimeout(() => elements.runStop.style.width = `${0.49 + Math.max(width, elements.runStop.offsetWidth)}px`);
+    elements.runStop.onclick = interpretProgram;
+    elements.urlButton.onclick = generateURL;
+})();
 
 // Get the program from the URL, if present
 if (location.hash.length > 1) {

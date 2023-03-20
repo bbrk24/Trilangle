@@ -1,8 +1,18 @@
-let inputIndex = 0, stdinBuffer, programText, ready = false, funcName = null;
+// JSDoc comments with type info are used by the optimizer. I wouldn't otherwise include all of them.
 
+let inputIndex = 0,
+    /** @type {Uint8Array} */
+    stdinBuffer,
+    /** @type {string} */
+    programText, ready = false,
+    /** @type {?string} */
+    funcName = null;
+
+/** @param {=string} arg */
 const halfReady = arg => {
+    'use strict';
     funcName = arg ?? funcName;
-    if (ready)
+    if (ready) {
         switch (funcName) {
             case 'interpretProgram':
                 interpretProgram();
@@ -17,12 +27,13 @@ const halfReady = arg => {
                 console.error(`Unrecognized selector ${funcName} sent to worker`);
                 break;
         }
-    else
+        self.postMessage([0, null]);
+    } else
         ready = true;
 };
 
 Module = {
-    preInit() {
+    'preInit': () => {
         'use strict';
 
         const stdin = () => {
@@ -34,16 +45,22 @@ Module = {
 
         FS.init(stdin, stdout, stderr);
     },
-    onRuntimeInitialized() {
-        halfReady(null);
+    'onRuntimeInitialized': () => {
+        halfReady();
     },
+    noExitRuntime: true,
 };
 
+/**
+ * @param {number} warnings
+ * @param {number} disassemble
+ * @param {number} expand
+ */
 const callInterpreter = (warnings, disassemble, expand) => () => {
     'use strict';
 
     try {
-        Module.ccall(
+        Module['ccall'](
             'wasm_entrypoint',
             null,
             ['string', 'number', 'number', 'number'],
@@ -53,12 +70,14 @@ const callInterpreter = (warnings, disassemble, expand) => () => {
         if (!(e instanceof ExitStatus))
             self.postMessage([2, String(e)]);
     }
-
-    self.postMessage([0, null]);
 };
 
-const interpretProgram = callInterpreter(1, 0, 0), disassembleProgram = callInterpreter(0, 1, 0),
-      expandInput = callInterpreter(0, 0, 1), encoder = new TextEncoder();
+/** @function */
+const interpretProgram = callInterpreter(1, 0, 0),
+      /** @function */
+    disassembleProgram = callInterpreter(0, 1, 0),
+      /** @function */
+    expandInput = callInterpreter(0, 0, 1), encoder = new TextEncoder();
 
 onmessage = ({ data: [func, program, input] }) => {
     stdinBuffer = encoder.encode(input);

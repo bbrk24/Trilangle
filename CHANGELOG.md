@@ -15,6 +15,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
+- Greatly improved execution speed of code that produces a lot of output.
+- Long-running loops that produce no output can now be stopped.
 - Fixed shebang handling when condensing code.
 - Fixed handling of trailing `.`s when condensing code.
 
