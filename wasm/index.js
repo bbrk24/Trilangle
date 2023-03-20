@@ -6,7 +6,7 @@ let inputIndex = 0, stdoutBuffer = [], stderrBuffer = [], worker = null, onFinis
  * This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
  * first access, but then saves it for fast access later. I've also included the main and footer elements here for
  * convenience.
- * @type {{ [key: string]: HTMLElement | null; }}
+ * @type {Object.<string, ?HTMLElement>}
  */
 const elements = new Proxy({ footer: document.querySelector('footer'), main: document.querySelector('main') }, {
     get(target, p) {
@@ -173,8 +173,7 @@ const styleEl = document.createElement('style');
 document.head.appendChild(styleEl);
 const emSize = parseFloat(getComputedStyle(document.body).fontSize);
 onresize = () => {
-    elements.urlOut.style.width = `${elements.program.clientWidth}px`;
-    elements.urlOutBox.style.width = `${elements.program.clientWidth}px`;
+    elements.urlOut.style.width = elements.urlOutBox.style.width = `${elements.program.clientWidth}px`;
     if (elements.main.clientWidth / 2 > elements.program.offsetWidth + emSize)
         styleEl.innerHTML = `.grid { max-height: 100vh; grid-template: "p i" "c ." "o e" / 1fr 1fr; }
 .out-container { max-height: calc(100vh - 0.5em - ${
