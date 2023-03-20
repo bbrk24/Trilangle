@@ -159,6 +159,7 @@ footer {
     padding: 0.5em 0;
     background-color: white;
     top: 0;
+    left: 0;
     @media screen and (prefers-color-scheme: dark) {
         background-color: $dark-background;
     }

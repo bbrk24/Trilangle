@@ -94,6 +94,7 @@ const contractInput = () => {
     }
 }, wasmCancel = () => {
     worker?.terminate();
+    worker = null;
     workerFinished();
 }, createWorker = name => () => {
     clearOutput();
