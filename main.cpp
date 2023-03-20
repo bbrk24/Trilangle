@@ -39,6 +39,8 @@ int main(int argc, const char** argv) {
 
 extern "C" {
 EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int warnings, int disassemble, int expand) {
+    // Reset EOF from previous runs
+    clearerr(stdin);
     // Input and output don't need to be synced on the web
     std::cin.tie(nullptr);
 

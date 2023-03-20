@@ -106,7 +106,7 @@ const contractInput = () => {
     elements.runStop.textContent = 'Stop';
     elements.runStop.onclick = wasmCancel;
 
-    worker = worker ?? new Worker('out.js');
+    worker = worker ?? new Worker(new URL('out.js', location));
     worker.onmessage = ({ data: [fd, content] }) => {
         switch (fd) {
             case 0:
