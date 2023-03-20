@@ -3,46 +3,29 @@
 #include <iostream>
 #include <unordered_map>
 
-// When targeting the web, the page can't re-render until the C++ code finishes.
-// emscripten_sleep is asynchronous (so it allows a re-render), but it looks synchronous from the C side.
-// Insert a call to emscripten_sleep(0) whenever the page needs a chance to redraw, such as after a print statement.
-#ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
-#else
-#define emscripten_sleep(x) ((void)0)
-#endif
-
 using std::cerr;
 using std::vector;
 
 using status = thread::status;
 
-static bool should_run;
-
 struct pair_hash {
     constexpr size_t operator()(const std::pair<size_t, size_t>& p) const noexcept { return p.first ^ (p.second << 4); }
 };
 
-void interpreter::stop_all() noexcept {
-    should_run = false;
-}
-
 void interpreter::run() {
-    should_run = true;
     thread::thread_count = 0UL;
 
     // Begin the execution loop.
-    while (should_run) {
+    while (true) {
         vector<size_t> removal_indices;
         vector<thread> pending_threads;
         std::unordered_map<std::pair<size_t, size_t>, size_t, pair_hash> waiting_coords;
-        bool should_sleep = false;
 
         for (size_t i = 0; i < m_threads.size(); ++i) {
             thread& curr_thread = m_threads[i];
 
             if (curr_thread.m_status != status::waiting) {
-                curr_thread.tick(should_sleep);
+                curr_thread.tick();
             }
 
             switch (curr_thread.m_status) {
@@ -148,14 +131,9 @@ void interpreter::run() {
         m_threads.insert(m_threads.cend(), pending_threads.begin(), pending_threads.end());
 
         if (m_threads.empty()) {
-            break;
-        }
-
-        if (should_sleep) {
-            emscripten_sleep(0);
+            std::cout << std::flush;
+            cerr << std::flush;
+            return;
         }
     }
-
-    std::cout << std::flush;
-    cerr << std::flush;
 }

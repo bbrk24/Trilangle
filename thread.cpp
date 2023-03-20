@@ -8,11 +8,9 @@
 #include <random>
 #include "output.hh"
 
-#define EMPTY_PROTECT(name, sleep) \
+#define EMPTY_PROTECT(name) \
     if (m_stack.empty() && m_flags.warnings) UNLIKELY { \
         cerr << "Warning: Attempt to " name " empty stack.\n"; \
-        if (sleep) \
-            should_sleep = true; \
     } else
 
 #define SIZE_CHECK(name, count) \
@@ -42,7 +40,7 @@ unsigned long thread::thread_count;
     exit(code);
 }
 
-void thread::tick(bool& should_sleep) {
+void thread::tick() {
     static std::default_random_engine reng(std::move(std::random_device())());
     static std::uniform_int_distribution<int32_t> rdist(INT24_MIN, INT24_MAX);
 
@@ -187,7 +185,7 @@ void thread::tick(bool& should_sleep) {
             FALLTHROUGH
         case BNG_W:
             program_walker::branch(m_ip.dir, op, [&]() NOEXCEPT_T {
-                EMPTY_PROTECT("branch on", false) {}
+                EMPTY_PROTECT("branch on") {}
                 return m_stack.back() < INT24_C(0);
             });
             break;
@@ -214,7 +212,7 @@ void thread::tick(bool& should_sleep) {
             break;
         }
         case POP:
-            EMPTY_PROTECT("pop from", true) {
+            EMPTY_PROTECT("pop from") {
                 m_stack.pop_back();
             }
             break;
@@ -224,7 +222,6 @@ void thread::tick(bool& should_sleep) {
             if (m_flags.warnings) {
                 if (m_stack.empty()) UNLIKELY {
                     cerr << "Warning: Attempt to increment empty stack.\n";
-                    should_sleep = true;
                     break;
                 }
                 if (m_stack.back() == INT24_MAX) UNLIKELY {
@@ -239,7 +236,6 @@ void thread::tick(bool& should_sleep) {
             if (m_flags.warnings) {
                 if (m_stack.empty()) UNLIKELY {
                     cerr << "Warning: Attempt to decrement empty stack.\n";
-                    should_sleep = true;
                     break;
                 }
                 if (m_stack.back() == INT24_MAX) UNLIKELY {
@@ -272,7 +268,7 @@ void thread::tick(bool& should_sleep) {
             break;
         }
         case NOT:
-            EMPTY_PROTECT("complement", true) {
+            EMPTY_PROTECT("complement") {
                 m_stack.back() = ~m_stack.back();
             }
             break;
@@ -280,7 +276,7 @@ void thread::tick(bool& should_sleep) {
             m_stack.push_back(getunichar());
             break;
         case PTC:
-            EMPTY_PROTECT("print from", false) {
+            EMPTY_PROTECT("print from") {
                 bool should_print = true;
 
                 if (m_stack.back() < INT24_C(0)) {
@@ -304,8 +300,6 @@ void thread::tick(bool& should_sleep) {
                 exit(0);
             }
 
-            should_sleep = true;
-
             break;
         case GTI: {
             int32_t i = -1;
@@ -318,7 +312,7 @@ void thread::tick(bool& should_sleep) {
             break;
         }
         case PTI:
-            EMPTY_PROTECT("print from", false) {
+            EMPTY_PROTECT("print from") {
                 cout << m_stack.back() << '\n';
             }
 
@@ -326,9 +320,6 @@ void thread::tick(bool& should_sleep) {
                 cerr << flush;
                 exit(0);
             }
-
-            should_sleep = true;
-
             break;
         case SKP:
             advance();
@@ -337,7 +328,6 @@ void thread::tick(bool& should_sleep) {
         case IDX: {
             if (m_flags.warnings && m_stack.empty()) UNLIKELY {
                 cerr << "Warning: Attempt to read index from empty stack.\n";
-                should_sleep = true;
                 break;
             }
 
@@ -355,7 +345,7 @@ void thread::tick(bool& should_sleep) {
             break;
         }
         case DUP:
-            EMPTY_PROTECT("duplicate", true) {
+            EMPTY_PROTECT("duplicate") {
                 m_stack.push_back(m_stack.back());
             }
             break;
@@ -363,7 +353,7 @@ void thread::tick(bool& should_sleep) {
             m_stack.emplace_back(rdist(reng));
             break;
         case EXP:
-            EMPTY_PROTECT("exponentiate", true) {
+            EMPTY_PROTECT("exponentiate") {
                 m_stack.back() = INT24_C(1) << m_stack.back();
             }
             break;

@@ -29,7 +29,7 @@ public:
 
     CONSTEXPR_ALLOC thread(const thread& other, direction d) noexcept : thread(other, d, other.m_stack) {}
 
-    void tick(bool& should_sleep);
+    void tick();
 protected:
     CONSTEXPR_ALLOC thread(NONNULL_PTR(const program) p, flags f) noexcept :
         program_walker(p),

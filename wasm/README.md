@@ -14,10 +14,8 @@ These files are included as-is in the website -- they aren't minified in any way
 
 This file is transformed into out.css. Prefer putting styling information here when possible.
 
-## pre.js and post.js
+## pre.js
 
-These files are included in the website, with minification and dead code elimination. Prefer putting code in these files over index.js, unless DCE removes it.
-
-pre.js contains any code that modifies the Module object; anything not necessary for that goes in post.js.
+This file is used in a worker. It deals with the webassembly code directly. It is minified and optimized before its inclusion in the website.
 
 [1]: ../README.md#compiling-for-the-web
