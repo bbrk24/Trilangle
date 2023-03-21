@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.2.0] - 2023-03-21
+
 ### Changed
 
 - Gave the web interface a complete redesign.
@@ -59,3 +61,4 @@ First versioned release.
 [1.0.0]: https://github.com/bbrk24/Trilangle/tree/1.0.0
 [1.1.0]: https://github.com/bbrk24/Trilangle/tree/1.1.0
 [1.1.1]: https://github.com/bbrk24/Trilangle/tree/1.1.1
+[1.2.0]: https://github.com/bbrk24/Trilangle/tree/1.2.0
