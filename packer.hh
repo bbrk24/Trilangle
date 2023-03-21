@@ -40,13 +40,13 @@ public:
                 return *this;
             }
             if (val <= 0x7fff && val >= -0x8000L) {
-                char num_buf[] = { 0xd1, static_cast<char>(val >> 8), static_cast<char>(val & 0xff), 0 };
+                char num_buf[] = { (char)0xd1, static_cast<char>(val >> 8), static_cast<char>(val & 0xff), 0 };
                 m_buf << num_buf;
                 return *this;
             }
             if (val <= 0x7fff'ffffL && val >= -0x8000'0000LL) {
                 char num_buf[] = {
-                    0xd2,
+                    (char)0xd2,
                     static_cast<char>(val >> 24),
                     static_cast<char>((val >> 16) & 0xff),
                     static_cast<char>((val >> 8) & 0xff),
@@ -57,7 +57,7 @@ public:
                 return *this;
             }
             char num_buf[] = {
-                0xd3,
+                (char)0xd3,
                 static_cast<char>(val >> 56),
                 static_cast<char>((val >> 48) & 0xff),
                 static_cast<char>((val >> 40) & 0xff),
@@ -75,13 +75,13 @@ public:
                 return *this;
             }
             if (val <= 0xffff) {
-                char num_buf[] = { 0xcd, static_cast<char>(val >> 8), static_cast<char>(val & 0xff), 0 };
+                char num_buf[] = { (char)0xcd, static_cast<char>(val >> 8), static_cast<char>(val & 0xff), 0 };
                 m_buf << num_buf;
                 return *this;
             }
             if (val <= 0xffff'ffffL) {
                 char num_buf[] = {
-                    0xce,
+                    (char)0xce,
                     static_cast<char>(val >> 24),
                     static_cast<char>((val >> 16) & 0xff),
                     static_cast<char>((val >> 8) & 0xff),
@@ -92,7 +92,7 @@ public:
                 return *this;
             }
             char num_buf[] = {
-                0xce,
+                (char)0xce,
                 static_cast<char>(val >> 56),
                 static_cast<char>((val >> 48) & 0xff),
                 static_cast<char>((val >> 40) & 0xff),

@@ -21,7 +21,7 @@ void packer::string_impl(const char* str, size_t size) {
         m_buf << (char)0xd9 << static_cast<char>(size);
     } else if (size <= 0xffff) {
         char length_buf[] = {
-            0xda,
+            (char)0xda,
             static_cast<char>(size >> 8),
             static_cast<char>(size & 0xff),
             0,
@@ -30,7 +30,7 @@ void packer::string_impl(const char* str, size_t size) {
     } else {
         assert(size <= 0xffff'ffffL);
         char length_buf[] = {
-            0xdb,
+            (char)0xdb,
             static_cast<char>(size >> 24),
             static_cast<char>((size >> 16) & 0xff),
             static_cast<char>((size >> 8) & 0xff),
