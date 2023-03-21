@@ -16,6 +16,8 @@ AttributeMacros:
 BreakBeforeBinaryOperators: NonAssignment
 BreakConstructorInitializers: AfterColon
 EmptyLineBeforeAccessModifier: Never
+IfMacros:
+  - IF_CONSTEXPR
 InsertBraces: true
 MaxEmptyLinesToKeep: 2
 SpaceAfterTemplateKeyword: false

@@ -137,6 +137,14 @@
 #endif
 
 
+#ifdef __cpp_if_constexpr
+// `if constexpr` or just `if`
+#define IF_CONSTEXPR if constexpr
+#else
+// `if constexpr` or just `if`
+#define IF_CONSTEXPR if
+#endif
+
 #if !defined(__GNUC__) && defined(_MSC_VER)
 #define __builtin_unreachable() __assume(0)
 #endif
