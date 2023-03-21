@@ -9,5 +9,7 @@ public:
 
     void run();
 private:
+    thread threadjoin(size_t first_index, size_t second_index);
+
     std::vector<thread> m_threads;
 };

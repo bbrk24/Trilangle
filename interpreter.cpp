@@ -24,9 +24,7 @@ void interpreter::run() {
         for (size_t i = 0; i < m_threads.size(); ++i) {
             thread& curr_thread = m_threads[i];
 
-            if (curr_thread.m_status != status::waiting) {
-                curr_thread.tick();
-            }
+            curr_thread.tick();
 
             switch (curr_thread.m_status) {
                 case status::splitting:
@@ -51,61 +49,11 @@ void interpreter::run() {
 
                     if (location != waiting_coords.end()) {
                         size_t value = location->second;
-                        thread& other_thread = m_threads[value];
+
+                        pending_threads.push_back(threadjoin(value, i));
 
                         removal_indices.push_back(value);
                         removal_indices.push_back(i);
-
-                        direction new_dir;
-                        switch (curr_thread.m_ip.dir) {
-                            case direction::northeast:
-                                FALLTHROUGH
-                            case direction::southeast:
-                                new_dir = direction::east;
-                                break;
-                            case direction::northwest:
-                                FALLTHROUGH
-                            case direction::southwest:
-                                new_dir = direction::west;
-                                break;
-                            default:
-                                unreachable("East- and west-going IPs cannot merge");
-                        }
-
-                        int24_t other_stack_amount = other_thread.m_stack.back();
-                        other_thread.m_stack.pop_back();
-
-                        if (curr_thread.m_flags.warnings
-                            && other_stack_amount > static_cast<int24_t>(other_thread.m_stack.size())) UNLIKELY {
-                            cerr << "Warning: Attempt to move " << other_stack_amount
-                                 << " values out of thread with stack size " << other_thread.m_stack.size() << '\n';
-                        }
-
-                        vector<int24_t> new_stack(
-                            other_stack_amount < INT24_C(0)
-                                ? other_thread.m_stack.begin()
-                                : (other_thread.m_stack.end() - static_cast<ptrdiff_t>(other_stack_amount)),
-                            other_thread.m_stack.end()
-                        );
-
-                        int24_t this_stack_amount = curr_thread.m_stack.back();
-                        curr_thread.m_stack.pop_back();
-
-                        if (curr_thread.m_flags.warnings
-                            && this_stack_amount > static_cast<int24_t>(curr_thread.m_stack.size())) UNLIKELY {
-                            cerr << "Warning: Attempt to move " << this_stack_amount
-                                 << " values out of thread with stack size " << curr_thread.m_stack.size() << '\n';
-                        }
-
-                        new_stack.insert(
-                            new_stack.end(),
-                            this_stack_amount < INT24_C(0)
-                                ? curr_thread.m_stack.begin()
-                                : (curr_thread.m_stack.end() - static_cast<ptrdiff_t>(this_stack_amount)),
-                            curr_thread.m_stack.end()
-                        );
-
-                        pending_threads.emplace_back(m_threads[value], new_dir, std::move(new_stack));
 
                         waiting_coords.erase(location);
                     } else {
@@ -136,4 +84,72 @@ void interpreter::run() {
             return;
         }
     }
+}
+
+thread interpreter::threadjoin(size_t first_index, size_t second_index) {
+    thread& first_thread = m_threads[first_index];
+    thread& second_thread = m_threads[second_index];
+
+    direction new_dir;
+    assert((static_cast<char>(first_thread.m_ip.dir) & 0b011) == (static_cast<char>(second_thread.m_ip.dir) & 0b011));
+    switch (first_thread.m_ip.dir) {
+        case direction::northeast:
+            FALLTHROUGH
+        case direction::southeast:
+            new_dir = direction::east;
+            break;
+        case direction::northwest:
+            FALLTHROUGH
+        case direction::southwest:
+            new_dir = direction::west;
+            break;
+        default:
+            unreachable("East- and west-going IPs cannot merge");
+    }
+
+    int24_t first_stack_amount = first_thread.m_stack.back();
+    first_thread.m_stack.pop_back();
+
+    if (first_thread.m_flags.warnings && first_stack_amount > static_cast<int24_t>(first_thread.m_stack.size()))
+        UNLIKELY {
+        cerr << "Warning: Attempt to move " << first_stack_amount << " values out of thread with stack size "
+             << first_thread.m_stack.size() << '\n';
+    }
+
+    int24_t second_stack_amount = second_thread.m_stack.back();
+    second_thread.m_stack.pop_back();
+
+    bool whole_second_stack = second_stack_amount < INT24_C(0);
+
+    vector<int24_t> new_stack;
+    if (first_stack_amount < INT24_C(0)) {
+        new_stack = std::move(first_thread.m_stack);
+    } else {
+        // The iterator-based constructor copies elementwise and leaves no extra space. To prevent the unneeded
+        // reallocation, reserve the needed size before copying out of the first stack.
+        new_stack.reserve(
+            static_cast<size_t>(first_stack_amount)
+            + (whole_second_stack ? second_thread.m_stack.size() : static_cast<size_t>(second_stack_amount))
+        );
+        new_stack.insert(
+            new_stack.cbegin(),
+            first_thread.m_stack.end() - static_cast<ptrdiff_t>(first_stack_amount),
+            first_thread.m_stack.end()
+        );
+    }
+
+    if (second_thread.m_flags.warnings && second_stack_amount > static_cast<int24_t>(second_thread.m_stack.size()))
+        UNLIKELY {
+        cerr << "Warning: Attempt to move " << second_stack_amount << " values out of thread with stack size "
+             << second_thread.m_stack.size() << '\n';
+    }
+
+    new_stack.insert(
+        new_stack.cend(),
+        whole_second_stack ? second_thread.m_stack.begin()
+                           : (second_thread.m_stack.end() - static_cast<ptrdiff_t>(second_stack_amount)),
+        second_thread.m_stack.end()
+    );
+
+    return thread(first_thread, new_dir, std::move(new_stack));
 }
