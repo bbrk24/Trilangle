@@ -163,11 +163,6 @@ elements.program.oninput = () => {
     elements.urlButton.onclick = generateURL;
 })();
 
-// Get the program from the URL, if present
-if (location.hash.length > 1) {
-    elements.program.value = decodeURIComponent(location.hash.slice(1));
-}
-
 // Set the grid columns and overflow behavior
 const styleEl = document.createElement('style');
 document.head.appendChild(styleEl);
@@ -185,3 +180,14 @@ onresize = () => {
 };
 new ResizeObserver(onresize).observe(elements.programContainer);
 onresize();
+
+// Fix input size on mobile
+document.querySelectorAll('textarea').forEach(el => {
+    if (el.offsetWidth > elements.main.clientWidth - 16)
+        el.cols = Math.floor(el.cols * (elements.main.clientWidth - 16) / el.offsetWidth);
+});
+
+// Get the program from the URL, if present
+if (location.hash.length > 1) {
+    elements.program.value = decodeURIComponent(location.hash.slice(1));
+}

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- The input box now fits on the screen on small mobile devies.
+- Invalid URLs no longer prevent the page from laying out correctly.
+
 ## [1.2.0] - 2023-03-21
 
 ### Changed
