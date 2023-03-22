@@ -16,9 +16,9 @@ const elements = new Proxy({ footer: document.querySelector('footer'), main: doc
         }
         return target[p];
     },
-}),
-      decoder = new TextDecoder();
+});
 
+const decoder = new TextDecoder();
 const contractInput = () => {
     clearOutput();
     elements.program.value = generateContracted();
@@ -180,12 +180,6 @@ onresize = () => {
 };
 new ResizeObserver(onresize).observe(elements.programContainer);
 onresize();
-
-// Fix input size on mobile
-document.querySelectorAll('textarea').forEach(el => {
-    if (el.offsetWidth > elements.main.clientWidth - 16)
-        el.cols = Math.floor(el.cols * (elements.main.clientWidth - 16) / el.offsetWidth);
-});
 
 // Get the program from the URL, if present
 if (location.hash.length > 1) {
