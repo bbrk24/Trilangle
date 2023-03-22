@@ -1,10 +1,29 @@
 @use "sass:color";
+@use "sass:meta";
 
 @import url("https://fonts.googleapis.com/css2?family=Martian+Mono:wdth@99&display=swap");
 
+// The color of the background in dark mode.
 $dark-background: #1c1c1c;
+// The base color of the buttons, without alpha.
 $button-color: #7f7f7f;
+// The alpha channel of the button color, with unit of percent.
 $button-opacity: 35%;
+// A unitless value representing the width of the main element relative to the width of the screen, when applicable.
+$main-scale-fraction: 0.78;
+// The maximum width of the main element, with unit of em. Chosen somewhat arbitrarily to be around 1200px.
+$main-max-width: 75em;
+// The minimum width of the screen at which the main and footer elements have responsive width. Chosen somewhat
+// arbitrarily so that the width of the main element is around 600px.
+$min-responsive-screen-width: calc(37.5em / $main-scale-fraction);
+// The width of the screen at which the main element has its maximum width.
+$max-responsive-screen-width: calc($main-max-width / $main-scale-fraction);
+// The horizontal padding of the footer element when applicable, with unit of vw.
+$footer-scaling-padding: 16vw;
+
+@function padding-from-width($width, $parent-width: 100%) {
+    @return calc(($parent-width - $width) / 2);
+}
 
 pre,
 code,
@@ -40,18 +59,18 @@ body {
 fieldset {
     border: none;
     padding: 0 0 0.4em;
-    margin: 0 8px;
+    margin: 0 0.5rem;
 }
 
 button {
     background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
     color: inherit;
-    border: 2px inset transparent;
-    border-radius: 0.38em;
-    font-size: 0.8em;
+    border: 0.125rem inset transparent;
+    border-radius: 0.375em;
+    font-size: 0.8rem;
     margin: 0.4em 0.25em 0.4em 0;
     text-transform: none;
-    padding: 0.15em 0.33em 0.13em;
+    padding: 0.15em 0.325em 0.125em;
     text-align: center;
     &:disabled {
         opacity: 60%;
@@ -64,11 +83,6 @@ button {
     }
 }
 
-code {
-    display: inline-block;
-    word-wrap: break-word;
-}
-
 textarea {
     background-color: inherit;
     color: inherit;
@@ -76,7 +90,6 @@ textarea {
 
 main {
     margin: 0 auto;
-    width: clamp(min(100%, 600px), 78vw, 1200px);
 }
 
 footer {
@@ -85,32 +98,44 @@ footer {
     background-color: #ebebeb;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap-reverse;
     @media screen and (prefers-color-scheme: dark) {
         background-color: #2c2c2c;
     }
-    @media screen and (max-width: 539px) {
+}
+
+@media screen and (max-width: $min-responsive-screen-width) {
+    footer {
         flex-direction: column-reverse;
         padding: 0.5em;
         * {
             text-align: center;
         }
     }
-    @media screen and (min-width: 540px) {
+}
+
+@media screen and (min-width: $min-responsive-screen-width) {
+    footer {
         align-items: last baseline;
-        @media (max-width: 769px) {
-            padding: 1em calc(50vw - 262px);
+    }
+    @media (max-width: $max-responsive-screen-width) {
+        main {
+            width: calc(100vw * $main-scale-fraction);
+        }
+        footer {
+            padding: 1em max($footer-scaling-padding, 1em);
         }
     }
-    @media screen and (min-width: 770px) and (max-width: 1538px) {
-        padding: 1em 16vw;
+}
+
+@media screen and (min-width: $max-responsive-screen-width) {
+    main {
+        width: $main-max-width;
     }
-    @media screen and (min-width: 935px) {
-        >* {
-            flex: 1 0;
-        }
-    }
-    @media screen and (min-width: 1539px) {
-        padding: 1em calc(50vw - 523px);
+    footer {
+        $responsive-width-fraction: calc(1 - 2 * $footer-scaling-padding / 100vw);
+        $max-width: calc($main-max-width * $responsive-width-fraction / $main-scale-fraction);
+        padding: 1em padding-from-width($max-width);
     }
 }
 
@@ -142,12 +167,11 @@ footer {
 .grid {
     padding-top: 0.5em;
     display: grid;
-    width: 100%;
-    overflow: hidden;
+    overflow-y: hidden;
     box-sizing: border-box;
     >* {
-        margin-left: 0.5em;
-        margin-right: 0.5em;
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
     }
 }
 
@@ -180,6 +204,7 @@ footer {
 
 #program-container {
     grid-area: p;
+    min-width: 0;
 }
 
 #clear-container {
@@ -192,4 +217,9 @@ footer {
 
 #stderr-container {
     grid-area: e;
+}
+
+#url-out {
+    word-wrap: break-word;
+    max-width: 100%;
 }

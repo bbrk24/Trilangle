@@ -9,18 +9,17 @@
     <script defer src="./index.js"></script>
   </head>
   <body>
-    <main>
-      <div class="grid">
-        <fieldset id="program-container">
-          <legend>Program</legend>
-          <button type="button" id="run-stop">Stop</button>
-          <button type="button" id="disassemble" onclick="disassembleProgram()">Show disassembly</button>
-          <button type="button" id="condense" onclick="contractInput()">Condense</button>
-          <button type="button" id="expand" onclick="expandInput()">Unfold</button><br />
-          <button type="button" id="url-button">Generate URL</button>
-          <span id="copy-alert" class="hidden">Copied!</span>
-          <div id="url-out-box" class="content-hidden"><span>URL:</span><code id="url-out"></code></div>
-          <textarea id="program" rows="10" cols="34" spellcheck="false">        &quot;
+    <main class="grid">
+      <fieldset id="program-container">
+        <legend>Program</legend>
+        <button type="button" id="run-stop">Stop</button>
+        <button type="button" id="disassemble" onclick="disassembleProgram()">Show disassembly</button>
+        <button type="button" id="condense" onclick="contractInput()">Condense</button>
+        <button type="button" id="expand" onclick="expandInput()">Unfold</button><br />
+        <button type="button" id="url-button">Generate URL</button>
+        <span id="copy-alert" class="hidden">Copied!</span>
+        <div id="url-out-box" class="content-hidden"><span>URL:</span>&nbsp;<code id="url-out"></code></div>
+        <textarea id="program" rows="10" cols="34" spellcheck="false">        &quot;
        H o
       o &quot; !
      &quot; o ( o
@@ -30,15 +29,14 @@
  l o o o d o : o
 o &quot; &quot; &quot; o ' ( @ .
 </textarea>
-        </fieldset>
-        <fieldset id="input-container">
-          <legend>Input</legend>
-          <textarea id="stdin" rows="10" cols="34"></textarea>
-        </fieldset>
-        <div id="clear-container"><button type="button" onclick="clearOutput()">Clear output &amp; errors</button></div>
-        <div class="out-container" id="stdout-container"><p>Output</p><pre id="stdout"></pre></div>
-        <div class="out-container" id="stderr-container"><p>Errors</p><p id="stderr"></p></div>
-      </div>
+      </fieldset>
+      <fieldset id="input-container">
+        <legend>Input</legend>
+        <textarea id="stdin" rows="10" cols="34"></textarea>
+      </fieldset>
+      <div id="clear-container"><button type="button" onclick="clearOutput()">Clear output &amp; errors</button></div>
+      <div class="out-container" id="stdout-container"><p>Output</p><pre id="stdout"></pre></div>
+      <div class="out-container" id="stderr-container"><p>Errors</p><p id="stderr"></p></div>
     </main>
     <div class="spacer"></div>
     <footer>

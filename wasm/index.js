@@ -157,8 +157,11 @@ elements.program.oninput = () => {
 // Configure the buttons. Use an IIFE as not to pollute the global namespace.
 (() => {
     const width = elements.runStop.offsetWidth;
+    const remSize = parseFloat(getComputedStyle(document.body).fontSize);
     elements.runStop.textContent = 'Run!';
-    setTimeout(() => elements.runStop.style.width = `${0.49 + Math.max(width, elements.runStop.offsetWidth)}px`);
+    setTimeout(
+        () => elements.runStop.style.width = `${(0.49 + Math.max(width, elements.runStop.offsetWidth)) / remSize}rem`
+    );
     elements.runStop.onclick = interpretProgram;
     elements.urlButton.onclick = generateURL;
 })();
@@ -166,11 +169,12 @@ elements.program.oninput = () => {
 // Set the grid columns and overflow behavior
 const styleEl = document.createElement('style');
 document.head.appendChild(styleEl);
-const emSize = parseFloat(getComputedStyle(document.body).fontSize);
 onresize = () => {
-    elements.urlOut.style.width = elements.urlOutBox.style.width = `${elements.program.clientWidth}px`;
-    if (elements.main.clientWidth / 2 > elements.program.offsetWidth + emSize)
-        styleEl.innerHTML = `.grid { max-height: 100vh; grid-template: "p i" "c ." "o e" / 1fr 1fr; }
+    const width = Math.max(elements.program.offsetWidth, elements.stdin.offsetWidth);
+    const remSize = parseFloat(getComputedStyle(document.body).fontSize);
+    if (elements.main.clientWidth / 2 > width + remSize)
+        styleEl.innerHTML = `footer > * { flex: 1 0; }
+.grid { max-height: 100vh; grid-template: "p i" "c ." "o e" / 1fr 1fr; }
 .out-container { max-height: calc(100vh - 0.5em - ${
             1.49 + elements.programContainer.offsetHeight + elements.clearContainer.offsetHeight +
             elements.footer.offsetHeight}px); padding-bottom: 1em; }
