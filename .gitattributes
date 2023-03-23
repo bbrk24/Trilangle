@@ -1,2 +1,3 @@
-*   text=auto eol=lf
+*   text=auto   eol=lf
 wasm/build_wasm.sh  -linguist-detectable
+wasm/.stylelintrc   linguist-language=yaml
