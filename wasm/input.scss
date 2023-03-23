@@ -12,7 +12,7 @@ $button-opacity: 35%;
 // A unitless value representing the width of the main element relative to the width of the screen, when applicable.
 $main-scale-fraction: 0.78;
 // The maximum width of the main element, with unit of em. Chosen somewhat arbitrarily to be around 1200px.
-$main-max-width: 75em;
+$main-max-width: 75rem;
 // The minimum width of the screen at which the main and footer elements have responsive width. Chosen somewhat
 // arbitrarily so that the width of the main element is around 600px.
 $min-responsive-screen-width: calc(37.5em / $main-scale-fraction);
@@ -20,9 +20,43 @@ $min-responsive-screen-width: calc(37.5em / $main-scale-fraction);
 $max-responsive-screen-width: calc($main-max-width / $main-scale-fraction);
 // The horizontal padding of the footer element when applicable, with unit of vw.
 $footer-scaling-padding: 16vw;
+// The number of columns in a textarea by default, with unit of ch.
+$textarea-cols: 45ch;
+// The width of 1 monospace character, with a unit of em/ch. Unfortunately, I have to hardcode this.
+// FIXME: does this differ between rendering engines?
+$monospace-ch: calc(0.5568em / 1ch);
+// The horizontal padding of each column.
+$column-padding: 0.5rem;
+// The padding of a textarea.
+$textarea-padding: 0.125rem;
+// The border width of a texarea.
+$textarea-border-width: 1px;
+// The width of everything besides the texarea content (border & padding).
+$textarea-noncontent-width: calc(($column-padding + $textarea-padding + $textarea-border-width) * 2);
+// The width of the screen at which it switches to two-column layout.
+$min-two-col-width: calc(2 * ($textarea-noncontent-width + $textarea-cols * $monospace-ch) / $main-scale-fraction);
+
+// The height of the footer. Only for use inside with-footer-height.
+$footer-height: unset;
+
+@mixin with-footer-height {
+    $footer-height: calc(2lh + 2rem) !global;
+    @content;
+
+    @media screen and (max-width: $min-responsive-screen-width) {
+        $footer-height: calc(3lh + 1rem) !global;
+        @content;
+    }
+
+    $footer-height: unset !global;
+}
 
 @function padding-from-width($width, $parent-width: 100%) {
     @return calc(($parent-width - $width) / 2);
+}
+
+* {
+    background-color: inherit;
 }
 
 pre,
@@ -59,13 +93,14 @@ body {
 fieldset {
     border: none;
     padding: 0 0 0.4em;
-    margin: 0 0.5rem;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 button {
     background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
     color: inherit;
-    border: 0.125rem inset transparent;
+    border: 0.125em inset transparent;
     border-radius: 0.375em;
     font-size: 0.8rem;
     margin: 0.4em 0.25em 0.4em 0;
@@ -84,8 +119,11 @@ button {
 }
 
 textarea {
-    background-color: inherit;
     color: inherit;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: $textarea-padding;
+    border-width: $textarea-border-width;
 }
 
 main {
@@ -107,7 +145,7 @@ footer {
 @media screen and (max-width: $min-responsive-screen-width) {
     footer {
         flex-direction: column-reverse;
-        padding: 0.5em;
+        padding: 0.5rem;
         * {
             text-align: center;
         }
@@ -123,7 +161,7 @@ footer {
             width: calc(100vw * $main-scale-fraction);
         }
         footer {
-            padding: 1em max($footer-scaling-padding, 1em);
+            padding: 1rem max($footer-scaling-padding, 1em);
         }
     }
 }
@@ -135,7 +173,7 @@ footer {
     footer {
         $responsive-width-fraction: calc(1 - 2 * $footer-scaling-padding / 100vw);
         $max-width: calc($main-max-width * $responsive-width-fraction / $main-scale-fraction);
-        padding: 1em padding-from-width($max-width);
+        padding: 1rem padding-from-width($max-width);
     }
 }
 
@@ -169,9 +207,9 @@ footer {
     display: grid;
     overflow-y: hidden;
     box-sizing: border-box;
-    >* {
-        margin-left: 0.5rem;
-        margin-right: 0.5rem;
+    > * {
+        margin-left: $column-padding;
+        margin-right: $column-padding;
     }
 }
 
@@ -182,11 +220,48 @@ footer {
 .out-container :first-child {
     margin: 0;
     padding: 0.5em 0;
-    background-color: white;
-    top: 0;
-    left: 0;
-    @media screen and (prefers-color-scheme: dark) {
-        background-color: $dark-background;
+}
+
+@media screen and (max-width: $min-two-col-width) {
+    textarea {
+        width: min(100%, $textarea-cols);
+    }
+    .grid {
+        grid-template:
+            "p"
+            "i"
+            "c"
+            "o"
+            "e" / 1fr;
+    }
+}
+
+@media screen and (min-width: $min-two-col-width) {
+    textarea {
+        width: $textarea-cols;
+    }
+    .grid {
+        grid-template:
+            "p i" min-content
+            "c ." min-content
+            "o e" 1fr / 1fr 1fr;
+        @include with-footer-height {
+            height: calc(100vh - $footer-height);
+        }
+    }
+    footer > * {
+        flex: 1 0;
+    }
+    .out-container {
+        padding-bottom: 1em;
+        :first-child {
+            position: sticky;
+            top: 0;
+            left: 0;
+        }
+    }
+    #stdin {
+        resize: horizontal;
     }
 }
 

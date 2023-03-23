@@ -155,7 +155,6 @@ const wasmCancel = () => {
     worker = null;
     workerFinished();
 };
-const remSize = () => parseFloat(getComputedStyle(document.body).fontSize);
 
 const interpretProgram = createWorker('interpretProgram'), disassembleProgram = createWorker('disassembleProgram'),
       expandBase = createWorker('expandInput');
@@ -180,28 +179,12 @@ elements.program.oninput = () => {
     const width = elements.runStop.offsetWidth;
     elements.runStop.textContent = 'Run!';
     setTimeout(
-        () => elements.runStop.style.width = `${(0.49 + Math.max(width, elements.runStop.offsetWidth)) / remSize()}rem`
+        () => elements.runStop.style.width = `${
+            (0.49 + Math.max(width, elements.runStop.offsetWidth)) /
+            parseFloat(getComputedStyle(document.body).fontSize)}rem`
     );
     elements.runStop.onclick = interpretProgram;
     elements.urlButton.onclick = generateURL;
-
-    // Set the grid columns and overflow behavior
-    const styleEl = document.createElement('style');
-    document.head.appendChild(styleEl);
-    onresize = () => {
-        const width = Math.max(elements.program.offsetWidth, elements.stdin.offsetWidth);
-        if (elements.main.clientWidth / 2 > width + remSize())
-            styleEl.innerHTML = `footer > * { flex: 1 0; }
-.grid { max-height: 100vh; grid-template: "p i" "c ." "o e" / 1fr 1fr; }
-.out-container { max-height: calc(100vh - 0.5em - ${
-                1.49 + elements.programContainer.offsetHeight + elements.clearContainer.offsetHeight +
-                elements.footer.offsetHeight}px); padding-bottom: 1em; }
-.out-container :first-child { position: sticky; }\n#stdin { resize: horizontal; }`;
-        else
-            styleEl.innerHTML = '.grid { grid-template: "p" "i" "c" "o" "e" / 1fr; }';
-    };
-    new ResizeObserver(onresize).observe(elements.programContainer);
-    onresize();
 })();
 
 // Get the program from the URL, if present
