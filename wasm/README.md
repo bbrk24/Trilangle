@@ -6,13 +6,13 @@ This file outlines the file structure of this folder. For an overview of compili
 
 This file simply invokes emscripten and sass with the appropriate flags. If invoked with the argument "debug", it doesn't perform optimizations, which should result in faster compile times.
 
-## index.*
+## index.html
 
-These files are included as-is in the website -- they aren't minified in any way. GitHub compresses them to about a third of their original size, so file size isn't a great concern.
+This file is included as-is in the website.
 
-## input.scss
+## in.coffee and in.scss
 
-This file is transformed into out.css. Prefer putting styling information here when possible.
+These files are transpiled to index.js and index.css respectively.
 
 ## pre.js
 

@@ -11,3 +11,5 @@
 # wasm things
 wasm/out.*
 wasm/node_modules/
+wasm/index.*
+!wasm/index.html
