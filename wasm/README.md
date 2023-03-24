@@ -4,7 +4,7 @@ This file outlines the file structure of this folder. For an overview of compili
 
 ## build_wasm.sh
 
-This file simply invokes emscripten and sass with the appropriate flags.
+This file simply invokes emscripten and sass with the appropriate flags. If invoked with the argument "debug", it doesn't perform optimizations, which should result in faster compile times.
 
 ## index.*
 
