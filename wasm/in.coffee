@@ -23,7 +23,8 @@ elements = new Proxy
   elements.stderr.innerHTML = ''
   
 generateContracted = =>
-  programText = elements.program.value.replace /(^#![^\n]*)?\n| /, ''
+  programText = elements.program.value.replace /^#![^\n]*\n/, ''
+    .replace /\n| /g, ''
   # programText.length is wrong when there's high Unicode characters
   programLength = [...programText].length
   # Calculate the largest triangular number less than the length.
@@ -84,23 +85,21 @@ stdout = (char) =>
 
 stderr = (char) =>
   return unless char?
-  # There is some repeated code here, maybe I could refactor this?
+  appendText = (text) =>
+    if elements.stderr.lastChild instanceof Text
+      elements.stderr.lastChild.nodeValue += text
+    else
+      elements.stderr.appendChild document.createTextNode text
+
   if char < 0
     stderrBuffer.push char
     if isBufferFull stderrBuffer
-      text = decoder.decode new Int8Array stderrBuffer
+      appendText decoder.decode new Int8Array stderrBuffer
       stderrBuffer = []
-      if elements.stderr.lastChild instanceof Text
-        elements.stderr.lastChild.nodeValue += text
-      else
-        elements.stderr.appendChild document.createTextNode text
   else if char == 10
     elements.stderr.appendChild document.createElement 'br'
-  else if elements.stderr.lastChild instanceof Text
-    elements.stderr.lastChild.nodeValue += String.fromCharCode char
   else
-    text = if char == 32 then '\xa0' else String.fromCharCode char
-    elements.stderr.appendChild document.createTextNode text
+    appendText String.fromCharCode char
   
 createWorker = (name) => =>
   clearOutput()
@@ -109,7 +108,7 @@ createWorker = (name) => =>
   elements.condense.disabled = true
   elements.runStop.textContent = 'Stop'
   elements.runStop.onclick = wasmCancel
-  worker ?= new Worker new URL 'out.js', location
+  worker ?= new Worker new URL 'worker.js', location
   worker.onmessage = (event) ->
     content = event.data[1]
     switch event.data[0]
@@ -146,7 +145,7 @@ elements.program.oninput = ->
 width = elements.runStop.offsetWidth
 remSize = parseFloat getComputedStyle(document.body).fontSize
 elements.runStop.textContent = 'Run!'
-setTimeout => elements.runStop.style.width "#{(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}"
+setTimeout => elements.runStop.style.width = "#{(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}"
 elements.runStop.onclick = interpretProgram
 elements.urlButton.onclick = generateURL
 

@@ -14,8 +14,8 @@ This file is included as-is in the website.
 
 These files are transpiled to index.js and index.css respectively.
 
-## pre.js
+## worker.coffee
 
-This file is used in a worker. It deals with the webassembly code directly. It is minified and optimized before its inclusion in the website.
+This file is used in a worker. It deals with the webassembly code directly. The output JavaScript is minified and optimized before its inclusion in the website.
 
 [1]: ../README.md#compiling-for-the-web
