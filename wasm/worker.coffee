@@ -19,10 +19,10 @@ halfReady = (arg) ->
   postMessage [0, null]
 
 Module['preInit'] = ->
-    stdin = => if inputIndex >= stdinBuffer.length then null else stdinBuffer.at inputIndex++
-    stdout = (char) => postMessage [1, char]
-    stderr = (char) => postMessage [2, char]
-    FS.init stdin, stdout, stderr
+  stdin = => if inputIndex >= stdinBuffer.length then null else stdinBuffer.at inputIndex++
+  stdout = (char) => postMessage [1, char]
+  stderr = (char) => postMessage [2, char]
+  FS.init stdin, stdout, stderr
 Module['onRuntimeInitialized'] = halfReady
 Module['noExitRuntime'] = true
 

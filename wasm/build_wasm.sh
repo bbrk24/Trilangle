@@ -2,7 +2,6 @@
 
 set -e
 
-npx coffee -co index.js in.coffee &
 npx coffee -co pre.js worker.coffee
 # pre.js must be compiled before emcc may begin
 
@@ -14,9 +13,11 @@ common_emcc_args=(-WCL4 -Wnon-gcc -Wno-nullability-completeness
 
 if [ "$1" = debug ]
 then
+    npx coffee -cMo index.js in.coffee &
     emcc ../*.cpp "${common_emcc_args[@]}" -Wno-unused-value -Og -g2 -sASSERTIONS &
     npx sass in.scss index.css --no-source-map &
 else
+    npx coffee -co index.js in.coffee &
     emcc ../*.cpp "${common_emcc_args[@]}" -O3 -flto -DNDEBUG --closure 1 --closure-args='--emit_use_strict' &
     npx sass in.scss index.css --no-source-map -s compressed &
 fi

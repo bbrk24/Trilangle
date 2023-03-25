@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <title>Trilangle online interpreter</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="referrer" content="same-origin" />
     <link rel="icon" href="./favicon.ico" />
     <link rel="stylesheet" href="./index.css" />
+    <link rel="prefetch" href="./worker.wasm" />
+    <link rel="prefetch" href="./worker.js" fetchpriority="low" />
     <script defer src="./index.js"></script>
   </head>
   <body>
@@ -42,7 +45,7 @@ o &quot; &quot; &quot; o ' ( @ .
     <footer>
       <div>
         © 2023 William Baker<br />
-        <a href="https://github.com/bbrk24/Trilangle/blob/master/LICENSE">MIT License</a>
+        <a rel="license" href="https://github.com/bbrk24/Trilangle/blob/master/LICENSE">MIT License</a>
       </div>
       <div class="center"><a href="https://github.com/bbrk24/Trilangle">GitHub page</a></div>
       <div><!-- This div intentionally left blank. --></div>

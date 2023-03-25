@@ -7,16 +7,11 @@ stderrBuffer = []
 decoder = new TextDecoder
 
 # This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
-# first access, but then saves it for fast access later. I've also included the main and footer elements here for
-# convenience.
-elements = new Proxy 
-  main: document.querySelector 'main'
-  footer: document.querySelector 'footer'
-,
-  get: (target, p) ->
-    if typeof p == 'string' and not (p of target)
-      target[p] = document.getElementById p.replace /[A-Z]/g, (s) => '-' + s.toLowerCase()
-    target[p]
+# first access, but then saves it for fast access later.
+elements = new Proxy {}, get: (target, p) ->
+  if typeof p is 'string' and not (p of target)
+    target[p] = document.getElementById p.replace /[A-Z]/g, (s) => '-' + s.toLowerCase()
+  target[p]
 
 @clearOutput = =>
   elements.stdout.innerHTML = ''
@@ -26,7 +21,7 @@ generateContracted = =>
   programText = elements.program.value.replace /^#![^\n]*\n/, ''
     .replace /\n| /g, ''
   # programText.length is wrong when there's high Unicode characters
-  programLength = [...programText].length
+  programLength = [programText...].length
   # Calculate the largest triangular number less than the length.
   # minLength is 1 more than that
   temp = Math.ceil Math.sqrt(2 * programLength) - 1.5
@@ -39,8 +34,8 @@ generateContracted = =>
   clearOutput()
   elements.program.value = generateContracted()
   
-generateURL = => 
-  newURL = "#{location.href.split('#')[0]}\##{encodeURIComponent(generateContracted())}"
+generateURL = =>
+  newURL = "#{location.href.split('#')[0]}\##{encodeURIComponent generateContracted()}"
   history.pushState {}, '', newURL
   elements.urlOut.textContent = newURL
   elements.urlOutBox.className = ''
@@ -67,13 +62,12 @@ wasmCancel = =>
   worker = null
   workerFinished()
   
-isBufferFull = (buf) => (
-  buf.length == 4 || 
-  (((buf[0] + 256) & 0xf0) == 0xe0 && buf.length == 3) ||
-  (((buf[0] + 256) & 0xe0) == 0xc0 && buf.length == 2)  
-)
+isBufferFull = (buf) =>
+  buf.length is 4 or
+  (((buf[0] + 256) & 0xf0) is 0xe0 and buf.length is 3) or
+  (((buf[0] + 256) & 0xe0) is 0xc0 and buf.length is 2)
 
-stdout = (char) =>
+stdout = (char) ->
   return unless char?
   if char < 0
     stdoutBuffer.push char
@@ -96,7 +90,7 @@ stderr = (char) =>
     if isBufferFull stderrBuffer
       appendText decoder.decode new Int8Array stderrBuffer
       stderrBuffer = []
-  else if char == 10
+  else if char is 10
     elements.stderr.appendChild document.createElement 'br'
   else
     appendText String.fromCharCode char
@@ -114,12 +108,12 @@ createWorker = (name) => =>
     switch event.data[0]
       when 0 then workerFinished()
       when 1
-        if typeof content == 'string'
+        if typeof content is 'string'
           elements.stdout.textContent += content
         else
           stdout content
       when 2
-        if typeof content == 'string'
+        if typeof content is 'string'
           elements.stderr.innerText += content
         else
           stderr content

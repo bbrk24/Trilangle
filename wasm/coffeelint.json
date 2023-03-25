@@ -1,0 +1,63 @@
+{
+  "arrow_spacing": {
+    "level": "warn"
+  },
+  "braces_spacing": {
+    "level": "warn",
+    "spaces": 1,
+    "empty_object_spaces": 0
+  },
+  "bracket_spacing": {
+    "level": "warn"
+  },
+  "coffeescript_error": {
+    "level": "error"
+  },
+  "colon_assignment_spacing": {
+    "level": "warn",
+    "spacing": {
+      "left": 0,
+      "right": 1
+    }
+  },
+  "eol_last": {
+    "level": "warn"
+  },
+  "max_line_length": {
+    "value": 120,
+    "level": "warn"
+  },
+  "missing_parseint_radix": {
+    "level": "error"
+  },
+  "no_empty_functions": {
+    "level": "error"
+  },
+  "no_empty_param_list": {
+    "level": "warn"
+  },
+  "no_interpolation_in_single_quotes": {
+    "level": "warn"
+  },
+  "no_this": {
+    "level": "warn"
+  },
+  "no_trailing_semicolons": {
+    "level": "warn"
+  },
+  "no_unnecessary_double_quotes": {
+    "level": "warn"
+  },
+  "no_unnecessary_fat_arrows": {
+    "level": "ignore"
+  },
+  "prefer_english_operator": {
+    "level": "warn"
+  },
+  "space_operators": {
+    "level": "warn"
+  },
+  "spacing_after_comma": {
+    "level": "warn"
+  }
+}

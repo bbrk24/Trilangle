@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- The web interface now respects `prefers-contrast` (high contrast vs low contrast).
+
 ### Fixed
 
 - The input box now fits on the screen on small mobile devies.

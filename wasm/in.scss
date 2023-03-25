@@ -27,6 +27,9 @@ $max-responsive-screen-width: calc($main-max-width / $main-scale-fraction);
 // The horizontal padding of the footer element when applicable, with unit of vw.
 $footer-scaling-padding: 16vw;
 
+// The top border of the footer. Only visible in high-contrast mode.
+$footer-border: 1px;
+
 // The number of columns in a textarea by default, with unit of ch.
 $textarea-cols: 45ch;
 
@@ -37,27 +40,18 @@ $monospace-ch: calc(0.5568em / 1ch);
 // The horizontal padding of each column.
 $column-padding: 0.5rem;
 
-// The padding of a textarea.
-$textarea-padding: 0.125rem;
-
-// The border width of a texarea.
-$textarea-border-width: 1px;
-
-// The width of everything besides the texarea content (border & padding).
-$textarea-noncontent-width: calc(($column-padding + $textarea-padding + $textarea-border-width) * 2);
-
 // The width of the screen at which it switches to two-column layout.
-$min-two-col-width: calc(2 * ($textarea-noncontent-width + $textarea-cols * $monospace-ch) / $main-scale-fraction);
+$min-two-col-width: calc(2 * ($column-padding * 2 + $textarea-cols * $monospace-ch) / $main-scale-fraction);
 
 // The height of the footer. Only for use inside with-footer-height.
 $footer-height: unset;
 
 @mixin with-footer-height {
-    $footer-height: calc(2lh + 2rem) !global;
+    $footer-height: calc(2lh + 2rem + $footer-border) !global;
     @content;
 
     @media screen and (max-width: $min-responsive-screen-width) {
-        $footer-height: calc(3lh + 1rem) !global;
+        $footer-height: calc(3lh + 1rem + $footer-border) !global;
         @content;
     }
 
@@ -80,14 +74,14 @@ textarea {
 
 a {
     &:visited {
-        color: darkviolet;
+        color: #8d00c8;
     }
 
     @media screen and (prefers-color-scheme: dark) {
-        color: royalblue;
+        color: #6c90ff;
 
         &:visited {
-            color: blueviolet;
+            color: #bc74ff;
         }
     }
 }
@@ -103,6 +97,11 @@ body {
     @media screen and (prefers-color-scheme: dark) {
         color: whitesmoke;
         background-color: $dark-background;
+
+        @media (prefers-contrast: more) {
+            color: white;
+            background-color: black;
+        }
     }
 }
 
@@ -114,9 +113,18 @@ fieldset {
 }
 
 button {
-    background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
+    border: 0.125em solid black;
+
+    @media screen and (prefers-color-scheme: dark) {
+        border-color: white;
+    }
+
+    @media not (prefers-contrast: more) {
+        background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
+        border-color: transparent;
+    }
+
     color: inherit;
-    border: 0.125em inset transparent;
     border-radius: 0.375em;
     font-size: 0.8rem;
     margin: 0.4em 0.25em 0.4em 0;
@@ -125,14 +133,29 @@ button {
     text-align: center;
 
     &:disabled {
-        opacity: 0.6;
+        @media (prefers-contrast: more) {
+            color: graytext;
+            border-color: graytext;
+        }
+
+        @media not (prefers-contrast: more) {
+            opacity: 0.6;
+        }
     }
 
     &:active {
-        border-color: color.mix($button-color, white, $button-opacity);
+        @media (prefers-contrast: more) {
+            color: activetext;
+            border-color: activetext;
+        }
 
-        @media screen and (prefers-color-scheme: dark) {
-            border-color: color.mix($button-color, $dark-background, $button-opacity);
+        @media not (prefers-contrast: more) {
+            border-style: inset;
+            border-color: color.mix($button-color, white, $button-opacity);
+
+            @media screen and (prefers-color-scheme: dark) {
+                border-color: color.mix($button-color, $dark-background, $button-opacity);
+            }
         }
     }
 }
@@ -141,8 +164,8 @@ textarea {
     color: inherit;
     max-width: 100%;
     box-sizing: border-box;
-    padding: $textarea-padding;
-    border-width: $textarea-border-width;
+    padding: 0.125rem;
+    border-width: 0.125rem;
 }
 
 main {
@@ -152,13 +175,22 @@ main {
 footer {
     box-sizing: border-box;
     width: 100%;
-    background-color: #ebebeb;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap-reverse;
+    border-top: $footer-border solid black;
 
     @media screen and (prefers-color-scheme: dark) {
-        background-color: #2c2c2c;
+        border-top-color: white;
+    }
+
+    @media not (prefers-contrast: more) {
+        background-color: #ebebeb;
+        border-top-color: transparent;
+
+        @media screen and (prefers-color-scheme: dark) {
+            background-color: #2c2c2c;
+        }
     }
 }
 
