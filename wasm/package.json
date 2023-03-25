@@ -11,7 +11,7 @@
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
         "lint": "stylelint ./*.scss && coffeelint in.coffee worker.coffee",
-        "deploy": "gh-pages -d . -s \"{index.*,worker.*,favicon.ico}\""
+        "deploy": "gh-pages -d . -s \"{index.*,worker.js,worker.wasm,favicon.ico}\""
     },
     "engines": {
         "node": "^14.17.0 || ^16.13.0 || >=18.0.0",
