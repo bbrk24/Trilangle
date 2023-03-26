@@ -34,29 +34,18 @@ $footer-border: 1px;
 $textarea-cols: 45ch;
 
 // The width of 1 monospace character, with a unit of em/ch. Unfortunately, I have to hardcode this.
-// FIXME: does this differ between rendering engines?
-$monospace-ch: calc(0.5568em / 1ch);
+// Actual measurements:
+// 0.556750 with Blink
+// 0.557292 with Gecko
+// 0.5655   with Webkit
+// The number below is the average of the three.
+$monospace-ch: calc(0.559847em / 1ch);
 
 // The horizontal padding of each column.
-$column-padding: 0.5rem;
+$column-padding: 0.5em;
 
 // The width of the screen at which it switches to two-column layout.
 $min-two-col-width: calc(2 * ($column-padding * 2 + $textarea-cols * $monospace-ch) / $main-scale-fraction);
-
-// The height of the footer. Only for use inside with-footer-height.
-$footer-height: unset;
-
-@mixin with-footer-height {
-    $footer-height: calc(2lh + 2rem + $footer-border) !global;
-    @content;
-
-    @media screen and (max-width: $min-responsive-screen-width) {
-        $footer-height: calc(3lh + 1rem + $footer-border) !global;
-        @content;
-    }
-
-    $footer-height: unset !global;
-}
 
 @function padding-from-width($width, $parent-width: 100%) {
     @return calc(($parent-width - $width) / 2);
@@ -197,7 +186,7 @@ footer {
 @media screen and (max-width: $min-responsive-screen-width) {
     footer {
         flex-direction: column-reverse;
-        padding: 0.5rem;
+        padding: 0.5em;
 
         * {
             text-align: center;
@@ -216,7 +205,7 @@ footer {
         }
 
         footer {
-            padding: 1rem max($footer-scaling-padding, 1em);
+            padding: 1em max($footer-scaling-padding, 1em);
         }
     }
 }
@@ -230,7 +219,7 @@ footer {
         $responsive-width-fraction: calc(1 - 2 * $footer-scaling-padding / 100vw);
         $max-width: calc($main-max-width * $responsive-width-fraction / $main-scale-fraction);
 
-        padding: 1rem padding-from-width($max-width);
+        padding: 1em padding-from-width($max-width);
     }
 }
 
@@ -301,14 +290,11 @@ footer {
     }
 
     .grid {
+        height: calc(100vh - (2lh + 2em + $footer-border));
         grid-template:
             "p i" min-content
             "c ." min-content
             "o e" 1fr / 1fr 1fr;
-
-        @include with-footer-height {
-            height: calc(100vh - $footer-height);
-        }
     }
 
     footer > * {

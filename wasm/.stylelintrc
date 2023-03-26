@@ -1,6 +1,7 @@
 extends: 
   - stylelint-config-standard-scss
 rules:
+  number-max-precision: 10
   property-no-vendor-prefix:
     - true
     - ignoreProperties:
