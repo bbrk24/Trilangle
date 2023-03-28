@@ -67,7 +67,7 @@ isBufferFull = (buf) =>
   (((buf[0] + 256) & 0xf0) is 0xe0 and buf.length is 3) or
   (((buf[0] + 256) & 0xe0) is 0xc0 and buf.length is 2)
 
-stdout = (char) ->
+stdout = (char) =>
   return unless char?
   if char < 0
     stdoutBuffer.push char
@@ -153,7 +153,7 @@ elements.contrastSwitch.onchange = ->
 width = elements.runStop.offsetWidth
 remSize = parseFloat getComputedStyle(document.body).fontSize
 elements.runStop.textContent = 'Run!'
-setTimeout => elements.runStop.style.width = "#{(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}"
+setTimeout => elements.runStop.style.width = "#{(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}rem"
 elements.runStop.onclick = interpretProgram
 elements.urlButton.onclick = generateURL
 
