@@ -130,11 +130,25 @@ expandBase = createWorker 'expandInput'
     elements.stdout.innerText = ''
     onFinishHook = null
   expandBase()
-  
+
 elements.program.oninput = ->
   elements.urlOutBox.className = 'content-hidden'
   elements.urlButton.textContent = 'Generate URL'
   elements.urlButton.onclick = generateURL
+
+elements.darkSwitch.onchange = ->
+  if @checked
+    document.body.classList.add 'dark'
+  else
+    document.body.classList.remove 'dark'
+  localStorage.setItem 'dark-mode', if @checked then 'true' else 'false'
+
+elements.contrastSwitch.onchange = ->
+  if @checked
+    document.body.classList.add 'high-contrast'
+  else
+    document.body.classList.remove 'high-contrast'
+  localStorage.setItem 'high-contrast', if @checked then 'true' else 'false'
   
 width = elements.runStop.offsetWidth
 remSize = parseFloat getComputedStyle(document.body).fontSize

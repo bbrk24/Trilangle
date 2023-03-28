@@ -15,11 +15,11 @@ $button-opacity: 35%;
 $main-scale-fraction: 0.78;
 
 // The maximum width of the main element, with unit of em. Chosen somewhat arbitrarily to be around 1200px.
-$main-max-width: 75rem;
+$main-max-width: 75em;
 
 // The minimum width of the screen at which the main and footer elements have responsive width. Chosen somewhat
 // arbitrarily so that the width of the main element is around 600px.
-$min-responsive-screen-width: calc(37.5em / $main-scale-fraction);
+$min-responsive-screen-width: 37.5em;
 
 // The width of the screen at which the main element has its maximum width.
 $max-responsive-screen-width: calc($main-max-width / $main-scale-fraction);
@@ -66,7 +66,7 @@ a {
         color: #8d00c8;
     }
 
-    @media screen and (prefers-color-scheme: dark) {
+    .dark & {
         color: #6c90ff;
 
         &:visited {
@@ -82,12 +82,13 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
 
-    @media screen and (prefers-color-scheme: dark) {
+    &.dark {
         color: whitesmoke;
         background-color: $dark-background;
 
-        @media (prefers-contrast: more) {
+        &.high-contrast {
             color: white;
             background-color: black;
         }
@@ -102,17 +103,8 @@ fieldset {
 }
 
 button {
-    border: 0.125em solid black;
-
-    @media screen and (prefers-color-scheme: dark) {
-        border-color: white;
-    }
-
-    @media not (prefers-contrast: more) {
-        background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
-        border-color: transparent;
-    }
-
+    background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
+    border: 0.125em solid transparent;
     color: inherit;
     border-radius: 0.375em;
     font-size: 0.8rem;
@@ -121,31 +113,38 @@ button {
     padding: 0.15em 0.325em 0.125em;
     text-align: center;
 
-    &:disabled {
-        @media (prefers-contrast: more) {
-            color: graytext;
-            border-color: graytext;
-        }
+    .high-contrast & {
+        border-color: black;
+        background-color: inherit;
+    }
 
-        @media not (prefers-contrast: more) {
-            opacity: 0.6;
-        }
+    &:disabled {
+        opacity: 0.6;
     }
 
     &:active {
-        @media (prefers-contrast: more) {
-            color: activetext;
-            border-color: activetext;
-        }
+        border-style: inset;
+        border-color: color.mix($button-color, white, $button-opacity);
+    }
 
-        @media not (prefers-contrast: more) {
-            border-style: inset;
-            border-color: color.mix($button-color, white, $button-opacity);
+    .dark.high-contrast & {
+        border-color: white;
+    }
 
-            @media screen and (prefers-color-scheme: dark) {
-                border-color: color.mix($button-color, $dark-background, $button-opacity);
-            }
-        }
+    .dark &:active {
+        border-color: color.mix($button-color, $dark-background, $button-opacity);
+    }
+
+    .high-contrast &:active {
+        border-style: solid;
+        color: activetext;
+        border-color: activetext;
+    }
+
+    .high-contrast &:disabled {
+        opacity: 1;
+        color: graytext;
+        border-color: graytext;
     }
 }
 
@@ -159,6 +158,13 @@ textarea {
 
 main {
     margin: 0 auto;
+    padding-top: 0.5em;
+    overflow-y: hidden;
+
+    > * {
+        margin-left: $column-padding;
+        margin-right: $column-padding;
+    }
 }
 
 footer {
@@ -167,19 +173,20 @@ footer {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap-reverse;
-    border-top: $footer-border solid black;
+    background-color: #ebebeb;
+    border-top: $footer-border solid transparent;
 
-    @media screen and (prefers-color-scheme: dark) {
-        border-top-color: white;
+    .dark & {
+        background-color: #2c2c2c;
     }
 
-    @media not (prefers-contrast: more) {
-        background-color: #ebebeb;
-        border-top-color: transparent;
+    .high-contrast & {
+        background-color: inherit;
+        border-top-color: black;
+    }
 
-        @media screen and (prefers-color-scheme: dark) {
-            background-color: #2c2c2c;
-        }
+    .high-contrast.dark & {
+        border-top-color: white;
     }
 }
 
@@ -201,7 +208,7 @@ footer {
 
     @media (max-width: $max-responsive-screen-width) {
         main {
-            width: calc(100vw * $main-scale-fraction);
+            width: max($min-responsive-screen-width, calc(100vw * $main-scale-fraction));
         }
 
         footer {
@@ -249,15 +256,8 @@ footer {
 }
 
 .grid {
-    padding-top: 0.5em;
     display: grid;
-    overflow-y: hidden;
     box-sizing: border-box;
-
-    > * {
-        margin-left: $column-padding;
-        margin-right: $column-padding;
-    }
 }
 
 :empty {
@@ -269,12 +269,83 @@ footer {
     padding: 0.5em 0;
 }
 
+// Rules for .switch and .slider adapted from https://www.w3schools.com/howto/howto_css_switch.asp
+.switch {
+    display: inline-block;
+    width: 1.8em;
+    height: 1em;
+    position: relative;
+    margin-right: 0.5ch;
+
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: dimgray;
+    transition: 0.4s;
+    border-radius: 1em;
+
+    &::before {
+        position: absolute;
+        content: "";
+        height: 0.8em;
+        width: 0.8em;
+        left: 0.1em;
+        bottom: 0.1em;
+        background-color: white;
+        transition: background-color 0s 0s, transform 0.2s ease-in;
+        border-radius: 50%;
+    }
+
+    .high-contrast & {
+        background-color: black;
+    }
+
+    input:checked + & {
+        background-color: #148746;
+
+        .high-contrast & {
+            background-color: #0f6635;
+        }
+
+        .dark & {
+            background-color: #1ab25c;
+        }
+
+        &::before {
+            transform: translateX(0.8em);
+        }
+    }
+
+    // As long as this `.dark.high-contrast &` block contains no direct rules and only other selectors, it's fine.
+    // I can't make stylelint happy without repeating selectors.
+    .dark.high-contrast & { /* stylelint-disable-line no-descending-specificity */
+        input:not(:checked) + & {
+            background-color: white;
+        }
+
+        &::before {
+            background-color: black;
+        }
+    }
+}
+
 @media screen and (max-width: $min-two-col-width) {
     textarea {
         width: min(100%, $textarea-cols);
     }
 
-    .grid {
+    main {
         grid-template:
             "p"
             "i"
@@ -289,7 +360,7 @@ footer {
         width: $textarea-cols;
     }
 
-    .grid {
+    main {
         height: calc(100vh - (2lh + 2em + $footer-border));
         grid-template:
             "p i" min-content
@@ -348,4 +419,32 @@ footer {
 #url-out {
     word-wrap: break-word;
     max-width: 100%;
+}
+
+#menu .grid {
+    max-width: 100%;
+    grid-template-columns: 1fr;
+    margin: 0 1lh -0.5em;
+
+    > span {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: auto;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+    }
+}
+
+@media screen and (min-width: calc($min-responsive-screen-width / $main-scale-fraction)) {
+    #menu {
+        height: 0;
+        overflow: visible;
+        width: calc((1 - $main-scale-fraction) * 50vw);
+
+        .grid {
+            width: max-content;
+            margin: 0 auto;
+        }
+    }
 }

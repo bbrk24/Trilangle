@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
-- The web interface now respects `prefers-contrast` (high contrast vs low contrast).
+- The web interface now has toggles for light/dark and high-contrast/low-contrast color schemes.
 
 ### Fixed
 

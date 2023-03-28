@@ -12,6 +12,34 @@
     <script defer src="./index.js"></script>
   </head>
   <body>
+    <div id="menu">
+      <br />
+      <div class="grid">
+        <span>
+          Dark mode&nbsp;<label class="switch">
+            <input type="checkbox" id="dark-switch">
+            <span class="slider"></span>
+          </label>
+        </span>
+        <span>
+          High contrast&nbsp;<label class="switch">
+            <input type="checkbox" id="contrast-switch">
+            <span class="slider"></span>
+          </label>
+        </span>
+      </div>
+    </div>
+    <script>
+      let localState = localStorage.getItem('dark-mode');
+      const dark = localState === null ? matchMedia('(prefers-color-scheme: dark)').matches : localState === 'true';
+      document.getElementById('dark-switch').checked = dark;
+      if (dark) document.body.classList.add('dark');
+
+      localState = localStorage.getItem('high-contrast');
+      const contrast = localState === null ? matchMedia('(prefers-contrast: more)').matches : localState === 'true';
+      document.getElementById('contrast-switch').checked = contrast;
+      if (contrast) document.body.classList.add('high-contrast');
+    </script>
     <main class="grid">
       <fieldset id="program-container">
         <legend>Program</legend>
