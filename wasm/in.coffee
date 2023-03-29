@@ -50,6 +50,9 @@ copyURL = =>
   setTimeout => elements.copyAlert.className = 'hide-slow'
   
 workerFinished = =>
+  elements.stdin.oninput = ->
+    worker = null
+    @oninput = null
   elements.expand.disabled = false
   elements.disassemble.disabled = false
   elements.condense.disabled = false
@@ -102,6 +105,7 @@ createWorker = (name) => =>
   elements.condense.disabled = true
   elements.runStop.textContent = 'Stop'
   elements.runStop.onclick = wasmCancel
+  elements.stdin.oninput = null
   worker ?= new Worker new URL 'worker.js', location
   worker.onmessage = (event) ->
     content = event.data[1]

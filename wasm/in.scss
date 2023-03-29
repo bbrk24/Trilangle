@@ -275,7 +275,7 @@ footer {
     width: 1.8em;
     height: 1em;
     position: relative;
-    margin-right: 0.5ch;
+    margin: 0 0.75ch;
 
     input {
         opacity: 0;
@@ -436,7 +436,7 @@ footer {
     }
 }
 
-@media screen and (min-width: calc($min-responsive-screen-width / $main-scale-fraction)) {
+@media screen and (min-width: $min-two-col-width) {
     #menu {
         height: 0;
         overflow: visible;
