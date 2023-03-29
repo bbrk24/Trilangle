@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.2.1] - 2023-03-28
+
 ### Added
 
 - The web interface now has toggles for light/dark and high-contrast/low-contrast color schemes.
@@ -71,3 +73,4 @@ First versioned release.
 [1.1.0]: https://github.com/bbrk24/Trilangle/tree/1.1.0
 [1.1.1]: https://github.com/bbrk24/Trilangle/tree/1.1.1
 [1.2.0]: https://github.com/bbrk24/Trilangle/tree/1.2.0
+[1.2.1]: https://github.com/bbrk24/Trilangle/tree/1.2.1
