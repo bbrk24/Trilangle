@@ -16,10 +16,12 @@ public:
         terminated,  // The thread is no longer executing
     };
 
+    // Currently only called with T = std::vector<int24_t> and T = const std::vector<int24_t>&.
+    // Generic to allow both move- and copy-construction.
     template<typename T>
     CONSTEXPR_ALLOC thread(const thread& other, direction d, T&& stack) noexcept :
         program_walker(other.m_program),
-        m_stack(std::move(stack)),
+        m_stack(std::forward<T>(stack)),
         m_ip{ other.m_ip.coords, d },
         m_status(status::active),
         m_flags(other.m_flags),

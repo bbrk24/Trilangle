@@ -41,7 +41,7 @@ unsigned long thread::thread_count;
 }
 
 void thread::tick() {
-    static std::default_random_engine reng(std::move(std::random_device())());
+    static std::default_random_engine reng((std::random_device())());
     static std::uniform_int_distribution<int32_t> rdist(INT24_MIN, INT24_MAX);
 
     switch (m_status) {
@@ -208,7 +208,7 @@ void thread::tick() {
                 }
             }
 
-            m_stack.emplace_back(next - '0');
+            m_stack.push_back(next - (int24_t)'0');
             break;
         }
         case POP:

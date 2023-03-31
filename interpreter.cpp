@@ -1,6 +1,8 @@
 #include "interpreter.hh"
 #include <algorithm>
+#include <functional>
 #include <iostream>
+#include <iterator>
 #include <unordered_map>
 
 using std::cerr;
@@ -70,13 +72,19 @@ void interpreter::run() {
             }
         }
 
-        std::sort(removal_indices.begin(), removal_indices.end(), [](size_t x, size_t y) NOEXCEPT_T { return x > y; });
+        // Sort the removal indices descending, so that we can erase them in a single loop
+        std::sort(removal_indices.begin(), removal_indices.end(), std::greater<size_t>{});
 
         for (size_t i : removal_indices) {
             m_threads.erase(m_threads.cbegin() + static_cast<ptrdiff_t>(i));
         }
 
-        m_threads.insert(m_threads.cend(), pending_threads.begin(), pending_threads.end());
+        // Move the pending threads into the thread vector
+        m_threads.insert(
+            m_threads.cend(),
+            std::make_move_iterator(pending_threads.begin()),
+            std::make_move_iterator(pending_threads.end())
+        );
 
         if (m_threads.empty()) {
             std::cout << std::flush;
@@ -91,6 +99,7 @@ thread interpreter::threadjoin(size_t first_index, size_t second_index) {
     thread& second_thread = m_threads[second_index];
 
     direction new_dir;
+    // They should either be facing both NW/SW or both NE/SE, never one going east and one going west
     assert((static_cast<char>(first_thread.m_ip.dir) & 0b011) == (static_cast<char>(second_thread.m_ip.dir) & 0b011));
     switch (first_thread.m_ip.dir) {
         case direction::northeast:

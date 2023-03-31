@@ -34,6 +34,9 @@ struct int24_t {
     constexpr bool operator<(const int24_t& other) const noexcept {
         return this->value < other.value;
     }
+    constexpr bool operator>(const int24_t& other) const noexcept {
+        return this->value > other.value;
+    }
 
     constexpr int24_t& operator++() noexcept {
         ++value;
@@ -43,6 +46,10 @@ struct int24_t {
     constexpr int24_t& operator--() noexcept {
         --value;
         return *this;
+    }
+
+    constexpr int24_t operator-(int24_t rhs) const noexcept {
+        return int24_t{ this->value - rhs.value };
     }
 
     constexpr int24_t& operator%=(int24_t rhs) noexcept {

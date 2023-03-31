@@ -33,8 +33,8 @@ int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) {
             }
         }
 
-
         buf[i] = static_cast<unsigned char>(c);
+        // If a continuation doesn't start with the expected bits, it's not valid UTF-8.
         if (i != 0 && (buf[i] & 0xc0) != 0x80) {
             return INVALID_CHAR;
         }

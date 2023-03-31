@@ -141,6 +141,8 @@
 #define __builtin_unreachable() __assume(0)
 #endif
 
+// Indicate that a code path should not be reachable. In debug builds, this causes an assertion failure, including the
+// given reason in the error message. In optimized builds, this expands to a single __builtin_unreachable call.
 #define unreachable(reason) \
     assert(("Assumption violated: " reason, false)); \
     __builtin_unreachable()
