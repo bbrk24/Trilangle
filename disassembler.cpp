@@ -233,12 +233,12 @@ void disassembler::build_state() {
         case BNG_W:
             program_walker::branch(initial_ip.dir, op, []() -> bool {
                 std::cerr << "Error: program starts with branch instruction. Behavior is undefined." << std::endl;
-                exit(1);
+                exit(EXIT_FAILURE);
             });
             break;
         case THR_W:
             std::cerr << "Error: program starts with join instruction. This will wait forever." << std::endl;
-            exit(1);
+            exit(EXIT_FAILURE);
         default:
             break;
     }

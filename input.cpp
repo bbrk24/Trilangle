@@ -1,4 +1,5 @@
 #include "input.hh"
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -105,7 +106,7 @@ string parse_args(int argc, const char** argv, flags& f) {
             if (!strcmp(argv[i] + 1, "-help")) {
                 printf(HELP_HEADER, argv[0]);
                 puts(FLAGS_HELP);
-                exit(0);
+                exit(EXIT_SUCCESS);
             } else if (!strcmp(argv[i] + 1, "-")) {
                 parse_flags = false;
                 continue;

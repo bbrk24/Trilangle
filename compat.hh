@@ -27,11 +27,11 @@
 #undef _INCLUDED_VERSION
 
 #ifndef EX_USAGE
-#define EX_USAGE 64
+constexpr int EX_USAGE = 64;
 #endif
 
 #ifndef EX_NOINPUT
-#define EX_NOINPUT 66
+constexpr int EX_NOINPUT = 66;
 #endif
 
 

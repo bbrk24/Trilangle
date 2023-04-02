@@ -217,7 +217,7 @@ void thread::tick() {
             }
             break;
         case EXT:
-            flush_and_exit(0);
+            flush_and_exit(EXIT_SUCCESS);
         case INC:
             if (m_flags.warnings) {
                 if (m_stack.empty()) UNLIKELY {
@@ -285,7 +285,7 @@ void thread::tick() {
                         should_print = false;
                     }
                     if (m_flags.pipekill) {
-                        flush_and_exit(1);
+                        flush_and_exit(EXIT_FAILURE);
                     }
                 }
 
@@ -297,7 +297,7 @@ void thread::tick() {
             if (m_flags.pipekill && ferror(stdout)) {
                 // No need to flush stdout, it's already closed
                 cerr << flush;
-                exit(0);
+                exit(EXIT_SUCCESS);
             }
 
             break;
@@ -318,7 +318,7 @@ void thread::tick() {
 
             if (m_flags.pipekill && ferror(stdout)) {
                 cerr << flush;
-                exit(0);
+                exit(EXIT_SUCCESS);
             }
             break;
         case SKP:
@@ -415,11 +415,11 @@ void thread::tick() {
                 "Unicode replacement character (U+%0.4" PRIX32 ") detected in source. Please check encoding.\n",
                 static_cast<uint32_t>(op)
             );
-            exit(1);
+            exit(EXIT_FAILURE);
         default:
             cerr << "Unrecognized opcode '";
             printunichar(op, cerr);
             cerr << "' (at (" << m_ip.coords.first << ", " << m_ip.coords.second << "))\n";
-            flush_and_exit(1);
+            flush_and_exit(EXIT_FAILURE);
     }
 }

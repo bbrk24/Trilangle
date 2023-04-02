@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Changed
+
+- Uses EXIT_FAILURE instead of hardcoding 1.
+
 ## [1.2.1] - 2023-03-28
 
 ### Added
