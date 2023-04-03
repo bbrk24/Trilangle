@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- Fixed a bug involving background colors in the web interface in Safari.
+
 ### Changed
 
 - Uses EXIT_FAILURE instead of hardcoding 1.

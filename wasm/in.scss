@@ -51,10 +51,6 @@ $min-two-col-width: calc(2 * ($column-padding * 2 + $textarea-cols * $monospace-
     @return calc(($parent-width - $width) / 2);
 }
 
-* {
-    background-color: inherit;
-}
-
 pre,
 code,
 textarea {
@@ -83,16 +79,36 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+}
 
-    &.dark {
-        color: whitesmoke;
-        background-color: $dark-background;
+textarea {
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.125rem;
+    border-width: 0.125rem;
+}
 
-        &.high-contrast {
-            color: white;
-            background-color: black;
-        }
-    }
+// https://stackoverflow.com/q/75921120/
+:root {
+    --bg-color: white;
+    --text-color: black;
+}
+
+.dark {
+    --bg-color: #{$dark-background};
+    --text-color: whitesmoke;
+}
+
+.dark.high-contrast {
+    --bg-color: black;
+    --text-color: white;
+}
+
+body,
+textarea,
+.out-container :first-child {
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 fieldset {
@@ -105,7 +121,7 @@ fieldset {
 button {
     background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
     border: 0.125em solid transparent;
-    color: inherit;
+    color: var(--text-color);
     border-radius: 0.375em;
     font-size: 0.8rem;
     margin: 0.4em 0.25em 0.4em 0;
@@ -114,8 +130,8 @@ button {
     text-align: center;
 
     .high-contrast & {
-        border-color: black;
-        background-color: inherit;
+        border-color: var(--text-color);
+        background-color: transparent;
     }
 
     &:disabled {
@@ -125,10 +141,6 @@ button {
     &:active {
         border-style: inset;
         border-color: color.mix($button-color, white, $button-opacity);
-    }
-
-    .dark.high-contrast & {
-        border-color: white;
     }
 
     .dark &:active {
@@ -146,14 +158,6 @@ button {
         color: graytext;
         border-color: graytext;
     }
-}
-
-textarea {
-    color: inherit;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 0.125rem;
-    border-width: 0.125rem;
 }
 
 main {
@@ -181,12 +185,8 @@ footer {
     }
 
     .high-contrast & {
-        background-color: inherit;
-        border-top-color: black;
-    }
-
-    .high-contrast.dark & {
-        border-top-color: white;
+        background-color: transparent;
+        border-top-color: var(--text-color);
     }
 }
 
@@ -308,7 +308,11 @@ footer {
     }
 
     .high-contrast & {
-        background-color: black;
+        background-color: var(--text-color);
+
+        &::before {
+            background-color: var(--bg-color);
+        }
     }
 
     input:checked + & {
@@ -324,18 +328,6 @@ footer {
 
         &::before {
             transform: translateX(0.8em);
-        }
-    }
-
-    // As long as this `.dark.high-contrast &` block contains no direct rules and only other selectors, it's fine.
-    // I can't make stylelint happy without repeating selectors.
-    .dark.high-contrast & { /* stylelint-disable-line no-descending-specificity */
-        input:not(:checked) + & {
-            background-color: white;
-        }
-
-        &::before {
-            background-color: black;
         }
     }
 }
