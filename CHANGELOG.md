@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
+- Improved contrast for link and error colors in the web interface.
 - Fixed a bug involving background colors in the web interface in Safari.
 
 ### Changed

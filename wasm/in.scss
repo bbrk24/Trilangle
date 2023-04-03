@@ -58,15 +58,25 @@ textarea {
 }
 
 a {
+    color: #003df7;
+
     &:visited {
-        color: #8d00c8;
+        color: #8e00cc;
     }
 
     .dark & {
-        color: #6c90ff;
+        color: #5e86ff;
 
         &:visited {
-            color: #bc74ff;
+            color: #b668ff;
+        }
+    }
+
+    .dark.high-contrast & {
+        color: #688eff;
+
+        &:visited {
+            color: #bb72ff;
         }
     }
 }
@@ -380,7 +390,15 @@ footer {
 }
 
 #stderr {
-    color: crimson;
+    color: #b70024;
+
+    .dark & {
+        color: #ff214d;
+    }
+
+    .dark.high-contrast & {
+        color: #ff597a;
+    }
 }
 
 #input-container {
