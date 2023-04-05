@@ -45,12 +45,10 @@ bool disassembler::print_op(
                         os << buf << "TSP ";
                         break;
                     case direction::northeast:
-                        FALLTHROUGH
                     case direction::southeast:
                         os << buf << "TJN\n";
                         break;
                     case direction::northwest:
-                        FALLTHROUGH
                     case direction::southwest:
                         if (show_nops) {
                             os << buf << "NOP\n";
@@ -67,12 +65,10 @@ bool disassembler::print_op(
                         os << buf << "TSP ";
                         break;
                     case direction::northwest:
-                        FALLTHROUGH
                     case direction::southwest:
                         os << buf << "TJN\n";
                         break;
                     case direction::northeast:
-                        FALLTHROUGH
                     case direction::southeast:
                         if (show_nops) {
                             os << buf << "NOP\n";
@@ -81,15 +77,10 @@ bool disassembler::print_op(
                 }
                 break;
             case BNG_E:
-                FALLTHROUGH
             case BNG_NE:
-                FALLTHROUGH
             case BNG_NW:
-                FALLTHROUGH
             case BNG_SE:
-                FALLTHROUGH
             case BNG_SW:
-                FALLTHROUGH
             case BNG_W:
                 if (show_branch) {
                     os << buf << "BNG ";
@@ -97,15 +88,10 @@ bool disassembler::print_op(
                 }
                 FALLTHROUGH
             case SKP:
-                FALLTHROUGH
             case MIR_EW:
-                FALLTHROUGH
             case MIR_NESW:
-                FALLTHROUGH
             case MIR_NS:
-                FALLTHROUGH
             case MIR_NWSE:
-                FALLTHROUGH
             case NOP:
                 if (show_nops) {
                     os << buf << "NOP\n";
@@ -212,24 +198,16 @@ void disassembler::build_state() {
     int24_t op = m_program->at(0, 0);
     switch (op) {
         case MIR_EW:
-            FALLTHROUGH
         case MIR_NESW:
-            FALLTHROUGH
         case MIR_NS:
-            FALLTHROUGH
         case MIR_NWSE:
             program_walker::reflect(initial_ip.dir, op);
             break;
         case BNG_E:
-            FALLTHROUGH
         case BNG_NE:
-            FALLTHROUGH
         case BNG_NW:
-            FALLTHROUGH
         case BNG_SE:
-            FALLTHROUGH
         case BNG_SW:
-            FALLTHROUGH
         case BNG_W:
             program_walker::branch(initial_ip.dir, op, []() -> bool {
                 std::cerr << "Error: program starts with branch instruction. Behavior is undefined." << std::endl;
@@ -279,28 +257,18 @@ void disassembler::build(state_element& state) {
     bool branched = false;
     switch (op) {
         case MIR_EW:
-            FALLTHROUGH
         case MIR_NESW:
-            FALLTHROUGH
         case MIR_NS:
-            FALLTHROUGH
         case MIR_NWSE:
             program_walker::reflect(next.dir, op);
             break;
         case THR_E:
-            FALLTHROUGH
         case THR_W:
-            FALLTHROUGH
         case BNG_E:
-            FALLTHROUGH
         case BNG_NE:
-            FALLTHROUGH
         case BNG_NW:
-            FALLTHROUGH
         case BNG_SE:
-            FALLTHROUGH
         case BNG_SW:
-            FALLTHROUGH
         case BNG_W:
             program_walker::branch(next.dir, op, [&]() NOEXCEPT_T {
                 branched = true;

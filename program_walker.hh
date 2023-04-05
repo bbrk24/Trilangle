@@ -121,9 +121,7 @@ protected:
                     case direction::southeast:
                         dir = direction::northeast;
                         break;
-                    case direction::east:
-                        FALLTHROUGH
-                    case direction::west:
+                    default:
                         break;
                 }
                 break;
@@ -163,9 +161,7 @@ protected:
                     case direction::northwest:
                         dir = direction::east;
                         break;
-                    case direction::northeast:
-                        FALLTHROUGH
-                    case direction::southwest:
+                    default:
                         break;
                 }
                 break;
@@ -183,9 +179,7 @@ protected:
                     case direction::southwest:
                         dir = direction::east;
                         break;
-                    case direction::northwest:
-                        FALLTHROUGH
-                    case direction::southeast:
+                    default:
                         break;
                 }
                 break;
@@ -214,7 +208,6 @@ protected:
                         }
                         break;
                     case direction::northeast:
-                        FALLTHROUGH
                     case direction::southeast:
                         dir = direction::east;
                         break;
@@ -232,7 +225,6 @@ protected:
                         }
                         break;
                     case direction::northeast:
-                        FALLTHROUGH
                     case direction::southeast:
                         dir = direction::east;
                         break;
@@ -257,7 +249,6 @@ protected:
                         }
                         break;
                     case direction::northwest:
-                        FALLTHROUGH
                     case direction::southwest:
                         dir = direction::west;
                         break;
@@ -275,7 +266,6 @@ protected:
                         }
                         break;
                     case direction::northwest:
-                        FALLTHROUGH
                     case direction::southwest:
                         dir = direction::west;
                         break;
@@ -300,7 +290,6 @@ protected:
                         }
                         break;
                     case direction::northwest:
-                        FALLTHROUGH
                     case direction::east:
                         dir = direction::northeast;
                         break;
@@ -325,7 +314,6 @@ protected:
                         }
                         break;
                     case direction::southeast:
-                        FALLTHROUGH
                     case direction::west:
                         dir = direction::southwest;
                         break;
@@ -350,7 +338,6 @@ protected:
                         }
                         break;
                     case direction::northeast:
-                        FALLTHROUGH
                     case direction::west:
                         dir = direction::northwest;
                         break;
@@ -375,7 +362,6 @@ protected:
                         }
                         break;
                     case direction::southwest:
-                        FALLTHROUGH
                     case direction::east:
                         dir = direction::southeast;
                         break;

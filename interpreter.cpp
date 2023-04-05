@@ -103,12 +103,10 @@ thread interpreter::threadjoin(size_t first_index, size_t second_index) {
     assert((static_cast<char>(first_thread.m_ip.dir) & 0b011) == (static_cast<char>(second_thread.m_ip.dir) & 0b011));
     switch (first_thread.m_ip.dir) {
         case direction::northeast:
-            FALLTHROUGH
         case direction::southeast:
             new_dir = direction::east;
             break;
         case direction::northwest:
-            FALLTHROUGH
         case direction::southwest:
             new_dir = direction::west;
             break;

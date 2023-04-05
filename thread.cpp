@@ -165,24 +165,16 @@ void thread::tick() {
             break;
         }
         case MIR_EW:
-            FALLTHROUGH
         case MIR_NESW:
-            FALLTHROUGH
         case MIR_NS:
-            FALLTHROUGH
         case MIR_NWSE:
             program_walker::reflect(m_ip.dir, op);
             break;
         case BNG_E:
-            FALLTHROUGH
         case BNG_NE:
-            FALLTHROUGH
         case BNG_NW:
-            FALLTHROUGH
         case BNG_SE:
-            FALLTHROUGH
         case BNG_SW:
-            FALLTHROUGH
         case BNG_W:
             program_walker::branch(m_ip.dir, op, [&]() NOEXCEPT_T {
                 EMPTY_PROTECT("branch on") {}
@@ -372,7 +364,6 @@ void thread::tick() {
                     m_status = status::splitting;
                     break;
                 case direction::northeast:
-                    FALLTHROUGH
                 case direction::southeast:
                     m_status = status::waiting;
                     break;
@@ -389,7 +380,6 @@ void thread::tick() {
                     m_status = status::splitting;
                     break;
                 case direction::northwest:
-                    FALLTHROUGH
                 case direction::southwest:
                     m_status = status::waiting;
                     break;
