@@ -261,7 +261,6 @@ Reads two numbers in and prints their GCD. Doesn't like zero as an input.
   j . 1 '
  > ( | # %
 . @ \ S ) <
-
 ```
 
 ### AAAAAAAAAA
