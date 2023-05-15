@@ -24,9 +24,6 @@ using std::chrono::system_clock;
 
 using status = thread::status;
 
-constexpr int24_t INT24_MIN{ -0x800000 };
-constexpr int24_t INT24_MAX{ 0x7fffff };
-
 constexpr time_t DAY_LENGTH = 24 * 60 * 60;
 constexpr auto ONE_DAY = std::chrono::duration_cast<system_clock::duration>(std::chrono::seconds(DAY_LENGTH));
 constexpr long double TICKS_PER_UNIT = ONE_DAY.count() / static_cast<long double>(INT24_MAX);
@@ -96,13 +93,13 @@ void thread::tick() {
             int24_t top = m_stack.back();
             m_stack.pop_back();
 
-            int32_t temp = m_stack.back() + top;
+            auto result = m_stack.back().add_with_overflow(top);
 
-            if (m_flags.warnings && (temp < INT24_MIN || temp > INT24_MAX)) UNLIKELY {
+            if (m_flags.warnings && result.first) UNLIKELY {
                 cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
             }
 
-            m_stack.back() = static_cast<int24_t>(temp);
+            m_stack.back() = result.second;
 
             break;
         }
@@ -111,13 +108,13 @@ void thread::tick() {
             int24_t top = m_stack.back();
             m_stack.pop_back();
 
-            int32_t temp = m_stack.back() - top;
+            auto result = m_stack.back().subtract_with_overflow(top);
 
-            if (m_flags.warnings && (temp < INT24_MIN || temp > INT24_MAX)) UNLIKELY {
+            if (m_flags.warnings && result.first) UNLIKELY {
                 cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
             }
 
-            m_stack.back() = static_cast<int24_t>(temp);
+            m_stack.back() = result.second;
 
             break;
         }
@@ -126,13 +123,18 @@ void thread::tick() {
             int24_t top = m_stack.back();
             m_stack.pop_back();
 
-            int64_t temp = static_cast<int64_t>(m_stack.back()) * static_cast<int64_t>(top);
 
-            if (m_flags.warnings && (temp < INT24_MIN || temp > INT24_MAX)) UNLIKELY {
-                cerr << "Warning: Overflow on multiplication is undefined behavior.\n";
+            if (m_flags.warnings) {
+                auto result = m_stack.back().multiply_with_overflow(top);
+
+                if (result.first) UNLIKELY {
+                    cerr << "Warning: Overflow on multiplication is undefined behavior.\n";
+                }
+
+                m_stack.back() = result.second;
+            } else {
+                m_stack.back() *= top;
             }
-
-            m_stack.back() = static_cast<int24_t>(temp);
 
             break;
         }
@@ -145,8 +147,14 @@ void thread::tick() {
                     cerr << "Warning: Attempted division by zero.\n";
                 }
             }
+
             int24_t top = m_stack.back();
             m_stack.pop_back();
+
+            if (m_flags.warnings && m_stack.back() == INT24_MIN && top == INT24_C(-1)) UNLIKELY {
+                cerr << "Warning: Overflow on division is undefined behavior.\n";
+            }
+
             m_stack.back() /= top;
             break;
         }
@@ -402,7 +410,7 @@ void thread::tick() {
             cerr << flush;
             fprintf(
                 stderr,
-                "Unicode replacement character (U+%0.4" PRIX32 ") detected in source. Please check encoding.\n",
+                "Unicode replacement character (U+%04" PRIX32 ") detected in source. Please check encoding.\n",
                 static_cast<uint32_t>(op)
             );
             exit(EXIT_FAILURE);

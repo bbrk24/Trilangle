@@ -16,11 +16,24 @@ struct int24_t {
     constexpr explicit int24_t(long double x) noexcept : value(static_cast<int32_t>(x)) {}
     MAYBE_UNUSED constexpr explicit int24_t(wint_t x) noexcept : value(static_cast<int32_t>(x)) {}
 
+    // Returns { false, this + other } when overflow does not occur, and { true, undefined } when overflow does occur.
+    std::pair<bool, int24_t> add_with_overflow(int24_t other) const noexcept;
+    // Returns { false, this - other } when overflow does not occur, and { true, undefined } when overflow does occur.
+    std::pair<bool, int24_t> subtract_with_overflow(int24_t other) const noexcept;
+    // Returns { false, this * other } when overflow does not occur, and { true, undefined } when overflow does occur.
+    // Note: This performs divisions for the overflow check. When overflow checking is not required, do not use this
+    // method.
+    std::pair<bool, int24_t> multiply_with_overflow(int24_t other) const noexcept;
+
     constexpr operator int32_t() const noexcept { return value; }
     constexpr explicit operator uint32_t() const noexcept { return static_cast<uint32_t>(value); }
-    constexpr explicit operator int64_t() const noexcept { return static_cast<int64_t>(value); }
     constexpr explicit operator long double() const noexcept { return static_cast<long double>(value); }
-    MAYBE_UNUSED constexpr explicit operator int16_t() const noexcept { return static_cast<int16_t>(value); }
+
+#if PTRDIFF_MAX != INT32_MAX
+    constexpr explicit operator ptrdiff_t() const noexcept {
+        return static_cast<ptrdiff_t>(value);
+    }
+#endif
 
 #if SIZE_MAX != UINT32_MAX
     constexpr explicit operator size_t() const noexcept {
@@ -64,6 +77,10 @@ struct int24_t {
         value /= rhs.value;
         return *this;
     }
+    constexpr int24_t& operator*=(int24_t rhs) noexcept {
+        value *= rhs.value;
+        return *this;
+    }
     constexpr int24_t& operator|=(int24_t rhs) noexcept {
         value |= rhs.value;
         return *this;
@@ -80,6 +97,9 @@ struct int24_t {
         return int24_t{ this->value << rhs.value };
     }
 };
+
+constexpr int24_t INT24_MIN{ -0x800000 };
+constexpr int24_t INT24_MAX{ 0x7fffff };
 
 #define INT24_C(x) \
     int24_t { INT32_C(x) }
