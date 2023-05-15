@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
+- Fixed bug in disassembler where it would emit extraneous numbers in some cases.
 - Fit help string within 80 characters per line.
 - Improved contrast for link and error colors in the web interface.
 - Fixed a bug involving background colors in the web interface in Safari.

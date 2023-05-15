@@ -180,7 +180,11 @@ void disassembler::write(std::ostream& os, const state_element& state) {
         std::ostringstream ss;
         write(ss, *state.first_child);
 
-        os << (m_ins_num + 1) << '\n' << ss.str();
+        std::string result = ss.str();
+        // This check shouldn't be necessary.
+        if (result.size() != 0) {
+            os << (m_ins_num + 1) << '\n' << result;
+        }
 
         write(os, *state.second_child);
     } else if (print_op(os, state.first_child->value, !m_flags.hide_nops, state.value.first.dir)) {
