@@ -168,12 +168,12 @@ When laying out the program linearly, the disassembler represents branch instruc
 For example, when passing [the cat program below](#cat) with the flags `-Dn`, the output is as follows:
 
 ```
-4:      GTC
-5:      BNG 12
-7:      PTC
-9:      POP
-11:     JMP 2
-12:     EXT
+0.4:	GTC
+0.5:	BNG 2.0
+1.1:	PTC
+1.3:	POP
+1.6:	JMP 0.3
+2.0:	EXT
 ```
 
 ## Sample Programs

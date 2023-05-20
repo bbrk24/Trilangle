@@ -18,4 +18,4 @@ InsertBraces: true
 MaxEmptyLinesToKeep: 2
 SpaceAfterTemplateKeyword: false
 WhitespaceSensitiveMacros:
-  - PRINT_NAME
+  - STRING_NAME

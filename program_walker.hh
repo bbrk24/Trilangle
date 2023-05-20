@@ -101,92 +101,6 @@ public:
                 break;
         }
     }
-protected:
-    NONNULL_PTR(const program) m_program;
-
-    // Reflect the IP according to the mirror.
-    static inline void reflect(direction& dir, int24_t mir) noexcept {
-        switch (mir) {
-            case MIR_EW:
-                switch (dir) {
-                    case direction::southwest:
-                        dir = direction::northwest;
-                        break;
-                    case direction::northwest:
-                        dir = direction::southwest;
-                        break;
-                    case direction::northeast:
-                        dir = direction::southeast;
-                        break;
-                    case direction::southeast:
-                        dir = direction::northeast;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case MIR_NS:
-                switch (dir) {
-                    case direction::southwest:
-                        dir = direction::southeast;
-                        break;
-                    case direction::northwest:
-                        dir = direction::northeast;
-                        break;
-                    case direction::northeast:
-                        dir = direction::northwest;
-                        break;
-                    case direction::southeast:
-                        dir = direction::southwest;
-                        break;
-                    case direction::west:
-                        dir = direction::east;
-                        break;
-                    case direction::east:
-                        dir = direction::west;
-                        break;
-                }
-                break;
-            case MIR_NESW:
-                switch (dir) {
-                    case direction::west:
-                        dir = direction::southeast;
-                        break;
-                    case direction::southeast:
-                        dir = direction::west;
-                        break;
-                    case direction::east:
-                        dir = direction::northwest;
-                        break;
-                    case direction::northwest:
-                        dir = direction::east;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case MIR_NWSE:
-                switch (dir) {
-                    case direction::west:
-                        dir = direction::northeast;
-                        break;
-                    case direction::northeast:
-                        dir = direction::west;
-                        break;
-                    case direction::east:
-                        dir = direction::southwest;
-                        break;
-                    case direction::southwest:
-                        dir = direction::east;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            default:
-                unreachable("program_walker::reflect() should only be passed a mirror");
-        }
-    }
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -384,6 +298,92 @@ protected:
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+protected:
+    NONNULL_PTR(const program) m_program;
+
+    // Reflect the IP according to the mirror.
+    static inline void reflect(direction& dir, int24_t mir) noexcept {
+        switch (mir) {
+            case MIR_EW:
+                switch (dir) {
+                    case direction::southwest:
+                        dir = direction::northwest;
+                        break;
+                    case direction::northwest:
+                        dir = direction::southwest;
+                        break;
+                    case direction::northeast:
+                        dir = direction::southeast;
+                        break;
+                    case direction::southeast:
+                        dir = direction::northeast;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case MIR_NS:
+                switch (dir) {
+                    case direction::southwest:
+                        dir = direction::southeast;
+                        break;
+                    case direction::northwest:
+                        dir = direction::northeast;
+                        break;
+                    case direction::northeast:
+                        dir = direction::northwest;
+                        break;
+                    case direction::southeast:
+                        dir = direction::southwest;
+                        break;
+                    case direction::west:
+                        dir = direction::east;
+                        break;
+                    case direction::east:
+                        dir = direction::west;
+                        break;
+                }
+                break;
+            case MIR_NESW:
+                switch (dir) {
+                    case direction::west:
+                        dir = direction::southeast;
+                        break;
+                    case direction::southeast:
+                        dir = direction::west;
+                        break;
+                    case direction::east:
+                        dir = direction::northwest;
+                        break;
+                    case direction::northwest:
+                        dir = direction::east;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case MIR_NWSE:
+                switch (dir) {
+                    case direction::west:
+                        dir = direction::northeast;
+                        break;
+                    case direction::northeast:
+                        dir = direction::west;
+                        break;
+                    case direction::east:
+                        dir = direction::southwest;
+                        break;
+                    case direction::southwest:
+                        dir = direction::east;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                unreachable("program_walker::reflect() should only be passed a mirror");
+        }
+    }
 };
 
 namespace std {

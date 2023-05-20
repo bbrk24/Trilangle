@@ -1,306 +1,178 @@
 #include "disassembler.hh"
-#include <cinttypes>
-#include <cstdlib>
-#include <sstream>
-#include "output.hh"
+#include <unordered_map>
 
-// FIXME: This class is held together by an uncomfortable amount of spaghetti. It seems to work, for now, but it's prone
-// to error if you look at it funny. It is nontrivial to add new kinds of operations to it. The entire class may have to
-// be redesigned from the ground up.
+using std::pair;
+using std::vector;
 
-#define PRINT_NAME(x) \
-    case x: \
-        os << buf << #x "\n"; \
-        break
-
-disassembler::~disassembler() noexcept {
-    if (m_state_ptr != nullptr) {
-        delete m_state_ptr;
+disassembler::~disassembler() {
+    if (m_fragments == nullptr) {
+        return;
     }
-}
-
-bool disassembler::print_op(
-    std::ostream& os,
-    disassembler::program_state& state,
-    bool show_nops,
-    direction from_dir,
-    bool show_branch
-) {
-    int24_t op = m_program->at(state.first.coords.first, state.first.coords.second);
-
-    // Store the label in a temporary buffer, in case it's not actually printed.
-    char buf[10];
-    snprintf(buf, sizeof buf, "%" PRId32 ":\t", m_ins_num);
-
-    if (state.second == -1) {
-        state.second = m_ins_num;
-
-        switch (op) {
-            case THR_E:
-                switch (from_dir) {
-                    case direction::east:
-                        os << buf << "TKL\n";
-                        break;
-                    case direction::west:
-                        os << buf << "TSP ";
-                        break;
-                    case direction::northeast:
-                    case direction::southeast:
-                        os << buf << "TJN\n";
-                        break;
-                    case direction::northwest:
-                    case direction::southwest:
-                        if (show_nops) {
-                            os << buf << "NOP\n";
-                        }
-                        break;
-                }
-                break;
-            case THR_W:
-                switch (from_dir) {
-                    case direction::west:
-                        os << buf << "TKL\n";
-                        break;
-                    case direction::east:
-                        os << buf << "TSP ";
-                        break;
-                    case direction::northwest:
-                    case direction::southwest:
-                        os << buf << "TJN\n";
-                        break;
-                    case direction::northeast:
-                    case direction::southeast:
-                        if (show_nops) {
-                            os << buf << "NOP\n";
-                        }
-                        break;
-                }
-                break;
-            case BNG_E:
-            case BNG_NE:
-            case BNG_NW:
-            case BNG_SE:
-            case BNG_SW:
-            case BNG_W:
-                if (show_branch) {
-                    os << buf << "BNG ";
-                    break;
-                }
-                FALLTHROUGH
-            case SKP:
-            case MIR_EW:
-            case MIR_NESW:
-            case MIR_NS:
-            case MIR_NWSE:
-            case NOP:
-                if (show_nops) {
-                    os << buf << "NOP\n";
-                }
-                break;
-                PRINT_NAME(ADD);
-                PRINT_NAME(SUB);
-                PRINT_NAME(MUL);
-                PRINT_NAME(DIV);
-                PRINT_NAME(MOD);
-            case PSI: {
-                // Print in format "PSI #3"
-                auto newip = state.first;
-                program_walker::advance(newip, m_program->side_length());
-                int24_t arg = m_program->at(newip.coords.first, newip.coords.second);
-                os << buf << "PSI #";
-                printunichar(arg, os);
-                os << '\n';
-
-                break;
-            }
-            case PSC: {
-                // Print in format "PSC 'A' ; 0x65"
-                auto newip = state.first;
-                program_walker::advance(newip, m_program->side_length());
-                int24_t arg = m_program->at(newip.coords.first, newip.coords.second);
-                os << buf << "PSC '";
-                printunichar(arg, os);
-                os << "' ; 0x";
-
-                snprintf(buf, sizeof buf, "%" PRIx32, static_cast<uint32_t>(arg));
-                os << buf << '\n';
-
-                break;
-            }
-                PRINT_NAME(POP);
-                PRINT_NAME(EXT);
-                PRINT_NAME(INC);
-                PRINT_NAME(DEC);
-                PRINT_NAME(AND);
-                PRINT_NAME(IOR);
-                PRINT_NAME(XOR);
-                PRINT_NAME(NOT);
-                PRINT_NAME(GTC);
-                PRINT_NAME(PTC);
-                PRINT_NAME(GTI);
-                PRINT_NAME(PTI);
-                PRINT_NAME(IDX);
-                PRINT_NAME(DUP);
-                PRINT_NAME(RND);
-                PRINT_NAME(EXP);
-                PRINT_NAME(SWP);
-                PRINT_NAME(GDT);
-                PRINT_NAME(GTM);
-            default:
-                os << buf << "Invalid opcode '";
-                printunichar(op, os);
-                os << "'\n";
-                return false;
-        }
-    } else {
-        os << buf << "JMP " << state.second << '\n';
+    for (auto* frag : *m_fragments) {
+        delete frag;
     }
-    return true;
+    delete m_fragments;
 }
 
 void disassembler::write_state(std::ostream& os) {
-    build_state();
-    m_ins_num = 0;
+    if (m_fragments == nullptr) {
+        build_state();
+    }
 
-    print_op(os, m_state_ptr->value, !m_flags.hide_nops, direction::southwest);
-    write(os, *m_state_ptr);
+    for (size_t i = 0; i < m_fragments->size(); ++i) {
+        vector<instruction>* frag = m_fragments->at(i);
+        for (size_t j = 0; j < frag->size(); ++j) {
+            // skip NOPs if requested
+            const instruction& ins = frag->at(j);
+            if (m_flags.hide_nops && ins.is_nop()) {
+                continue;
+            }
+
+            // write out the label
+            os << i << '.' << j << ":\t";
+            // write out the instruction name
+            os << ins.to_str();
+
+            // if it's a branch followed by a jump, write that
+            const pair<size_t, size_t>* next = ins.first_if_branch();
+            if (next != nullptr && (next->first != i + 1 || next->second != 0)) {
+                os << "\n\tJMP " << next->first << '.' << next->second;
+            }
+
+            // write the newline
+            os << '\n';
+        }
+    }
+
+    // Flush the buffer, if applicable
     os << std::flush;
 }
 
-void disassembler::write(std::ostream& os, const state_element& state) {
-    if (!state.first_child) {
-        return;
-    }
-
-    ++m_ins_num;
-
-    if (state.second_child) {
-        print_op(os, state.first_child->value, !m_flags.hide_nops, state.value.first.dir, true);
-
-        std::ostringstream ss;
-        write(ss, *state.first_child);
-
-        std::string result = ss.str();
-        // This check shouldn't be necessary.
-        if (result.size() != 0) {
-            os << (m_ins_num + 1) << '\n' << result;
-        }
-
-        write(os, *state.second_child);
-    } else if (print_op(os, state.first_child->value, !m_flags.hide_nops, state.value.first.dir)) {
-        write(os, *state.first_child);
-    }
-}
-
 void disassembler::build_state() {
-    if (m_state_ptr != nullptr) {
-        return;
-    }
+    // https://languagedesign.stackexchange.com/a/659/15
 
-    instruction_pointer initial_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest };
+    m_fragments = new vector<vector<instruction>*>{ nullptr };
+    // A map of IP -> location in fragments
+    std::unordered_map<instruction_pointer, pair<size_t, size_t>> location_map;
 
-    int24_t op = m_program->at(0, 0);
-    switch (op) {
-        case MIR_EW:
-        case MIR_NESW:
-        case MIR_NS:
-        case MIR_NWSE:
-            program_walker::reflect(initial_ip.dir, op);
-            break;
-        case BNG_E:
-        case BNG_NE:
-        case BNG_NW:
-        case BNG_SE:
-        case BNG_SW:
-        case BNG_W:
-            program_walker::branch(initial_ip.dir, op, []() -> bool {
-                std::cerr << "Error: program starts with branch instruction. Behavior is undefined." << std::endl;
-                exit(EXIT_FAILURE);
-            });
-            break;
-        case THR_W:
-            std::cerr << "Error: program starts with join instruction. This will wait forever." << std::endl;
-            exit(EXIT_FAILURE);
-        default:
-            break;
-    }
+    instruction_pointer ip;
+    size_t index;
 
-    program_state initial_state{ initial_ip, -1 };
-    auto p = m_visited.insert(initial_state);
+    vector<pair<size_t, instruction_pointer>> unvisited_fragments = {
+        { SIZE_C(0), { { SIZE_C(0), SIZE_C(0) }, direction::southwest } }
+    };
 
-    m_state_ptr = new state_element{ *p.first, nullptr, nullptr };
-    build(*m_state_ptr);
-}
+    do {
+        pair<size_t, instruction_pointer> p = unvisited_fragments.back();
+        unvisited_fragments.pop_back();
+        index = p.first;
+        ip = p.second;
 
-void disassembler::build(state_element& state) {
-    int24_t op = m_program->at(state.value.first.coords.first, state.value.first.coords.second);
-    if (op == static_cast<int24_t>(opcode::EXT)) {
-        return;
-    }
+        auto* fragment = new vector<instruction>();
 
-    instruction_pointer next = state.value.first;
-    program_walker::advance(next, m_program->side_length());
+        int24_t op = m_program->at(ip.coords.first, ip.coords.second);
+        while (!is_branch(op, ip.dir)) {
+            auto loc = location_map.find(ip);
+            if (loc == location_map.end()) {
+                // Special-case TJN
+                instruction i(ip, *m_program);
+                if (i.is_join()) {
+                    loc = location_map.find({ ip.coords, static_cast<direction>(static_cast<char>(ip.dir) ^ 0b100) });
+                    if (loc != location_map.end()) {
+                        // add this so the special case is hit as infrequently as possible
+                        location_map.insert({ ip, loc->second });
 
-    if (op == static_cast<int24_t>(opcode::PSC) || op == static_cast<int24_t>(opcode::PSI)
-        || op == static_cast<int24_t>(opcode::SKP)) {
-        program_walker::advance(next, m_program->side_length());
-    }
+                        // jump to the other one
+                        fragment->push_back(instruction::jump_to(loc->second));
+                        goto continue_outer;
+                    }
+                }
 
-    op = m_program->at(next.coords.first, next.coords.second);
+                location_map.insert({ ip, { index, fragment->size() } });
+                fragment->push_back(std::move(i));
 
-    if (op == static_cast<int24_t>(opcode::THR_W) && state.value.first.dir == direction::west) {
-        auto pair = m_visited.insert({ { next.coords, direction::east }, -1 });
-        state.first_child = new state_element{ *pair.first, nullptr, nullptr };
-        return;
-    } else if (op == static_cast<int24_t>(opcode::THR_E) && state.value.first.dir == direction::east) {
-        auto pair = m_visited.insert({ { next.coords, direction::west }, -1 });
-        state.first_child = new state_element{ *pair.first, nullptr, nullptr };
-        return;
-    }
+                if (fragment->back().is_exit()) {
+                    // doesn't end in a jump nor a branch
+                    goto continue_outer;
+                }
 
-    bool branched = false;
-    switch (op) {
-        case MIR_EW:
-        case MIR_NESW:
-        case MIR_NS:
-        case MIR_NWSE:
-            program_walker::reflect(next.dir, op);
-            break;
-        case THR_E:
-        case THR_W:
-        case BNG_E:
-        case BNG_NE:
-        case BNG_NW:
-        case BNG_SE:
-        case BNG_SW:
-        case BNG_W:
-            program_walker::branch(next.dir, op, [&]() NOEXCEPT_T {
-                branched = true;
-                return false;
-            });
-            break;
-        default:
-            break;
-    }
+                switch (op) {
+                    case MIR_EW:
+                    case MIR_NESW:
+                    case MIR_NS:
+                    case MIR_NWSE:
+                        program_walker::reflect(ip.dir, op);
+                        break;
+                    case BNG_E:
+                    case BNG_W:
+                    case BNG_NE:
+                    case BNG_NW:
+                    case BNG_SE:
+                    case BNG_SW:
+                    case THR_E:
+                    case THR_W:
+                        program_walker::branch(ip.dir, op, []() NOEXCEPT_T -> bool {
+                            unreachable("is_branch should've returned true");
+                        });
+                        break;
+                    case SKP:
+                    case PSI:
+                    case PSC:
+                        program_walker::advance(ip, m_program->side_length());
+                    default:
+                        break;
+                }
 
-    auto pair = m_visited.insert({ next, -1 });
-    state.first_child = new state_element{ *pair.first, nullptr, nullptr };
+                program_walker::advance(ip, m_program->side_length());
+            } else {
+                fragment->push_back(instruction::jump_to(loc->second));
+                goto continue_outer;
+            }
 
-    if (pair.second) {
-        build(*state.first_child);
-    }
-
-    if (branched) {
-        instruction_pointer third{ next.coords, state.value.first.dir };
-
-        program_walker::branch(third.dir, op, []() NOEXCEPT_T { return true; });
-
-        auto third_pair = m_visited.insert({ third, -1 });
-        auto* el = new state_element{ *third_pair.first, nullptr, nullptr };
-        state.second_child = el;
-
-        if (third_pair.second) {
-            build(*el);
+            op = m_program->at(ip.coords.first, ip.coords.second);
         }
-    }
+
+        // Putting all the variables in this scope so that way continue_outer can't see them
+        {
+            auto loc = location_map.find(ip);
+            if (loc == location_map.end()) {
+                location_map.insert({ ip, { index, fragment->size() } });
+
+                instruction_pointer first_ip = ip;
+                program_walker::branch(first_ip.dir, op, []() NOEXCEPT_T { return false; });
+                program_walker::advance(first_ip, m_program->side_length());
+
+                instruction_pointer second_ip = ip;
+                program_walker::branch(second_ip.dir, op, []() NOEXCEPT_T { return true; });
+                program_walker::advance(second_ip, m_program->side_length());
+
+                pair<size_t, size_t> first_dest, second_dest;
+
+                loc = location_map.find(first_ip);
+                if (loc == location_map.end()) {
+                    first_dest = { m_fragments->size(), SIZE_C(0) };
+                    unvisited_fragments.push_back({ m_fragments->size(), first_ip });
+                    m_fragments->push_back(nullptr);
+                } else {
+                    first_dest = loc->second;
+                }
+
+                loc = location_map.find(second_ip);
+                if (loc == location_map.end()) {
+                    second_dest = { m_fragments->size(), SIZE_C(0) };
+                    unvisited_fragments.push_back({ m_fragments->size(), second_ip });
+                    m_fragments->push_back(nullptr);
+                } else {
+                    second_dest = loc->second;
+                }
+
+                fragment->push_back(instruction::branch_to({ first_dest, second_dest }));
+            } else {
+                fragment->push_back(instruction::jump_to(loc->second));
+            }
+        }
+
+    continue_outer:
+        m_fragments->at(index) = fragment;
+    } while (!unvisited_fragments.empty());
 }
