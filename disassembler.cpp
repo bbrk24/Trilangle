@@ -1,5 +1,6 @@
 #include "disassembler.hh"
 #include <unordered_map>
+#include <list>
 
 using std::pair;
 using std::vector;
@@ -55,12 +56,9 @@ void disassembler::build_state() {
     // A map of IP -> location in fragments
     std::unordered_map<instruction_pointer, pair<size_t, size_t>> location_map;
 
-    instruction_pointer ip;
-    size_t index;
-
     // A collection of fragments that have yet to be visited, corresponding to nulls in m_fragments. The first item of
     // the pair is the index within m_fragments, and the second item is the IP where that fragment begins.
-    vector<pair<size_t, instruction_pointer>> unvisited_fragments = {
+    std::list<pair<size_t, instruction_pointer>> unvisited_fragments = {
         { SIZE_C(0), { { SIZE_C(0), SIZE_C(0) }, direction::southwest } }
     };
 
@@ -68,8 +66,8 @@ void disassembler::build_state() {
     while (!unvisited_fragments.empty()) {
         pair<size_t, instruction_pointer> p = unvisited_fragments.back();
         unvisited_fragments.pop_back();
-        index = p.first;
-        ip = p.second;
+        size_t& index = p.first;
+        instruction_pointer& ip = p.second;
 
         auto* fragment = new vector<instruction>();
 
@@ -96,9 +94,9 @@ void disassembler::build_state() {
                 }
 
                 location_map.insert({ ip, { index, fragment->size() } });
-                fragment->push_back(std::move(i));
+                fragment->push_back(i);
 
-                if (fragment->back().is_exit()) {
+                if (i.is_exit()) {
                     // doesn't end in a jump nor a branch
                     goto continue_outer;
                 }
@@ -157,6 +155,10 @@ void disassembler::build_state() {
 
                 pair<size_t, size_t> first_dest, second_dest;
 
+                // Pushing the first one to the end we're about to read from, and the second one to the far end,
+                // minimizes the total number of jumps needed. The second target is going to be pointed to by the BNG or
+                // TSP instruction anyways, but the first target only needs to be explicitly named if it's not the
+                // next instruction.
                 loc = location_map.find(first_ip);
                 if (loc == location_map.end()) {
                     first_dest = { m_fragments->size(), SIZE_C(0) };
@@ -169,7 +171,7 @@ void disassembler::build_state() {
                 loc = location_map.find(second_ip);
                 if (loc == location_map.end()) {
                     second_dest = { m_fragments->size(), SIZE_C(0) };
-                    unvisited_fragments.push_back({ m_fragments->size(), second_ip });
+                    unvisited_fragments.push_front({ m_fragments->size(), second_ip });
                     m_fragments->push_back(nullptr);
                 } else {
                     second_dest = loc->second;
