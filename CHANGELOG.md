@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
-- The input box now fits on the screen on small mobile devies.
+- The input box now fits on the screen on small mobile devices.
 - Invalid URLs no longer prevent the page from laying out correctly.
 
 ## [1.2.0] - 2023-03-21

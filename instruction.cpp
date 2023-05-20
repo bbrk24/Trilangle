@@ -4,6 +4,8 @@
 #include <sstream>
 #include "output.hh"
 
+using std::cerr;
+
 #define STRING_NAME(x) \
     case operation::x: \
         return #x
@@ -64,7 +66,8 @@ instruction::instruction(instruction_pointer ip, const program& program) noexcep
             FALLTHROUGH
         // Most things are direction-insensitive and take no arguments
         default:
-            m_op = static_cast<operation>(static_cast<char>(op));
+            // unfortunately, you can't add custom conversion methods/ctors to enums
+            m_op = static_cast<operation>(static_cast<int32_t>(op));
     }
 }
 
@@ -133,5 +136,10 @@ std::string instruction::to_str() const noexcept {
             result << "TSP " << target.first << "." << target.second;
             return result.str();
         }
+        default:
+            cerr << "Unrecognized opcode '";
+            printunichar(static_cast<int24_t>(static_cast<int32_t>(m_op)), cerr);
+            cerr << '\'' << std::endl;
+            exit(EXIT_FAILURE);
     }
 }

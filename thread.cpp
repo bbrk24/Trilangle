@@ -20,6 +20,7 @@
 using std::cerr;
 using std::cout;
 using std::flush;
+using std::pair;
 using std::chrono::system_clock;
 
 using status = thread::status;
@@ -93,7 +94,7 @@ void thread::tick() {
             int24_t top = m_stack.back();
             m_stack.pop_back();
 
-            auto result = m_stack.back().add_with_overflow(top);
+            pair<bool, int24_t> result = m_stack.back().add_with_overflow(top);
 
             if (m_flags.warnings && result.first) UNLIKELY {
                 cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
@@ -108,7 +109,7 @@ void thread::tick() {
             int24_t top = m_stack.back();
             m_stack.pop_back();
 
-            auto result = m_stack.back().subtract_with_overflow(top);
+            pair<bool, int24_t> result = m_stack.back().subtract_with_overflow(top);
 
             if (m_flags.warnings && result.first) UNLIKELY {
                 cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
@@ -125,7 +126,7 @@ void thread::tick() {
 
 
             if (m_flags.warnings) {
-                auto result = m_stack.back().multiply_with_overflow(top);
+                pair<bool, int24_t> result = m_stack.back().multiply_with_overflow(top);
 
                 if (result.first) UNLIKELY {
                     cerr << "Warning: Overflow on multiplication is undefined behavior.\n";

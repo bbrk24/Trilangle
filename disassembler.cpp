@@ -8,7 +8,7 @@ disassembler::~disassembler() {
     if (m_fragments == nullptr) {
         return;
     }
-    for (auto* frag : *m_fragments) {
+    for (vector<instruction>* frag : *m_fragments) {
         delete frag;
     }
     delete m_fragments;
@@ -20,10 +20,10 @@ void disassembler::write_state(std::ostream& os) {
     }
 
     for (size_t i = 0; i < m_fragments->size(); ++i) {
-        vector<instruction>* frag = m_fragments->at(i);
-        for (size_t j = 0; j < frag->size(); ++j) {
+        const vector<instruction>& frag = *m_fragments->at(i);
+        for (size_t j = 0; j < frag.size(); ++j) {
             // skip NOPs if requested
-            const instruction& ins = frag->at(j);
+            const instruction& ins = frag[j];
             if (m_flags.hide_nops && ins.is_nop()) {
                 continue;
             }
@@ -58,10 +58,13 @@ void disassembler::build_state() {
     instruction_pointer ip;
     size_t index;
 
+    // A collection of fragments that have yet to be visited, corresponding to nulls in m_fragments. The first item of
+    // the pair is the index within m_fragments, and the second item is the IP where that fragment begins.
     vector<pair<size_t, instruction_pointer>> unvisited_fragments = {
         { SIZE_C(0), { { SIZE_C(0), SIZE_C(0) }, direction::southwest } }
     };
 
+    // !empty-back-pop reflects the while let loop in the Rust code in the answer linked above
     while (!unvisited_fragments.empty()) {
         pair<size_t, instruction_pointer> p = unvisited_fragments.back();
         unvisited_fragments.pop_back();
@@ -75,11 +78,13 @@ void disassembler::build_state() {
             auto loc = location_map.find(ip);
             if (loc == location_map.end()) {
                 // Special-case TJN
+                // Unlike all other instructions, if TJN at the same location is hit from different directions, it
+                // MUST be emitted into the assembly exactly once.
                 instruction i(ip, *m_program);
                 if (i.is_join()) {
+                    // flip the north/south bit on the direction and check again
                     loc = location_map.find({ ip.coords, static_cast<direction>(static_cast<char>(ip.dir) ^ 0b100) });
                     if (loc != location_map.end()) {
-                        // add this so the special case is hit as infrequently as possible
                         location_map.insert({ ip, loc->second });
 
                         // jump to the other one
@@ -136,10 +141,12 @@ void disassembler::build_state() {
 
         // Putting all the variables in this scope so that way continue_outer can't see them
         {
+            // Determine whether to emit a jump or branch. If it's a branch, determine what the targets are.
             auto loc = location_map.find(ip);
             if (loc == location_map.end()) {
                 location_map.insert({ ip, { index, fragment->size() } });
 
+                // BNG requires that its first target go right and its second go left. TSP doesn't really care.
                 instruction_pointer first_ip = ip;
                 program_walker::branch(first_ip.dir, op, []() NOEXCEPT_T { return false; });
                 program_walker::advance(first_ip, m_program->side_length());

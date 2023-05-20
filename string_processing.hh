@@ -68,8 +68,8 @@ int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) {
 }
 
 CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_shebang) {
-    auto iter = s.begin();
-    const auto end = s.end();
+    std::string::const_iterator iter = s.begin();
+    const std::string::const_iterator end = s.end();
 
     std::vector<int24_t> vec;
     vec.reserve(s.size() / 4);

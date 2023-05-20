@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include "program_walker.hh"
 
 constexpr bool is_branch(int24_t op, direction dir) noexcept {
@@ -28,7 +29,7 @@ class instruction {
     using instruction_pointer = program_walker::instruction_pointer;
 
     // The underlying operation performed.
-    enum class operation : char {
+    enum class operation : int32_t {
         BNG,  // branch if negative
         JMP,  // jump
         TSP,  // thread spawn
