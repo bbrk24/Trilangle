@@ -62,7 +62,7 @@ void disassembler::build_state() {
         { SIZE_C(0), { { SIZE_C(0), SIZE_C(0) }, direction::southwest } }
     };
 
-    do {
+    while (!unvisited_fragments.empty()) {
         pair<size_t, instruction_pointer> p = unvisited_fragments.back();
         unvisited_fragments.pop_back();
         index = p.first;
@@ -84,6 +84,8 @@ void disassembler::build_state() {
 
                         // jump to the other one
                         fragment->push_back(instruction::jump_to(loc->second));
+                        // Yeah, yeah, goto is bad practice. You look at this loop and tell me you'd rather do it
+                        // another way.
                         goto continue_outer;
                     }
                 }
@@ -174,5 +176,5 @@ void disassembler::build_state() {
 
     continue_outer:
         m_fragments->at(index) = fragment;
-    } while (!unvisited_fragments.empty());
+    }
 }

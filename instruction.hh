@@ -66,7 +66,7 @@ public:
     constexpr bool is_nop() const noexcept { return m_op == operation::NOP; }
     std::string to_str() const noexcept;
 
-    const std::pair<size_t, size_t>* first_if_branch() const noexcept {
+    inline const std::pair<size_t, size_t>* first_if_branch() const noexcept {
         switch (m_op) {
             case operation::BNG:
             case operation::TSP:
