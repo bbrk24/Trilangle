@@ -5,6 +5,7 @@
 #include "output.hh"
 
 using std::cerr;
+using std::ostringstream;
 
 #define STRING_NAME(x) \
     case operation::x: \
@@ -102,14 +103,14 @@ std::string instruction::to_str() const noexcept {
         STRING_NAME(TJN);
         case operation::PSI: {
             int24_t value = m_arg.number;
-            std::ostringstream result;
+            ostringstream result;
             result << "PSI #";
             printunichar(value, result);
             return result.str();
         }
         case operation::PSC: {
             int24_t value = m_arg.number;
-            std::ostringstream result;
+            ostringstream result;
             result << "PSC '";
             printunichar(value, result);
             result << "' ; 0x";
@@ -119,20 +120,20 @@ std::string instruction::to_str() const noexcept {
             return result.str();
         }
         case operation::JMP: {
-            std::pair<size_t, size_t> target = m_arg.next;
-            std::ostringstream result;
+            pair<size_t> target = m_arg.next;
+            ostringstream result;
             result << "JMP " << target.first << "." << target.second;
             return result.str();
         }
         case operation::BNG: {
-            std::pair<size_t, size_t> target = m_arg.choice.second;
-            std::ostringstream result;
+            pair<size_t> target = m_arg.choice.second;
+            ostringstream result;
             result << "BNG " << target.first << "." << target.second;
             return result.str();
         }
         case operation::TSP: {
-            std::pair<size_t, size_t> target = m_arg.choice.second;
-            std::ostringstream result;
+            pair<size_t> target = m_arg.choice.second;
+            ostringstream result;
             result << "TSP " << target.first << "." << target.second;
             return result.str();
         }

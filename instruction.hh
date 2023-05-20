@@ -28,6 +28,9 @@ constexpr bool is_branch(int24_t op, direction dir) noexcept {
 class instruction {
     using instruction_pointer = program_walker::instruction_pointer;
 
+    template<typename T>
+    using pair = std::pair<T, T>;
+
     // The underlying operation performed.
     enum class operation : int32_t {
         BNG,  // branch if negative
@@ -41,22 +44,21 @@ class instruction {
     union argument {
         nullptr_t none;
         int24_t number;
-        std::pair<size_t, size_t> next;
-        std::pair<std::pair<size_t, size_t>, std::pair<size_t, size_t>> choice;
+        pair<size_t> next;
+        pair<pair<size_t>> choice;
 
         inline argument() noexcept { none = nullptr; }
     };
 public:
     instruction(instruction_pointer ip, const program& program) noexcept;
 
-    static inline instruction jump_to(std::pair<size_t, size_t> next) noexcept {
+    static inline instruction jump_to(pair<size_t> next) noexcept {
         argument arg;
         arg.next = next;
         return instruction(operation::JMP, arg);
     }
 
-    static inline instruction branch_to(std::pair<std::pair<size_t, size_t>, std::pair<size_t, size_t>> choice
-    ) noexcept {
+    static inline instruction branch_to(pair<pair<size_t>> choice) noexcept {
         argument arg;
         arg.choice = choice;
         return instruction(operation::BNG, arg);
@@ -67,7 +69,7 @@ public:
     constexpr bool is_nop() const noexcept { return m_op == operation::NOP; }
     std::string to_str() const noexcept;
 
-    inline const std::pair<size_t, size_t>* first_if_branch() const noexcept {
+    inline const pair<size_t>* first_if_branch() const noexcept {
         switch (m_op) {
             case operation::BNG:
             case operation::TSP:
