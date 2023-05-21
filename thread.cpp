@@ -406,6 +406,11 @@ void thread::tick() {
             m_stack.emplace_back(day);
             break;
         }
+        case DP2:
+            SIZE_CHECK("2-dupe", 2);
+            m_stack.push_back(m_stack[m_stack.size() - 2]);
+            m_stack.push_back(m_stack[m_stack.size() - 2]);
+            break;
         case INVALID_CHAR:
             cout << flush;
             cerr << flush;

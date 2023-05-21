@@ -115,6 +115,7 @@ There are a few instructions that operate on the stack directly.
 - `2` (DUP): copy and push the top value on the stack.
 - `j` (IDX): pop a value _i_ from top of the stack and push the _i_-th value of the remainder of the stack (0-based).
 - `S` (SWP): swap the top two values of the stack.
+- `z` (DP2): copy and push the top pair of values on the stack.
 
 ### I/O instructions
 
@@ -239,15 +240,14 @@ Reads a single number in. If the number is 0, it prints back a single zero and e
 Reads in an integer, and prints '1' if it's prime.
 
 ```
-        '
-       2 .
-      ? . .
-     < _ . @
-    j . 2 ' 2
-   , < | > ( %
-  ! . \ S ) S ,
- , ) S < . . . .
-. @ > - . . . . .
+       <
+      ' ?
+     < # 2
+    % . _ z
+   S < . > (
+  / . , ) 2 -
+ . ^ \ _ / ! @
+. ) @ . . . . .
 ```
 
 ### GCD

@@ -25,6 +25,7 @@
         PTI = '!',  /* put integer */ \
         IDX = 'j',  /* index */ \
         DUP = '2',  /* duplicate */ \
+        DP2 = 'z',  /* 2-dupe */ \
         RND = '$',  /* random */ \
         EXP = 'e',  /* exponential */ \
         SWP = 'S',  /* swap */ \

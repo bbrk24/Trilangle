@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- Added 2-dupe instruction (DP2, `z`).
+
 ### Fixed
 
 - Fixed bug in disassembler where it would emit extraneous numbers in some cases.

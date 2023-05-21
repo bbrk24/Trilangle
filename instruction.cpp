@@ -99,6 +99,7 @@ std::string instruction::to_str() const noexcept {
         STRING_NAME(SWP);
         STRING_NAME(GTM);
         STRING_NAME(GDT);
+        STRING_NAME(DP2);
         STRING_NAME(TKL);
         STRING_NAME(TJN);
         case operation::PSI: {

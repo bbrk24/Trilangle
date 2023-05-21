@@ -33,11 +33,12 @@ class instruction {
 
     // The underlying operation performed.
     enum class operation : int32_t {
-        BNG,  // branch if negative
-        JMP,  // jump
-        TSP,  // thread spawn
-        TJN,  // thread join
-        TKL,  // thread kill
+        // direction-sensitive ones must be negative to ensure they never appear in source.
+        BNG = -2,  // branch if negative
+        JMP = -3,  // jump
+        TSP = -4,  // thread spawn
+        TJN = -5,  // thread join
+        TKL = -6,  // thread kill
         DIRECTION_INSENSITIVE_OPS
     };
 
