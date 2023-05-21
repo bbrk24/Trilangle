@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.3.0] - 2023-05-21
+
 ### Added
 
 - Added 2-dupe instruction (DP2, `z`).
@@ -90,3 +92,4 @@ First versioned release.
 [1.1.1]: https://github.com/bbrk24/Trilangle/tree/1.1.1
 [1.2.0]: https://github.com/bbrk24/Trilangle/tree/1.2.0
 [1.2.1]: https://github.com/bbrk24/Trilangle/tree/1.2.1
+[1.3.0]: https://github.com/bbrk24/Trilangle/tree/1.3.0
