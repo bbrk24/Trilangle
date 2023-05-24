@@ -4,7 +4,6 @@
 #include <fstream>
 #include <iostream>
 #include <tuple>
-#include "string_processing.hh"
 
 using std::cerr;
 using std::endl;
@@ -141,18 +140,4 @@ string parse_args(int argc, const char** argv, flags& f) {
             exit(EX_NOINPUT);
         }
     }
-}
-
-int24_t getunichar() noexcept {
-#if WINT_MAX >= 0x10ffff && (WINT_MAX - WINT_MIN) > 0x10ffff
-    wint_t c = getwchar();
-
-    if (c == WEOF) {
-        return INT24_C(-1);
-    }
-
-    return static_cast<int24_t>(c);
-#else
-    return parse_unichar(getchar);
-#endif
 }

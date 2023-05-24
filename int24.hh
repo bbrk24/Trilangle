@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <cwchar>
 #include "compat.hh"
 
 struct int24_t {
@@ -14,7 +13,6 @@ struct int24_t {
     constexpr explicit int24_t(int64_t x) noexcept : value(static_cast<int32_t>(x)) {}
     constexpr explicit int24_t(size_t x) noexcept : value(static_cast<int32_t>(x)) {}
     constexpr explicit int24_t(long double x) noexcept : value(static_cast<int32_t>(x)) {}
-    MAYBE_UNUSED constexpr explicit int24_t(wint_t x) noexcept : value(static_cast<int32_t>(x)) {}
 
     // Returns { false, this + other } when overflow does not occur, and { true, undefined } when overflow does occur.
     std::pair<bool, int24_t> add_with_overflow(int24_t other) const noexcept;

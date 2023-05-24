@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include "int24.hh"
+#include "string_processing.hh"
 
 struct flags {
     bool debug : 1;
@@ -33,4 +32,6 @@ struct flags {
 MAYBE_UNUSED std::string parse_args(int argc, const char** argv, flags& f);
 
 // Gets a single unicode character from STDIN. Returns -1 for EOF.
-int24_t getunichar() noexcept;
+inline int24_t getunichar() noexcept {
+    return parse_unichar(getchar);
+}

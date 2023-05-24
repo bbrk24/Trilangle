@@ -109,8 +109,8 @@ public:
 #endif
 
     // Move the IP according to the branch instruction.
-    template<typename T>
-    static void branch(direction& dir, int24_t bng, T go_left) noexcept(noexcept(go_left())) {
+    template<typename FuncType>
+    static void branch(direction& dir, int24_t bng, FuncType go_left) noexcept(noexcept(go_left())) {
         switch (bng) {
             case THR_E:
                 switch (dir) {

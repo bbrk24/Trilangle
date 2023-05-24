@@ -1,13 +1,6 @@
-#include <clocale>
 #include <iostream>
 #include "disassembler.hh"
 #include "interpreter.hh"
-
-#ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
-#else
-#define EMSCRIPTEN_KEEPALIVE MAYBE_UNUSED
-#endif
 
 inline void execute(const std::string& prg, flags f) {
     // The only thing cstdio and iostream need to be synced for is the ferror check when pipekill is set.
@@ -28,14 +21,12 @@ inline void execute(const std::string& prg, flags f) {
 
 #ifndef __EMSCRIPTEN__
 int main(int argc, const char** argv) {
-    // Set locale so that getwchar works as expected
-    setlocale(LC_ALL, "");
-
     flags f;
     std::string program_text = parse_args(argc, argv, f);
     execute(program_text, f);
 }
-#endif
+#else
+#include <emscripten/emscripten.h>
 
 extern "C" {
 EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int warnings, int disassemble, int expand) {
@@ -53,3 +44,4 @@ EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int warnings
     execute(program_text, f);
 }
 }
+#endif

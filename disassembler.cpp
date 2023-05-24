@@ -1,6 +1,6 @@
 #include "disassembler.hh"
-#include <unordered_map>
 #include <list>
+#include <unordered_map>
 
 using std::pair;
 using std::vector;
