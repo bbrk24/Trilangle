@@ -1,12 +1,14 @@
 {
     "dependencies": {
-        "@coffeelint/cli": "^5.2.11",
         "coffeescript": "^2.7.0",
-        "express": "^4.18.0",
         "gh-pages": "^5.0.0",
-        "sass": "^1.59.3",
-        "stylelint": "~15.2.0",
-        "stylelint-config-standard-scss": "^7.0.1"
+        "sass": "^1.62.1"
+    },
+    "devDependencies": {
+        "@coffeelint/cli": "^5.2.11",
+        "express": "^4.18.0",
+        "stylelint": "^15.6.2",
+        "stylelint-config-standard-scss": "^9.0.0"
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
@@ -14,7 +16,6 @@
         "deploy": "gh-pages -d . -s \"{index.*,worker.js,worker.wasm,favicon.ico}\""
     },
     "engines": {
-        "node": "^14.17.0 || ^16.13.0 || >=18.0.0",
-        "npm": ">=7"
+        "node": "^16.13.0 || >=18.0.0"
     }
 }
