@@ -3,6 +3,7 @@ name: build-and-deploy
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch: ~
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
