@@ -18,7 +18,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ^16.13.0
-      - run: |
+      - name: run-build-script
+        run: |
           set -e
           cd wasm
           npm ci --omit dev --no-fund
