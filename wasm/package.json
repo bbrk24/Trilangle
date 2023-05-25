@@ -1,7 +1,6 @@
 {
     "dependencies": {
         "coffeescript": "^2.7.0",
-        "gh-pages": "^5.0.0",
         "sass": "^1.62.1"
     },
     "devDependencies": {
@@ -12,8 +11,7 @@
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
-        "lint": "stylelint ./*.scss && coffeelint in.coffee worker.coffee",
-        "deploy": "gh-pages -d . -s \"{index.*,worker.js,worker.wasm,favicon.ico}\""
+        "lint": "stylelint ./*.scss && coffeelint in.coffee worker.coffee"
     },
     "engines": {
         "node": "^16.13.0 || >=18.0.0"

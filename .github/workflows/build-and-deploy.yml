@@ -5,11 +5,16 @@ name: build-and-deploy
       - '[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch: ~
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: numworks/setup-emscripten@latest # there is no v1 tag/branch
+      - uses: actions/cache@v3
+        with:
+          path: /opt/hostedtoolcache/emscripten/latest/x64/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/lto
+          key: libs-${{ hashFiles('~/work/Trilangle/Trilangle/emsdk/upstream/emscripten/system/lib/**.c') }}
+          restore-keys: "libs-\n"
       - uses: actions/setup-node@v3
         with:
           node-version: ^16.13.0
@@ -18,6 +23,19 @@ jobs:
           cd wasm
           npm ci --omit dev --no-fund
           ./build_wasm.sh
-          git config --global user.name 'github actions (for bbrk24)'
-          git config --global user.email '25109429+bbrk24@users.noreply.github.com'
-          npm run deploy
+          mkdir ../Release
+          mv index.css index.js worker.js worker.wasm ../Release/
+          cp index.html favicon.ico ../Release/
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: Release/
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/deploy-pages@v2
+        with:
+          error-count: 1
