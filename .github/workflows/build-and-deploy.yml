@@ -9,13 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: numworks/setup-emscripten@latest # there is no v1 tag/branch
       - uses: actions/setup-node@v3
         with:
           node-version: ^16.13.0
-      - uses: numworks/setup-emscripten@latest # there is no v1 tag/branch
       - run: |
           set -e
           cd wasm
           npm ci --omit dev --no-fund
           ./build_wasm.sh
+          git config --global user.name 'github actions (for bbrk24)'
+          git config --global user.email '25109429+bbrk24@users.noreply.github.com'
           npm run deploy
