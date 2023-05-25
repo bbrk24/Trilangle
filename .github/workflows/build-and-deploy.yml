@@ -19,8 +19,8 @@ jobs:
         with:
           node-version: ^16.13.0
       - name: run-build-script
+        shell: bash
         run: |
-          set -e
           cd wasm
           npm ci --omit dev --no-fund
           ./build_wasm.sh
