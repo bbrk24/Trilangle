@@ -35,7 +35,11 @@ jobs:
     permissions:
       pages: write
       id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@v1
+      - id: deployment
+        uses: actions/deploy-pages@v2
         with:
           error_count: 1
