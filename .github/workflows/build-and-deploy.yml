@@ -1,4 +1,4 @@
-name: a
+name: build-and-deploy
 'on':
   push:
     tags:
