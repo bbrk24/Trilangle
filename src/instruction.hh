@@ -32,7 +32,7 @@ class instruction {
     using pair = std::pair<T, T>;
 
 #if x86_64_JIT_ALLOWED
-    friend class jit_fragment;
+    friend class jit::fragment;
 #endif
 
     // The underlying operation performed.

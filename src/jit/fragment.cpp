@@ -1,7 +1,69 @@
-#include "jit_fragment.hh"
+#include "fragment.hh"
 
 #if x86_64_JIT_ALLOWED
-jit_fragment::jit_fragment(const std::vector<instruction>& fragment) : m_end(fragment.back()), m_func_ptr(nullptr) {
+
+using jit::fragment;
+
+#ifdef _WIN64
+#include <memoryapi.h>
+
+fragment::exec_fptr fragment::make_executable(const void* mem, size_t length) {
+    DWORD protect = PAGE_READWRITE;
+    LPVOID loc = VirtualAlloc(nullptr, length, MEM_COMMIT | MEM_RESERVE, protect);
+    if (loc == nullptr) {
+        return nullptr;
+    }
+
+    memcpy(loc, mem, length);
+
+    BOOL success = VirtualProtect(loc, length, PAGE_EXECUTE, &protect);
+    if (!success) {
+        VirtualFree(loc, 0, MEM_RELEASE);
+        return nullptr;
+    }
+
+    return reinterpret_cast<exec_fptr>(loc);
+}
+#else
+#include <sys/mman.h>
+
+fragment::exec_fptr fragment::make_executable(const void* mem, size_t length) {
+    void* loc = mmap(nullptr, length, PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (loc == MAP_FAILED) {
+        return nullptr;
+    }
+
+    memcpy(loc, mem, length);
+
+    int failed = mprotect(loc, length, PROT_EXEC);
+    if (failed) {
+        munmap(loc, length);
+        return nullptr;
+    }
+
+    return reinterpret_cast<exec_fptr>(loc);
+}
+#endif
+
+const fragment::vector_method fragment::methods[] = {
+    // push
+    [](VECTOR_METHOD_ARGS) -> intptr_t {
+        vec->emplace_back(i);
+        return 0;
+    },
+    // pop
+    [](VECTOR_METHOD_ARGS) NOEXCEPT_T {
+        int24_t val = vec->back();
+        vec->pop_back();
+        return static_cast<intptr_t>(val);
+    },
+    // index
+    [](VECTOR_METHOD_ARGS) { return static_cast<intptr_t>(vec->at(vec->size() - i - 1)); },
+    // peek
+    [](VECTOR_METHOD_ARGS) { return static_cast<intptr_t>(vec->back()); }
+};
+
+fragment::fragment(const std::vector<instruction>& fragment) : m_end(fragment.back()), m_func_ptr(nullptr) {
     using operation = instruction::operation;
 
     // Reserving this many instructions is _probably_ not the correct number but it's better than nothing, I think.
@@ -305,6 +367,28 @@ jit_fragment::jit_fragment(const std::vector<instruction>& fragment) : m_end(fra
                                   0x89,
                                   0xc2 });
                 break;
+            case operation::IDX:
+                emit_one_arg_op({ // mov rdx,rax
+                                  0x48,
+                                  0x89,
+                                  0xc2,
+                                  // mov rcx,rbx
+                                  0x48,
+                                  0x89,
+                                  0xd9,
+                                  // call QWORD PTR [rbp+16]
+                                  0xff,
+                                  0x55,
+                                  0x10,
+                                  // mov rdx,rax
+                                  0x48,
+                                  0x89,
+                                  0xc2 });
+                break;
+            // TODO: DUP, DP2, SWP, POP, PSC, PSI
+            default:
+                // some instructions can't be compiled.
+                return;
         }
     }
 
@@ -327,6 +411,6 @@ jit_fragment::jit_fragment(const std::vector<instruction>& fragment) : m_end(fra
         }
     );
 
-    // TODO: Figure out some equivalent for mmap on other platforms
+    m_func_ptr = make_executable(instructions.data(), instructions.size());
 }
 #endif

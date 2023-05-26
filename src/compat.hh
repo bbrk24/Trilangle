@@ -161,7 +161,7 @@ constexpr int EX_NOINPUT = 66;
 #endif
 
 
-#if defined(__x86_64__) || defined(_M_X64)
+#if !defined(x86_64_JIT_ALLOWED) && (defined(__x86_64__) || defined(_M_X64))
 // '1' if compiled on x86-64, where JIT is enabled. '0' otherwise.
 #define x86_64_JIT_ALLOWED 1
 #else
