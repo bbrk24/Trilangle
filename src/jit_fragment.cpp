@@ -253,18 +253,16 @@ jit_fragment::jit_fragment(const std::vector<instruction>& fragment) : m_end(fra
                                   0xd0 });
                 break;
             case operation::MOD:
-                emit_two_arg_op({
-                    // cdq
-                    0x99,
-                    // idiv r12d
-                    0x41,
-                    0xf7,
-                    0xfc,
-                    // movsx rdx,edx
-                    0x48,
-                    0x63,
-                    0xd2
-                });
+                emit_two_arg_op({ // cdq
+                                  0x99,
+                                  // idiv r12d
+                                  0x41,
+                                  0xf7,
+                                  0xfc,
+                                  // movsx rdx,edx
+                                  0x48,
+                                  0x63,
+                                  0xd2 });
                 break;
             case operation::IOR:
                 emit_two_arg_op({ // or rax,r12
@@ -287,12 +285,15 @@ jit_fragment::jit_fragment(const std::vector<instruction>& fragment) : m_end(fra
                                   0xc2 });
                 break;
             case operation::MUL:
-                emit_two_arg_op({
-                    // imul eax,r12d
-                    0x41, 0x0f, 0xaf, 0xc4,
-                    // movsx rdx,eax
-                    0x48, 0x63, 0xd0
-                });
+                emit_two_arg_op({ // imul eax,r12d
+                                  0x41,
+                                  0x0f,
+                                  0xaf,
+                                  0xc4,
+                                  // movsx rdx,eax
+                                  0x48,
+                                  0x63,
+                                  0xd0 });
                 break;
             case operation::SUB:
                 emit_two_arg_op({ // sub rax,r12
@@ -308,8 +309,24 @@ jit_fragment::jit_fragment(const std::vector<instruction>& fragment) : m_end(fra
     }
 
     // Postamble
-    // pop rbx
-    // pop rbp
-    // ret
+    instructions.insert(
+        instructions.end(),
+        { // pop rbx
+          0x5b,
+          // pop rbp
+          0x5d,
+#ifdef _WIN64
+          // ret 0
+          0xc2,
+          0x00,
+          0x00
+#else
+          // ret
+          0xc3
+#endif
+        }
+    );
+
+    // TODO: Figure out some equivalent for mmap on other platforms
 }
 #endif

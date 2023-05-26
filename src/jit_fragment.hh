@@ -42,7 +42,7 @@ const jit_fragment::vector_method jit_fragment::methods[] = {
         return static_cast<intptr_t>(val);
     },
     // index
-    [](VECTOR_METHOD_ARGS) { return static_cast<intptr_t>(vec->at(i)); },
+    [](VECTOR_METHOD_ARGS) { return static_cast<intptr_t>(vec->at(vec->size() - i - 1)); },
     // peek
     [](VECTOR_METHOD_ARGS) { return static_cast<intptr_t>(vec->back()); }
 };
