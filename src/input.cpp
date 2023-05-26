@@ -25,7 +25,13 @@ static constexpr const char* FLAGS_HELP =
     "\t--show-stack, -s \tShow the stack while debugging. Requires\n"
     "\t                 \t--debug.\n"
     "\t--warnings, -w   \tShow warnings for unspecified behavior.\n"
-    "\t--pipekill, -f   \tEnd the program once STDOUT is closed.\n\n"
+    "\t--pipekill, -f   \tEnd the program once STDOUT is closed.\n"
+#if x86_64_JIT_ALLOWED
+    "\t--enable-jit, -j \t[experimental] Enable JIT. x86-64 only.\n"
+    "\t                 \tIncompatible with all other flags except\n"
+    "\t                 \t--pipekill.\n"
+#endif
+    "\n"
     "\t--disassemble, -D\tOutput a pseudo-assembly representation of the\n"
     "\t                 \tcode. Incompatible with --debug, --warnings, and\n"
     "\t                 \t--pipekill.\n"
@@ -42,6 +48,9 @@ static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_
     { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
     { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
     { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
+#if x86_64_JIT_ALLOWED
+    { "enable-jit", 'j', [](flags& f) NOEXCEPT_T { f.enable_jit = true; } },
+#endif
     { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },
 };
 

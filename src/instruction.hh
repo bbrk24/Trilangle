@@ -31,6 +31,10 @@ class instruction {
     template<typename T>
     using pair = std::pair<T, T>;
 
+#if x86_64_JIT_ALLOWED
+    friend class jit_fragment;
+#endif
+
     // The underlying operation performed.
     enum class operation : int32_t {
         // direction-sensitive ones must be negative to ensure they never appear in source.
@@ -65,9 +69,15 @@ public:
         return instruction(operation::BNG, arg);
     }
 
-    constexpr bool is_exit() const noexcept { return m_op == operation::EXT || m_op == operation::TKL; }
-    constexpr bool is_join() const noexcept { return m_op == operation::TJN; }
-    constexpr bool is_nop() const noexcept { return m_op == operation::NOP; }
+    constexpr bool is_exit() const noexcept {
+        return m_op == operation::EXT || m_op == operation::TKL;
+    }
+    constexpr bool is_join() const noexcept {
+        return m_op == operation::TJN;
+    }
+    constexpr bool is_nop() const noexcept {
+        return m_op == operation::NOP;
+    }
     std::string to_str() const noexcept;
 
     inline const pair<size_t>* first_if_branch() const noexcept {
@@ -79,9 +89,9 @@ public:
                 return nullptr;
         }
     }
-private:
-    inline instruction(operation op, argument arg) noexcept : m_op(op), m_arg(arg) {}
-
+protected:
     operation m_op;
     argument m_arg;
+private:
+    inline instruction(operation op, argument arg) noexcept : m_op(op), m_arg(arg) {}
 };

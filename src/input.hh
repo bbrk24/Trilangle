@@ -10,6 +10,9 @@ struct flags {
     bool disassemble : 1;
     bool hide_nops : 1;
     bool expand : 1;
+#if x86_64_JIT_ALLOWED
+    bool enable_jit : 1;
+#endif
 
     constexpr flags() noexcept :
         debug(false),
@@ -18,12 +21,21 @@ struct flags {
         pipekill(false),
         disassemble(false),
         hide_nops(false),
-        expand(false) {}
+        expand(false)
+#if x86_64_JIT_ALLOWED
+        ,
+        enable_jit(false)
+#endif
+    {
+    }
 
     constexpr bool is_valid() const noexcept {
         return !(
             (show_stack && !debug) || ((debug || warnings || pipekill) && disassemble) || (hide_nops && !disassemble)
             || (expand && (debug || warnings || pipekill || disassemble))
+#if x86_64_JIT_ALLOWED
+            || (enable_jit && (warnings || debug || disassemble || expand))
+#endif
         );
     }
 };
