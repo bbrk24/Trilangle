@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- Corrected the warning condition for overflow with DEC.
+
 ## [1.3.0] - 2023-05-21
 
 ### Added

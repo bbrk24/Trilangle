@@ -239,7 +239,7 @@ void thread::tick() {
                     cerr << "Warning: Attempt to decrement empty stack.\n";
                     break;
                 }
-                if (m_stack.back() == INT24_MAX) UNLIKELY {
+                if (m_stack.back() == INT24_MIN) UNLIKELY {
                     cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
                 }
             }
