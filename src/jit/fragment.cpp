@@ -6,6 +6,7 @@ using jit::fragment;
 
 #ifdef _WIN64
 #include <memoryapi.h>
+#include <processthreadsapi.h>
 
 fragment::exec_fptr fragment::make_executable(const void* mem, size_t length) {
     DWORD protect = PAGE_READWRITE;
@@ -21,6 +22,9 @@ fragment::exec_fptr fragment::make_executable(const void* mem, size_t length) {
         VirtualFree(loc, 0, MEM_RELEASE);
         return nullptr;
     }
+
+    HANDLE currProcess = GetCurrentProcess();
+    FlushInstructionCache(currProcess, loc, length);
 
     return reinterpret_cast<exec_fptr>(loc);
 }
@@ -100,6 +104,18 @@ fragment::fragment(const std::vector<instruction>& fragment) : m_end(fragment.ba
           0x89,
           0xfb
 #endif
+#ifndef NDEBUG
+          ,
+          // during debugging, zero out the other registers that might be used by the calling convention
+          // xor r8,r8
+          0x4d,
+          0x31,
+          0xc0,
+          // xor r9,r9
+          0x4d,
+          0x31,
+          0xc9
+#endif
         }
     );
 
@@ -129,6 +145,19 @@ fragment::fragment(const std::vector<instruction>& fragment) : m_end(fragment.ba
 #endif
     };
 
+    auto dealloc_shadow_space = [&]() {
+#ifdef _WIN64
+        instructions.insert(
+            instructions.end(),
+            { // add rsp,40
+              0x48,
+              0x83,
+              0xc4,
+              0x28 }
+        );
+#endif
+    };
+
     // Pop-operate-push type instructions, like INC
     // Argument is in RAX and return value goes in RDX
     auto emit_one_arg_op = [&](std::initializer_list<uint8_t> i) {
@@ -154,17 +183,9 @@ fragment::fragment(const std::vector<instruction>& fragment) : m_end(fragment.ba
               // call QWORD PTR [rbp]
               0xff,
               0x55,
-              0x00
-#ifdef _WIN64
-              ,
-              // add rsp,40
-              0x48,
-              0x83,
-              0xc4,
-              0x28
-#endif
-            }
+              0x00 }
         );
+        dealloc_shadow_space();
     };
 
     // Pop-pop-operate-push type instructions, like ADD
@@ -173,22 +194,21 @@ fragment::fragment(const std::vector<instruction>& fragment) : m_end(fragment.ba
         alloc_shadow_space();
         instructions.insert(
             instructions.end(),
-            { // mov rcx,rbx
-              0x48,
-              0x89,
-              0xd9,
-              // call QWORD PTR [rbp+8]
-              0xff,
-              0x55,
-              0x08,
-#ifdef _WIN64
-              // add rsp,40
-              0x48,
-              0x83,
-              0xc4,
-              0x28,
-#endif
-              // push r12
+            {
+                // mov rcx,rbx
+                0x48,
+                0x89,
+                0xd9,
+                // call QWORD PTR [rbp+8]
+                0xff,
+                0x55,
+                0x08,
+            }
+        );
+        dealloc_shadow_space();
+        instructions.insert(
+            instructions.end(),
+            { // push r12
               0x41,
               0x54,
               // mov r12,rax
@@ -224,34 +244,46 @@ fragment::fragment(const std::vector<instruction>& fragment) : m_end(fragment.ba
 #endif
                 // pop r12
                 0x41,
-                0x5c,
-#ifdef _WIN64
-                // sub rsp,40
-                0x48,
-                0x83,
-                0xec,
-                0x28,
-#endif
-                // call QWORD PTR [rbp]
-                0xff,
-                0x55,
-                0x00,
-#ifdef _WIN64
-                // add rsp,40
-                0x48,
-                0x83,
-                0xc4,
-                0x28
-#endif
-            }
+                0x5c }
         );
+        alloc_shadow_space();
+        instructions.insert(
+            instructions.end(),
+            { // call QWORD PTR [rbp]
+              0xff,
+              0x55,
+              0x00 }
+        );
+        dealloc_shadow_space();
+    };
+
+    auto push = [&](int24_t arg) {
+        alloc_shadow_space();
+        instructions.insert(
+            instructions.end(),
+            { // mov edx,<value>
+              0xba,
+              (uint8_t)(arg & 0xff),
+              (uint8_t)((arg >> 8) & 0xff),
+              (uint8_t)(arg >> 16),
+              0x00,
+              // mov rcx,rbx
+              0x48,
+              0x89,
+              0xd9,
+              // call QWORD PTR [rbp]
+              0xff,
+              0x55,
+              0x00 }
+        );
+        dealloc_shadow_space();
     };
 
     for (size_t i = 0; i < fragment.size() - 1; ++i) {
         const instruction& instr = fragment[i];
         switch (instr.m_op) {
-            // Don't emit actual NOPs
             case operation::NOP:
+                // Don't emit actual NOPs
                 continue;
             case operation::DEC:
                 // lea rdx,[rax-1]
@@ -262,10 +294,8 @@ fragment::fragment(const std::vector<instruction>& fragment) : m_end(fragment.ba
                 emit_one_arg_op({ 0x48, 0x8f, 0x50, 0x01 });
                 break;
             case operation::EXP:
-                emit_one_arg_op({ // mov rdx,1
-                                  0x48,
-                                  0xc7,
-                                  0xc2,
+                emit_one_arg_op({ // mov edx,1
+                                  0xba,
                                   0x01,
                                   0x00,
                                   0x00,
@@ -385,7 +415,32 @@ fragment::fragment(const std::vector<instruction>& fragment) : m_end(fragment.ba
                                   0x89,
                                   0xc2 });
                 break;
-            // TODO: DUP, DP2, SWP, POP, PSC, PSI
+            case operation::POP:
+                alloc_shadow_space();
+                instructions.insert(
+                    instructions.end(),
+                    { // mov rcx,rbx
+                      0x48,
+                      0x89,
+                      0xd9,
+                      // call QWORD PTR [rbp+8]
+                      0xff,
+                      0x55,
+                      0x08 }
+                );
+                dealloc_shadow_space();
+                break;
+            case operation::PSC: {
+                int24_t arg = instr.m_arg.number;
+                push(arg);
+                break;
+            }
+            case operation::PSI: {
+                int24_t arg = instr.m_arg.number - (int24_t)'0';
+                push(arg);
+                break;
+            }
+            // TODO: DUP, DP2, SWP
             default:
                 // some instructions can't be compiled.
                 return;

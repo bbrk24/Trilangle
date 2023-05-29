@@ -12,6 +12,7 @@ public:
 
     inline void execute(NONNULL_PTR(std::vector<int24_t>) stack) const { m_func_ptr(stack, methods); }
     inline const instruction& last_instruction() const noexcept { return m_end; }
+    constexpr bool is_valid() const noexcept { return m_func_ptr != nullptr; }
 private:
     instruction m_end;
 
