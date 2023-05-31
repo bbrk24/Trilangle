@@ -159,3 +159,12 @@ constexpr int EX_NOINPUT = 66;
 #define NONNULL_PTR(...) __VA_ARGS__*
 // gcc's __attribute__((nonnull)) works differently, so I can't wrap it like this.
 #endif
+
+
+#if (defined(__x86_64__) || defined(_M_X64)) && (defined(__GNUC__) || defined(__clang__))
+// 1 on gcc or clang for x86-64, where asm blocks are used. 0 otherwise.
+#define ASM_ALLOWED 1
+#else
+// 1 on gcc or clang for x86-64, where asm blocks are used. 0 otherwise.
+#define ASM_ALLOWED 0
+#endif

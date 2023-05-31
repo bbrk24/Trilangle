@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Changed
+
+- Overflow checking for multiplication on x86-64 now uses the `seto` instruction rather than preempting it with division.
+
 ### Fixed
 
 - Corrected the warning condition for overflow with DEC.

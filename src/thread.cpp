@@ -397,7 +397,8 @@ void thread::tick() {
             }
             break;
         case GTM: {
-            long double time = (system_clock::now().time_since_epoch() % ONE_DAY).count() / TICKS_PER_UNIT;
+            auto time =
+                static_cast<long double>((system_clock::now().time_since_epoch() % ONE_DAY).count()) / TICKS_PER_UNIT;
             m_stack.emplace_back(time);
             break;
         }

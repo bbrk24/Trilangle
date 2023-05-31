@@ -19,7 +19,7 @@ struct int24_t {
     // Returns { false, this - other } when overflow does not occur, and { true, undefined } when overflow does occur.
     std::pair<bool, int24_t> subtract_with_overflow(int24_t other) const noexcept;
     // Returns { false, this * other } when overflow does not occur, and { true, undefined } when overflow does occur.
-    // Note: This performs divisions for the overflow check. When overflow checking is not required, do not use this
+    // Note: This may perform divisions for the overflow check. When overflow checking is not required, do not use this
     // method.
     std::pair<bool, int24_t> multiply_with_overflow(int24_t other) const noexcept;
 
