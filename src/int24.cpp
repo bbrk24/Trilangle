@@ -3,15 +3,24 @@
 using std::pair;
 
 pair<bool, int24_t> int24_t::add_with_overflow(int24_t other) const noexcept {
-    bool overflow;
-    // I tried some clever bitwise magic before, but it didn't work.
-    if (this->value > 0) {
-        overflow = other.value > INT24_MAX.value - this->value;
-    } else {
-        overflow = other.value < INT24_MIN.value - this->value;
-    }
-
-    return { overflow, int24_t{ this->value + other.value } };
+    // This function took far longer than I'd like to admit to write.
+    // TL;DR: I generated assembly using Swift, optimized the calling convention by hand, and then translated that
+    //        assembly line-for-line back to C++. I originally even looked at assembly because I thought I needed `seto`
+    //        (I don't).
+    // Ironically, the assembly generated has the instructions in a different order than I've written here. And there's
+    // only a correspondence at all with clang or gcc -- MSVC spits out an unoptimized dumpster fire even with /O2.
+    // The signedness of edx and eax matters for the interpretation of the rightshifts.
+    int32_t edi = this->value + other.value;
+    int32_t edx = edi;
+    edx <<= 8;
+    edx >>= 31;
+    uint32_t eax = reinterpret_cast<const uint32_t&>(edi);
+    eax >>= 23;
+    eax &= 1;
+    edi &= 8388607;
+    edx &= -8388608;
+    edi |= edx;
+    return { static_cast<bool>(eax), int24_t{ edi } };
 }
 
 pair<bool, int24_t> int24_t::subtract_with_overflow(int24_t other) const noexcept {
