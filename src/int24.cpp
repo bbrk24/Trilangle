@@ -2,14 +2,18 @@
 
 using std::pair;
 
+constexpr bool is_overflow(int32_t i) noexcept {
+    return ((i << 8) >> 8) != i;
+}
+
 pair<bool, int24_t> int24_t::add_with_overflow(int24_t other) const noexcept {
-    int32_t edi = this->value + other.value;
-    return { static_cast<bool>(edi & 0x800000), int24_t{ (edi & 0x7fffff) | -(edi & 0x800000) } };
+    int32_t sum = this->value + other.value;
+    return { is_overflow(sum), int24_t{ sum } };
 }
 
 pair<bool, int24_t> int24_t::subtract_with_overflow(int24_t other) const noexcept {
-    int32_t edi = this->value - other.value;
-    return { static_cast<bool>(edi & 0x800000), int24_t{ (edi & 0x7fffff) | -(edi & 0x800000) } };
+    int32_t difference = this->value - other.value;
+    return { is_overflow(difference), int24_t{ difference } };
 }
 
 pair<bool, int24_t> int24_t::multiply_with_overflow(int24_t other) const noexcept {
@@ -24,10 +28,7 @@ pair<bool, int24_t> int24_t::multiply_with_overflow(int24_t other) const noexcep
         : "rm"(rhs)
         : "cc");
 
-    overflow = overflow || static_cast<bool>(lhs & 0x800000);
-    lhs = (lhs & 0x7fffff) | -(lhs & 0x800000);
-
-    return { overflow, int24_t{ lhs } };
+    return { overflow || is_overflow(lhs), int24_t{ lhs } };
 #else
     if (this->value == 0 || other.value == 0) {
         return { false, INT24_C(0) };
