@@ -62,11 +62,14 @@ jobs:
         id: getTag
       - name: Flatten artifacts directory
         # https://unix.stackexchange.com/a/52836
-        # The second command returns 1 for some reason, and GitHub uses 'sh -e', so use 'set +e' to make this not fail
+        # The second command returns 1 for some reason, and GitHub uses 'sh -e', so use 'set +e' to make this not fail.
+        # I'm not 100% sure whether the final 'true' is needed, but I think scripts propagate the return value of the
+        # Last expression, so I'm putting it there to be safe.
         run: |
           set +e
           find artifacts -type f -exec sh -c 'mv "$@" artifacts' _ {} +
           find artifacts -depth -exec rmdir {} +
+          true
       - name: Parse changelog
         shell: bash
         run: |
