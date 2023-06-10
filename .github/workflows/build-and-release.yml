@@ -1,0 +1,85 @@
+name: Build & Release Precompiled Binaries
+'on':
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  build-unix:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
+    name: Build for ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: getTag
+      - name: Compile C++ sources
+        shell: bash
+        run: >
+          mkdir Release/
+
+          gcc -O3 -DNDEBUG -flto -fno-rtti -o Release/trilangle-${{ steps.getTag.outputs.tag }}-${{ matrix.os }}
+          src/*.cpp
+      - uses: actions/upload-artifact@v3
+        with:
+          name: trilangle-${{ matrix.os }}
+          path: Release/
+  build-windows:
+    name: Build for Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: getTag
+      - uses: ilammy/msvc-dev-cmd/@v1.12.1
+      - name: Compile C++ sources
+        shell: pwsh
+        run: >
+          MD Release
+
+          CL .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /std:c++20 /MT
+          /out:Release\trilangle-${{ steps.getTag.outputs.tag }}-windows-latest.exe
+      - uses: actions/upload-artifact@v3
+        with:
+          name: trilangle-windows-latest
+          path: Release/
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs:
+      - build-unix
+      - build-windows
+    steps:
+      - uses: actions/checkout@v3
+      - run: "mkdir artifacts/\n"
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: getTag
+      - name: Flatten artifacts directory
+        # https://unix.stackexchange.com/a/52836
+        # The second command returns 1 for some reason, and GitHub uses 'sh -e', so use 'set +e' to make this not fail
+        run: |
+          set +e
+          find artifacts -type f -exec sh -c 'mv "$@" artifacts' _ {} +
+          find artifacts -depth -exec rmdir {} +
+      - name: Parse changelog
+        shell: bash
+        run: |
+          tag=${{ steps.getTag.outputs.tag }}
+          sed -n "s/^## \[${tag//./\\.}\].*$//m
+          t loop
+          d
+          :loop
+          n
+          /^## /q
+          p
+          b loop" CHANGELOG.md >$tag-CHANGELOG.md
+      - uses: softprops/action-gh-release@v1
+        with:
+          body_path: ${{ steps.getTag.outputs.tag }}-CHANGELOG.md
+          files: artifacts/*
