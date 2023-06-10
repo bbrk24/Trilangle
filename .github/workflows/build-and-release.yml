@@ -21,7 +21,7 @@ jobs:
         run: >
           mkdir Release/
 
-          gcc -O3 -DNDEBUG -flto -fno-rtti -o Release/trilangle-${{ steps.getTag.outputs.tag }}-${{ matrix.os }}
+          g++ -O3 -DNDEBUG -flto -fno-rtti -o Release/trilangle-${{ steps.getTag.outputs.tag }}-${{ matrix.os }}
           src/*.cpp
       - uses: actions/upload-artifact@v3
         with:
