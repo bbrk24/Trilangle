@@ -24,20 +24,11 @@ struct int24_t {
     std::pair<bool, int24_t> multiply_with_overflow(int24_t other) const noexcept;
 
     constexpr operator int32_t() const noexcept { return value; }
-    constexpr explicit operator uint32_t() const noexcept { return static_cast<uint32_t>(value); }
-    constexpr explicit operator long double() const noexcept { return static_cast<long double>(value); }
 
-#if PTRDIFF_MAX != INT32_MAX
-    constexpr explicit operator ptrdiff_t() const noexcept {
-        return static_cast<ptrdiff_t>(value);
+    template<typename T>
+    constexpr explicit operator T() const noexcept {
+        return static_cast<T>(value);
     }
-#endif
-
-#if SIZE_MAX != UINT32_MAX
-    constexpr explicit operator size_t() const noexcept {
-        return static_cast<size_t>(value);
-    }
-#endif
 
     constexpr bool operator==(const int24_t& other) const noexcept {
         return this->value == other.value;
