@@ -21,8 +21,10 @@ jobs:
         run: >
           mkdir Release/
 
-          g++ -O3 -DNDEBUG -flto -fno-rtti -std=gnu++17 -o
-          Release/trilangle-${{ steps.getTag.outputs.tag }}-${{ matrix.os }} src/*.cpp
+          tag=${{ steps.getTag.outputs.tag }}
+
+          g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++17 -o Release/trilangle-${tag}-${{ matrix.os }}
+          src/*.cpp
       - uses: actions/upload-artifact@v3
         with:
           name: trilangle-${{ matrix.os }}
@@ -36,12 +38,14 @@ jobs:
         id: getTag
       - uses: ilammy/msvc-dev-cmd/@v1.12.1
       - name: Compile C++ sources
-        shell: pwsh
+        shell: cmd
         run: >
           MD Release
 
-          CL .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /std:c++20 /MT /link
-          /out:Release\trilangle-${{ steps.getTag.outputs.tag }}-windows-latest.exe
+          SET tag=${{ steps.getTag.outputs.tag }}
+
+          CL .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /DVERSION=%tag% /std:c++20 /MT /link
+          /out:Release\trilangle-%tag%-windows-latest.exe
       - uses: actions/upload-artifact@v3
         with:
           name: trilangle-windows-latest

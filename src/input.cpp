@@ -10,6 +10,13 @@ using std::endl;
 using std::get;
 using std::string;
 
+#define _STRINGIFY(x) #x
+#define STRINGIFY(x) _STRINGIFY(x)
+
+#if !defined(VERSION) && !defined(__EMSCRIPTEN__)
+#pragma message("VERSION not set. Define it to enable the --version flag.")
+#endif
+
 constexpr size_t BUF_SIZE = 128;
 
 constexpr const char* HELP_HEADER =
@@ -20,7 +27,11 @@ constexpr const char* HELP_HEADER =
 
 static constexpr const char* FLAGS_HELP =
     "Flags:\n\n"
-    "\t--help           \tShow this message then exit.\n\n"
+    "\t--help           \tShow this message then exit.\n"
+#ifdef VERSION
+    "\t--version        \tPrint the version number then exit.\n"
+#endif
+    "\n"
     "\t--debug, -d      \tEnter debugging mode.\n"
     "\t--show-stack, -s \tShow the stack while debugging. Requires\n"
     "\t                 \t--debug.\n"
@@ -107,7 +118,14 @@ string parse_args(int argc, const char** argv, flags& f) {
                 printf(HELP_HEADER, argv[0]);
                 puts(FLAGS_HELP);
                 exit(EXIT_SUCCESS);
-            } else if (!strcmp(argv[i] + 1, "-")) {
+            }
+#ifdef VERSION
+            if (!strcmp(argv[i] + 1, "-version")) {
+                printf("Trilangle version %s\n", STRINGIFY(VERSION));
+                exit(EXIT_SUCCESS);
+            }
+#endif
+            if (!strcmp(argv[i] + 1, "-")) {
                 parse_flags = false;
                 continue;
             }

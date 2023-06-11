@@ -281,6 +281,8 @@ See [turing_completeness.md].
 
 The specific compiler used shouldn't matter. I've been using MSVC 14.35 (Visual Studio 2022 version 17.5), but it should be compatible with clang and GCC, as well as some earlier versions of MSVC (Visual Studio 2017 or later). Incompatibility with these compilers is considered a bug, and any issues should be reported on [the issues page][issues].
 
+To enable the `--version` flag, the version must be set at compile time. For example, if invoking GCC directly from bash, this could be done with `-DVERSION="$(git describe --always)"`.
+
 C++14 (`201304L`) or later is required to compile this project. Certain features from newer versions will be used if they are available, which may affect the performance of the compiled binary. These features include, but are not limited to:
 
 - `noexcept` in function types (C++17, `201510L`)
