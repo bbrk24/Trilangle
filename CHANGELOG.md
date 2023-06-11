@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.3.5] - 2023-06-11
+
+No code changes, just fixing CI.
+
 ## [1.3.4] - 2023-06-11
 
 ### Fixed
