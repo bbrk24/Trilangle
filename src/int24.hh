@@ -10,16 +10,9 @@ struct int24_t {
     int24_t() = default;
     constexpr int24_t(char x) noexcept : value(x) {}
     constexpr int24_t(unsigned char x) noexcept : value(x) {}
-    constexpr explicit int24_t(size_t x) noexcept : value(static_cast<int32_t>(x)) {}
-    constexpr explicit int24_t(long double x) noexcept : value(static_cast<int32_t>(x)) {}
 
-    // So on most modern systems, int32_t is int, and int64_t is long long. On Windows, time_t is also long long, but on
-    // macOS it's just long. Still 64 bits, but it's a nominally different type, so there's "no" valid overloads. If I
-    // just add an overload that takes time_t, Windows complains that I've declared the one taking long long twice, so I
-    // have to do this.
-    MAYBE_UNUSED constexpr explicit int24_t(int x) noexcept : value(static_cast<int32_t>(x)) {}
-    MAYBE_UNUSED constexpr explicit int24_t(long x) noexcept : value(static_cast<int32_t>(x)) {}
-    MAYBE_UNUSED constexpr explicit int24_t(long long x) noexcept : value(static_cast<int32_t>(x)) {}
+    template<typename T>
+    constexpr explicit int24_t(T x) noexcept : value(static_cast<int32_t>(x)) {}
 
     // Returns { false, this + other } when overflow does not occur, and { true, undefined } when overflow does occur.
     std::pair<bool, int24_t> add_with_overflow(int24_t other) const noexcept;
