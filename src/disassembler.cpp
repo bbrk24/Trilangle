@@ -5,7 +5,7 @@
 using std::pair;
 using std::vector;
 
-disassembler::~disassembler() {
+disassembler::~disassembler() noexcept {
     if (m_fragments == nullptr) {
         return;
     }
