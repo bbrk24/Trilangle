@@ -21,8 +21,8 @@ jobs:
         run: >
           mkdir Release/
 
-          g++ -O3 -DNDEBUG -flto -fno-rtti -o Release/trilangle-${{ steps.getTag.outputs.tag }}-${{ matrix.os }}
-          src/*.cpp
+          g++ -O3 -DNDEBUG -flto -fno-rtti -std=gnu++17 -o
+          Release/trilangle-${{ steps.getTag.outputs.tag }}-${{ matrix.os }} src/*.cpp
       - uses: actions/upload-artifact@v3
         with:
           name: trilangle-${{ matrix.os }}
@@ -40,7 +40,7 @@ jobs:
         run: >
           MD Release
 
-          CL .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /std:c++20 /MT
+          CL .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /std:c++20 /MT /link
           /out:Release\trilangle-${{ steps.getTag.outputs.tag }}-windows-latest.exe
       - uses: actions/upload-artifact@v3
         with:
