@@ -127,3 +127,4 @@ First versioned release.
 [1.3.2]: https://github.com/bbrk24/Trilangle/tree/1.3.2
 [1.3.3]: https://github.com/bbrk24/Trilangle/tree/1.3.3
 [1.3.4]: https://github.com/bbrk24/Trilangle/tree/1.3.4
+[1.3.5]: https://github.com/bbrk24/Trilangle/tree/1.3.5
