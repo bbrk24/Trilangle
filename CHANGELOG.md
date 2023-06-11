@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.3.1] - 2023-06-11
+
 ### Changed
 
 - Overflow checking for multiplication on x86-64 now uses the `seto` instruction rather than preempting it with division.
@@ -101,3 +103,4 @@ First versioned release.
 [1.2.0]: https://github.com/bbrk24/Trilangle/tree/1.2.0
 [1.2.1]: https://github.com/bbrk24/Trilangle/tree/1.2.1
 [1.3.0]: https://github.com/bbrk24/Trilangle/tree/1.3.0
+[1.3.1]: https://github.com/bbrk24/Trilangle/tree/1.3.1
