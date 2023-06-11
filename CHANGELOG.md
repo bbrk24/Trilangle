@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.3.3] - 2023-06-11
+
+### Fixed
+
+- Added a missing `#include` required to build on Linux.
+
 ## [1.3.2] - 2023-06-11
 
 No code changes, just fixing CI.
@@ -109,3 +115,4 @@ First versioned release.
 [1.3.0]: https://github.com/bbrk24/Trilangle/tree/1.3.0
 [1.3.1]: https://github.com/bbrk24/Trilangle/tree/1.3.1
 [1.3.2]: https://github.com/bbrk24/Trilangle/tree/1.3.2
+[1.3.3]: https://github.com/bbrk24/Trilangle/tree/1.3.3
