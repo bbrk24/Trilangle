@@ -67,8 +67,7 @@ instruction::instruction(instruction_pointer ip, const program& program) noexcep
             FALLTHROUGH
         // Most things are direction-insensitive and take no arguments
         default:
-            // unfortunately, you can't add custom conversion methods/ctors to enums
-            m_op = static_cast<operation>(static_cast<int32_t>(op));
+            m_op = static_cast<operation>(op);
     }
 }
 
@@ -140,7 +139,7 @@ std::string instruction::to_str() const noexcept {
         }
         default:
             cerr << "Unrecognized opcode '";
-            printunichar(static_cast<int24_t>(static_cast<int32_t>(m_op)), cerr);
+            printunichar(static_cast<int24_t>(m_op), cerr);
             cerr << '\'' << std::endl;
             exit(EXIT_FAILURE);
     }
