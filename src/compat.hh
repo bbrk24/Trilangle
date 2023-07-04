@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cstddef>
 #include <utility>
 
 #ifdef __has_include
@@ -167,4 +168,11 @@ constexpr int EX_NOINPUT = 66;
 #else
 // 1 on gcc or clang for x86-64, where asm blocks are used. 0 otherwise.
 #define ASM_ALLOWED 0
+#endif
+
+
+// nullptr_t isn't in the global namespace until C++23. Tying this to the language version instead of a library feature
+// is almost certainly wrong, but there's no feature test macro for it.
+#if __cplusplus < 202207L
+using std::nullptr_t;
 #endif

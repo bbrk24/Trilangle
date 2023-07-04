@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
 #include "compat.hh"
 
@@ -30,15 +29,9 @@ struct int24_t {
         return static_cast<T>(value);
     }
 
-    constexpr bool operator==(const int24_t& other) const noexcept {
-        return this->value == other.value;
-    }
-    constexpr bool operator<(const int24_t& other) const noexcept {
-        return this->value < other.value;
-    }
-    constexpr bool operator>(const int24_t& other) const noexcept {
-        return this->value > other.value;
-    }
+    constexpr bool operator==(const int24_t& other) const noexcept { return this->value == other.value; }
+    constexpr bool operator<(const int24_t& other) const noexcept { return this->value < other.value; }
+    constexpr bool operator>(const int24_t& other) const noexcept { return this->value > other.value; }
 
     constexpr int24_t& operator++() noexcept {
         ++value;
@@ -50,9 +43,7 @@ struct int24_t {
         return *this;
     }
 
-    constexpr int24_t operator-(int24_t rhs) const noexcept {
-        return int24_t{ this->value - rhs.value };
-    }
+    constexpr int24_t operator-(int24_t rhs) const noexcept { return int24_t{ this->value - rhs.value }; }
 
     constexpr int24_t& operator%=(int24_t rhs) noexcept {
         value %= rhs.value;
@@ -79,12 +70,8 @@ struct int24_t {
         return *this;
     }
 
-    constexpr int24_t operator~() const noexcept {
-        return int24_t{ ~value };
-    }
-    constexpr int24_t operator<<(int24_t rhs) const noexcept {
-        return int24_t{ this->value << rhs.value };
-    }
+    constexpr int24_t operator~() const noexcept { return int24_t{ ~value }; }
+    constexpr int24_t operator<<(int24_t rhs) const noexcept { return int24_t{ this->value << rhs.value }; }
 };
 
 constexpr int24_t INT24_MIN{ -0x800000 };

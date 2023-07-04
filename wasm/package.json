@@ -6,8 +6,8 @@
     "devDependencies": {
         "@coffeelint/cli": "^5.2.11",
         "express": "^4.18.0",
-        "stylelint": "^15.6.2",
-        "stylelint-config-standard-scss": "^9.0.0"
+        "stylelint": "^15.9.0",
+        "stylelint-config-standard-scss": "^10.0.0"
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",

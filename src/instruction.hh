@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include "program_walker.hh"
 
 constexpr bool is_branch(int24_t op, direction dir) noexcept {
