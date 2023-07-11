@@ -5,16 +5,6 @@
 using std::pair;
 using std::vector;
 
-disassembler::~disassembler() noexcept {
-    if (m_fragments == nullptr) {
-        return;
-    }
-    for (vector<instruction>* frag : *m_fragments) {
-        delete frag;
-    }
-    delete m_fragments;
-}
-
 void disassembler::write_state(std::ostream& os) {
     if (m_fragments == nullptr) {
         build_state();

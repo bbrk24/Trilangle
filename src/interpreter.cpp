@@ -1,5 +1,6 @@
 #include "interpreter.hh"
 #include <algorithm>
+#include <cstddef>
 #include <functional>
 #include <iostream>
 #include <iterator>

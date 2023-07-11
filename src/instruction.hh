@@ -42,12 +42,14 @@ class instruction {
     };
 
     union argument {
-        nullptr_t none;
+        struct empty {};
+
+        empty none;
         int24_t number;
         pair<size_t> next;
         pair<pair<size_t>> choice;
 
-        inline argument() noexcept { none = nullptr; }
+        inline argument() noexcept { none = {}; }
     };
 public:
     instruction(instruction_pointer ip, const program& program) noexcept;

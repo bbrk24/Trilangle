@@ -121,7 +121,7 @@ string parse_args(int argc, const char** argv, flags& f) {
             }
 #ifdef VERSION
             if (!strcmp(argv[i] + 1, "-version")) {
-                printf("Trilangle version %s\n", STRINGIFY(VERSION));
+                puts("Trilangle version " STRINGIFY(VERSION));
                 exit(EXIT_SUCCESS);
             }
 #endif
