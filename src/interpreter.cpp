@@ -53,7 +53,7 @@ void interpreter::run() {
                     if (location != waiting_coords.end()) {
                         size_t value = location->second;
 
-                        pending_threads.push_back(threadjoin(value, i));
+                        pending_threads.push_back(join_threads(value, i));
 
                         removal_indices.push_back(value);
                         removal_indices.push_back(i);
@@ -95,7 +95,7 @@ void interpreter::run() {
     }
 }
 
-thread interpreter::threadjoin(size_t first_index, size_t second_index) {
+thread interpreter::join_threads(size_t first_index, size_t second_index) {
     thread& first_thread = m_threads[first_index];
     thread& second_thread = m_threads[second_index];
 

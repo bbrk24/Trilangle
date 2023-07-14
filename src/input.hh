@@ -32,6 +32,6 @@ struct flags {
 MAYBE_UNUSED std::string parse_args(int argc, const char** argv, flags& f);
 
 // Gets a single unicode character from STDIN. Returns -1 for EOF.
-inline int24_t getunichar() noexcept {
+inline int24_t get_unichar() noexcept {
     return parse_unichar(getchar);
 }

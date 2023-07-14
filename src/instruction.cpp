@@ -105,14 +105,14 @@ std::string instruction::to_str() const noexcept {
             int24_t value = m_arg.number;
             ostringstream result;
             result << "PSI #";
-            printunichar(value, result);
+            print_unichar(value, result);
             return result.str();
         }
         case operation::PSC: {
             int24_t value = m_arg.number;
             ostringstream result;
             result << "PSC '";
-            printunichar(value, result);
+            print_unichar(value, result);
             result << "' ; 0x";
             char buf[7];
             snprintf(buf, sizeof buf, "%" PRIx32, static_cast<uint32_t>(value));
@@ -139,7 +139,7 @@ std::string instruction::to_str() const noexcept {
         }
         default:
             cerr << "Unrecognized opcode '";
-            printunichar(static_cast<int24_t>(m_op), cerr);
+            print_unichar(static_cast<int24_t>(m_op), cerr);
             cerr << '\'' << std::endl;
             exit(EXIT_FAILURE);
     }

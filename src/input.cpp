@@ -66,21 +66,21 @@ static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_
     invalid_flags();
 }
 
-static inline void set_flag(NONNULL_PTR(const char) flagname, flags& f) {
-    if (flagname[1] == '-') {
+static inline void set_flag(NONNULL_PTR(const char) flag_name, flags& f) {
+    if (flag_name[1] == '-') {
         for (const auto& t : FLAGS) {
-            if (!strcmp(get<0>(t), flagname + 2)) {
+            if (!strcmp(get<0>(t), flag_name + 2)) {
                 get<2>(t)(f);
                 return;
             }
         }
-        unrecognized_flag(flagname);
+        unrecognized_flag(flag_name);
     } else {
-        for (string_index i = 1; flagname[i] != '\0'; ++i) {
+        for (string_index i = 1; flag_name[i] != '\0'; ++i) {
             bool known_flag = false;
 
             for (const auto& t : FLAGS) {
-                if (get<1>(t) == flagname[i]) {
+                if (get<1>(t) == flag_name[i]) {
                     get<2>(t)(f);
                     known_flag = true;
                     break;
@@ -88,7 +88,7 @@ static inline void set_flag(NONNULL_PTR(const char) flagname, flags& f) {
             }
 
             if (!known_flag) {
-                unrecognized_flag(flagname);
+                unrecognized_flag(flag_name);
             }
         }
     }

@@ -11,16 +11,16 @@ constexpr int24_t INVALID_CHAR{ 0xfffd };
 // Not necessarily the same as std::string::size_type, and not necessarily capable of holding negative values.
 typedef size_t string_index;
 
-// Given a function that yields one "character" at a time, parse the incoming bytestream as UTF-8, and return a single
+// Given a function that yields one "character" at a time, parse the incoming byte stream as UTF-8, and return a single
 // Unicode character.
 template<typename FuncType>
-int24_t parse_unichar(FuncType getbyte) noexcept(noexcept(getbyte())) {
+int24_t parse_unichar(FuncType get_byte) noexcept(noexcept(get_byte())) {
     unsigned char buf[4];
 
     // The maximum number of used bytes in the buffer, determined by the first byte read.
     string_index buf_max = 4;
     for (string_index i = 0; i < buf_max; ++i) {
-        int c = getbyte();
+        int c = get_byte();
 
         // Handle EOF
         if (c == EOF) {

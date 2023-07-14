@@ -26,7 +26,7 @@ public:
 private:
     void build_state();
 
-    // The list of program "fragments". Each one ends with a branch, jump, threadkill, or exit.
+    // The list of program "fragments". Each one ends with a branch, jump, thread-kill, or exit.
     std::vector<std::vector<instruction>*>* m_fragments;
 
     const flags m_flags;

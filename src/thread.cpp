@@ -78,7 +78,7 @@ void thread::tick() {
         }
 
         cout << "Coords: (" << m_ip.coords.first << ", " << m_ip.coords.second << ")\nInstruction: ";
-        printunichar(op);
+        print_unichar(op);
         cout << std::endl;
 
         DISCARD getchar();
@@ -274,7 +274,7 @@ void thread::tick() {
             }
             break;
         case GTC:
-            m_stack.push_back(getunichar());
+            m_stack.push_back(get_unichar());
             break;
         case PTC:
             EMPTY_PROTECT("print from") {
@@ -291,7 +291,7 @@ void thread::tick() {
                 }
 
                 if (should_print) {
-                    printunichar(m_stack.back());
+                    print_unichar(m_stack.back());
                 }
             }
 
@@ -423,7 +423,7 @@ void thread::tick() {
             exit(EXIT_FAILURE);
         default:
             cerr << "Unrecognized opcode '";
-            printunichar(op, cerr);
+            print_unichar(op, cerr);
             cerr << "' (at (" << m_ip.coords.first << ", " << m_ip.coords.second << "))\n";
             flush_and_exit(EXIT_FAILURE);
     }

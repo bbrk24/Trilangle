@@ -8,7 +8,7 @@ std::ostream& operator<<(std::ostream& lhs, const program& rhs) {
         }
 
         for (size_t col = 0; col <= row; ++col) {
-            printunichar(rhs.at(row, col), lhs);
+            print_unichar(rhs.at(row, col), lhs);
             lhs << (col == row ? '\n' : ' ');
         }
     }

@@ -4,7 +4,7 @@
 #include <cinttypes>
 #include <cstdio>
 
-void printunichar(int24_t c, std::ostream& os) {
+void print_unichar(int24_t c, std::ostream& os) {
     // Convert to UTF-8
     if (c.value <= 0x7f) {
         os << static_cast<char>(c.value);
