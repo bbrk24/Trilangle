@@ -1,0 +1,31 @@
+name: Lint Builds
+'on':
+  push:
+    tags-ignore:
+      - '*'
+  workflow_dispatch: ~
+jobs:
+  build-native:
+    runs-on: macos-latest
+    name: Verify C++ Build with clang
+    steps:
+      - uses: actions/checkout@v3
+      - name: Invoke clang
+        shell: bash
+        run: >+
+          clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wno-nullability-completeness -Werror -std=c++14 -o
+          /dev/null src/*.cpp
+  lint-npm:
+    runs-on: ubuntu-latest
+    name: Lint with JS Tools
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ^18.16.1
+      - name: npm lint
+        shell: bash
+        run: |
+          cd wasm
+          npm ci --no-fund
+          npm run lint
