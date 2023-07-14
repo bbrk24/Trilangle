@@ -99,6 +99,16 @@ constexpr int EX_NOINPUT = 66;
 // mark an intentional lack of a break statement in a switch block
 #define FALLTHROUGH [[fallthrough]];
 #endif
+
+#if !defined(__GNUC__) && defined(_MSC_VER)
+#if _MSC_VER >= 1929
+// mark that the padding of this member can be used for other members
+#define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#endif
+#elif __has_cpp_attribute(no_unique_address)
+// mark that the padding of this member can be used for other members
+#define NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
 #endif
 
 #ifndef MAYBE_UNUSED
@@ -116,6 +126,11 @@ constexpr int EX_NOINPUT = 66;
 #ifndef FALLTHROUGH
 // mark an intentional lack of a break statement in a switch block
 #define FALLTHROUGH
+#endif
+
+#ifndef NO_UNIQUE_ADDRESS
+// mark that the padding of this member can be used for other members
+#define NO_UNIQUE_ADDRESS
 #endif
 
 

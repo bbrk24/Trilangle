@@ -81,8 +81,8 @@ public:
         }
     }
 private:
-    inline instruction(operation op, argument arg) noexcept : m_op(op), m_arg(arg) {}
+    inline instruction(operation op, argument arg) noexcept : m_arg(arg), m_op(op) {}
 
-    operation m_op;
     argument m_arg;
+    operation m_op;
 };

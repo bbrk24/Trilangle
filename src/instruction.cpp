@@ -11,7 +11,7 @@ using std::ostringstream;
     case operation::x: \
         return #x
 
-instruction::instruction(instruction_pointer ip, const program& program) noexcept : m_op(operation::NOP), m_arg() {
+instruction::instruction(instruction_pointer ip, const program& program) noexcept : m_arg(), m_op(operation::NOP) {
     int24_t op = program.at(ip.coords.first, ip.coords.second);
     assert(!is_branch(op, ip.dir));
     switch (op) {
