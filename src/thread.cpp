@@ -39,8 +39,8 @@ unsigned long thread::thread_count;
 }
 
 void thread::tick() {
-    static std::default_random_engine reng((std::random_device())());
-    static std::uniform_int_distribution<int32_t> rdist(INT24_MIN, INT24_MAX);
+    static std::default_random_engine engine((std::random_device())());
+    static std::uniform_int_distribution<int32_t> distr(INT24_MIN, INT24_MAX);
 
     switch (m_status) {
         case status::idle:
@@ -351,7 +351,7 @@ void thread::tick() {
             }
             break;
         case RND:
-            m_stack.emplace_back(rdist(reng));
+            m_stack.emplace_back(distr(engine));
             break;
         case EXP:
             EMPTY_PROTECT("exponentiate") {

@@ -6,6 +6,7 @@ name: Lint Builds
   workflow_dispatch: ~
 jobs:
   build-native:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: macos-latest
     name: Verify C++ Build with clang
     steps:
@@ -16,6 +17,7 @@ jobs:
           clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wno-nullability-completeness -Werror -std=c++14 -o
           /dev/null src/*.cpp
   lint-npm:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     name: Lint with JS Tools
     steps:
