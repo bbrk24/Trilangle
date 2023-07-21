@@ -61,17 +61,25 @@ constexpr int EX_NOINPUT = 66;
 #endif
 
 
-#if defined(__cpp_lib_constexpr_vector) && defined(__cpp_lib_constexpr_string)
-// constexpr if dynamic containers are constexpr
-#define CONSTEXPR_ALLOC constexpr
+#ifdef __cpp_lib_constexpr_vector
+// constexpr if std::vector is constexpr
+#define CONSTEXPR_VECTOR constexpr
 
+#ifdef __cpp_lib_constexpr_string
+// constexpr if std::vector and std::string are constexpr
+#define CONSTEXPR_ALLOC constexpr
 #ifdef __cpp_lib_constexpr_algorithms
 // constexpr if functions in <algorithm> are constexpr
 #define CONSTEXPR_ALG constexpr
 #endif
-
+#endif
 #else
-// constexpr if dynamic containers are constexpr
+// constexpr if std::vector is constexpr
+#define CONSTEXPR_VECTOR inline
+#endif
+
+#ifndef CONSTEXPR_ALLOC
+// constexpr if std::vector and std::string are constexpr
 #define CONSTEXPR_ALLOC inline
 #endif
 

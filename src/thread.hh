@@ -19,7 +19,7 @@ public:
     // Currently only called with T = std::vector<int24_t> and T = const std::vector<int24_t>&.
     // Generic to allow both move- and copy-construction.
     template<typename T>
-    CONSTEXPR_ALLOC thread(const thread& other, direction d, T&& stack) noexcept :
+    CONSTEXPR_VECTOR thread(const thread& other, direction d, T&& stack) noexcept :
         program_walker(other.m_program),
         m_stack(std::forward<T>(stack)),
         m_ip{ other.m_ip.coords, d },
@@ -29,11 +29,11 @@ public:
         advance();
     }
 
-    CONSTEXPR_ALLOC thread(const thread& other, direction d) noexcept : thread(other, d, other.m_stack) {}
+    CONSTEXPR_VECTOR thread(const thread& other, direction d) noexcept : thread(other, d, other.m_stack) {}
 
     void tick();
 protected:
-    CONSTEXPR_ALLOC thread(NONNULL_PTR(const program) p, flags f) noexcept :
+    CONSTEXPR_VECTOR thread(NONNULL_PTR(const program) p, flags f) noexcept :
         program_walker(p),
         m_stack(),
         m_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest },

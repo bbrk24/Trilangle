@@ -6,12 +6,12 @@
 
 class disassembler : public program_walker {
 public:
-    CONSTEXPR_ALLOC disassembler(NONNULL_PTR(const program) p, flags f) :
+    CONSTEXPR_VECTOR disassembler(NONNULL_PTR(const program) p, flags f) :
         program_walker(p), m_fragments(nullptr), m_flags(f) {}
 
     disassembler(const disassembler&) = delete;
 
-    CONSTEXPR_ALLOC ~disassembler() noexcept {
+    CONSTEXPR_VECTOR ~disassembler() noexcept {
         if (m_fragments == nullptr) {
             return;
         }

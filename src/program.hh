@@ -30,7 +30,7 @@ public:
         m_code.resize(capacity, static_cast<int24_t>(opcode::NOP));
     }
 
-    CONSTEXPR_ALLOC int24_t at(size_t row, size_t column) const noexcept {
+    CONSTEXPR_VECTOR int24_t at(size_t row, size_t column) const noexcept {
         assert(row < m_side_length && column <= row);
 
         size_t idx = triangular(row) + column;
