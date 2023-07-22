@@ -23,18 +23,18 @@ inline void execute(const std::string& prg, flags f) {
 #include <emscripten/emscripten.h>
 
 extern "C" EMSCRIPTEN_KEEPALIVE void
-wasm_entrypoint(const char* program_text, int warnings, int disassemble, int expand) {
+wasm_entrypoint(const char* program_text, int disassemble, int expand, int debug) {
     // Reset EOF from previous runs
     clearerr(stdin);
     // Input and output don't need to be synced on the web
     std::cin.tie(nullptr);
 
     flags f;
-    f.warnings = warnings;
+    f.warnings = true;
     f.disassemble = disassemble;
     f.hide_nops = disassemble;
     f.expand = expand;
-    f.debug = true;
+    f.debug = debug;
     f.show_stack = true;
 
     execute(program_text, f);

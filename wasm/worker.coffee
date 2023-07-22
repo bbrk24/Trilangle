@@ -45,9 +45,10 @@ callInterpreter = (warnings, disassemble, expand) => =>
   else
     postMessage [0, null]
 
-signals.set 'interpretProgram', callInterpreter 1, 0, 0
-signals.set 'disassembleProgram', callInterpreter 0, 1, 0
-signals.set 'expandInput', callInterpreter 0, 0, 1
+signals.set 'interpretProgram', callInterpreter 0, 0, 0
+signals.set 'disassembleProgram', callInterpreter 1, 0, 0
+signals.set 'expandInput', callInterpreter 0, 1, 0
+signals.set 'debugProgram', callInterpreter 0, 0, 1
 signals.set 'step', => @['__trilangle_resolve']()
 
 @onmessage = (event) ->

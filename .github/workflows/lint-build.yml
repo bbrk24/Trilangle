@@ -31,3 +31,26 @@ jobs:
           cd wasm
           npm ci --no-fund
           npm run lint
+  verify-wasm-build:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    name: Verify wasm build
+    steps:
+      # Largely copied from build-and-deploy-pages.jobs.build-wasm.steps
+      - uses: actions/checkout@v3
+      - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
+      - uses: actions/cache@v3
+        with:
+          path: /opt/hostedtoolcache/emscripten/latest/x64/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/lto
+          key: libs-${{ hashFiles('~/work/Trilangle/Trilangle/emsdk/upstream/emscripten/system/lib/**.c') }}
+          restore-keys: "libs-\n"
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ^16.13.0
+      - name: Run build script
+        shell: bash
+        run: |
+          cd wasm
+          npm ci --omit dev --no-fund
+          ./build_wasm.sh
+        # Some errors, especially with the closure compiler, don't surface in debug builds.
