@@ -36,8 +36,8 @@ extern "C" void send_debug_info(
     unsigned long thread_number,
     const int24_t* stack,
     size_t stack_depth,
-    size_t x,
     size_t y,
+    size_t x,
     int32_t instruction
 ) {
     cout << "Thread " << thread_number << '\n';

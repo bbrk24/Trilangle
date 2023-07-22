@@ -107,6 +107,7 @@ createWorker = (name) => =>
   elements.runStop.onclick = wasmCancel
   elements.stdin.oninput = null
   worker ?= new Worker new URL 'worker.js', location
+  @step = => worker.postMessage ['step']
   worker.onmessage = (event) ->
     content = event.data[1]
     switch event.data[0]
