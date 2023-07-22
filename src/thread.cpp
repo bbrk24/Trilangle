@@ -31,6 +31,37 @@ constexpr long double TICKS_PER_UNIT = ONE_DAY.count() / static_cast<long double
 
 unsigned long thread::thread_count;
 
+#ifndef __EMSCRIPTEN__
+extern "C" void send_debug_info(
+    unsigned long thread_number,
+    const int24_t* stack,
+    size_t stack_depth,
+    size_t x,
+    size_t y,
+    int32_t instruction
+) {
+    cout << "Thread " << thread_number << '\n';
+    if (stack != nullptr) {
+        cout << "Stack: [";
+
+        for (size_t i = 0; i < stack_depth; ++i) {
+            if (i != 0) {
+                cout << ", ";
+            }
+            cout << stack[i];
+        }
+
+        cout << "]\n";
+    }
+
+    cout << "Coords: (" << x << ", " << y << ")\nInstruction: ";
+    print_unichar(static_cast<int24_t>(instruction));
+    cout << std::endl;
+
+    DISCARD getchar();
+}
+#endif
+
 // Emscripten doesn't flush after every putchar call, so ensure we flush at all
 [[noreturn]] static inline void flush_and_exit(int code) {
     cout << flush;
@@ -61,28 +92,14 @@ void thread::tick() {
 
     // Print the requisite information in debug mode.
     if (m_flags.debug) {
-        // TODO: Figure out debugging on the web
-#ifndef __EMSCRIPTEN__
-        cout << "Thread " << m_number << '\n';
-        if (m_flags.show_stack) {
-            cout << "Stack: [";
-
-            for (size_t i = 0; i < m_stack.size(); ++i) {
-                if (i != 0) {
-                    cout << ", ";
-                }
-                cout << m_stack[i];
-            }
-
-            cout << "]\n";
-        }
-
-        cout << "Coords: (" << m_ip.coords.first << ", " << m_ip.coords.second << ")\nInstruction: ";
-        print_unichar(op);
-        cout << std::endl;
-
-        DISCARD getchar();
-#endif
+        send_debug_info(
+            m_number,
+            m_flags.show_stack ? m_stack.data() : nullptr,
+            m_stack.size(),
+            m_ip.coords.first,
+            m_ip.coords.second,
+            op
+        );
     }
 
     // ...yeah

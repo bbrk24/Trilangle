@@ -11,6 +11,10 @@ using std::vector;
 
 using status = thread::status;
 
+#ifndef __EMSCRIPTEN__
+extern "C" void send_thread_count(unsigned long) {}
+#endif
+
 struct pair_hash {
     constexpr size_t operator()(const std::pair<size_t, size_t>& p) const noexcept { return p.first ^ (p.second << 4); }
 };
@@ -23,6 +27,8 @@ void interpreter::run() {
         vector<size_t> removal_indices;
         vector<thread> pending_threads;
         std::unordered_map<std::pair<size_t, size_t>, size_t, pair_hash> waiting_coords;
+
+        send_thread_count(thread::thread_count);
 
         for (size_t i = 0; i < m_threads.size(); ++i) {
             thread& curr_thread = m_threads[i];

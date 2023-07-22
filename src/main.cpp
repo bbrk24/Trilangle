@@ -34,6 +34,8 @@ wasm_entrypoint(const char* program_text, int warnings, int disassemble, int exp
     f.disassemble = disassemble;
     f.hide_nops = disassemble;
     f.expand = expand;
+    f.debug = true;
+    f.show_stack = true;
 
     execute(program_text, f);
 }

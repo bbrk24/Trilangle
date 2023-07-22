@@ -121,7 +121,13 @@ createWorker = (name) => =>
           elements.stderr.innerText += content
         else
           stderr content
-      else console.error "Unrecognized destination #{event.data[0]}"
+      when 3
+        if typeof content is 'number'
+          window.__threadCount = content
+          window.__threads = []
+        else
+          window.__threads[content[0]] = content[1]
+      else console.error "Unrecognized destination #{event.data[0]}", content
   worker.postMessage [name, elements.program.value, elements.stdin.value]
   
 interpretProgram = createWorker 'interpretProgram'

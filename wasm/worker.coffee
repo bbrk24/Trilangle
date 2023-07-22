@@ -35,7 +35,7 @@ callInterpreter = (warnings, disassemble, expand) => =>
       [programText, warnings, disassemble, expand]
   catch e
     if e? and not (e instanceof ExitStatus)
-      postMessage 2, e.toString()
+      postMessage [2, e.toString()]
 
 signals.set 'interpretProgram', callInterpreter 1, 0, 0
 signals.set 'disassembleProgram', callInterpreter 0, 1, 0
