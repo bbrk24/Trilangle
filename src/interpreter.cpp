@@ -12,7 +12,7 @@ using std::vector;
 using status = thread::status;
 
 #ifndef __EMSCRIPTEN__
-extern "C" void send_thread_count(unsigned long) {}
+extern "C" void send_thread_count(size_t) {}
 #endif
 
 struct pair_hash {
@@ -28,7 +28,7 @@ void interpreter::run() {
         vector<thread> pending_threads;
         std::unordered_map<std::pair<size_t, size_t>, size_t, pair_hash> waiting_coords;
 
-        send_thread_count(thread::thread_count);
+        send_thread_count(m_threads.size());
 
         for (size_t i = 0; i < m_threads.size(); ++i) {
             thread& curr_thread = m_threads[i];

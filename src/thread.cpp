@@ -73,6 +73,23 @@ void thread::tick() {
     static std::default_random_engine engine((std::random_device())());
     static std::uniform_int_distribution<int32_t> distr(INT24_MIN, INT24_MAX);
 
+    // The operation currently being executed
+    int24_t op = m_program->at(m_ip.coords.first, m_ip.coords.second);
+
+    // The web interface needs every thread to send debug info. The CLI expects only active threads to do so.
+#ifdef __EMSCRIPTEN__
+    if (m_flags.debug) {
+        send_debug_info(
+            m_number,
+            m_flags.show_stack ? m_stack.data() : nullptr,
+            m_stack.size(),
+            m_ip.coords.first,
+            m_ip.coords.second,
+            op
+        );
+    }
+#endif
+
     switch (m_status) {
         case status::idle:
             m_status = status::active;
@@ -87,9 +104,7 @@ void thread::tick() {
             unreachable("thread with m_status = splitting should be split");
     }
 
-    // The operation currently being executed
-    int24_t op = m_program->at(m_ip.coords.first, m_ip.coords.second);
-
+#ifndef __EMSCRIPTEN__
     // Print the requisite information in debug mode.
     if (m_flags.debug) {
         send_debug_info(
@@ -101,6 +116,7 @@ void thread::tick() {
             op
         );
     }
+#endif
 
     // ...yeah
     switch (op) {
@@ -309,6 +325,12 @@ void thread::tick() {
 
                 if (should_print) {
                     print_unichar(m_stack.back());
+
+#ifdef __EMSCRIPTEN__
+                    if (m_flags.debug) {
+                        cout << flush;
+                    }
+#endif
                 }
             }
 

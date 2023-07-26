@@ -16,4 +16,4 @@ private:
     std::vector<thread> m_threads;
 };
 
-extern "C" void send_thread_count(unsigned long thread_count);
+extern "C" void send_thread_count(size_t thread_count);

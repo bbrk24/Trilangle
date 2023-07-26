@@ -91,11 +91,9 @@ body {
     align-items: flex-end;
 }
 
-textarea {
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 0.125rem;
-    border-width: 0.125rem;
+th {
+    text-align: start;
+    padding: 1px 0.2em;
 }
 
 // https://stackoverflow.com/q/75921120/
@@ -114,8 +112,16 @@ textarea {
     --text-color: white;
 }
 
+textarea {
+    background-color: transparent;
+    color: var(--text-color);
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.125rem;
+    border-width: 0.125rem;
+}
+
 body,
-textarea,
 .out-container :first-child {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -187,8 +193,12 @@ footer {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap-reverse;
-    background-color: #ebebeb;
     border-top: $footer-border solid transparent;
+}
+
+footer,
+#debug-info > :first-child {
+    background-color: #ebebeb;
 
     .dark & {
         background-color: #2c2c2c;
@@ -196,7 +206,7 @@ footer {
 
     .high-contrast & {
         background-color: transparent;
-        border-top-color: var(--text-color);
+        border-color: var(--text-color);
     }
 }
 
@@ -272,6 +282,17 @@ footer {
 
 :empty {
     margin: 0;
+}
+
+.highlight {
+    position: relative;
+    width: 1ch;
+    height: 1em;
+    z-index: -1;
+
+    &:not(:last-of-type) {
+        margin-bottom: -1em;
+    }
 }
 
 .out-container :first-child {
@@ -426,6 +447,38 @@ footer {
 #url-out {
     word-wrap: break-word;
     max-width: 100%;
+}
+
+#debug-info {
+    position: absolute;
+    border: 2px solid $button-color;
+    z-index: 2;
+    background-color: var(--bg-color);
+
+    // Don't go off the right edge; squish instead
+    right: 0;
+    width: fit-content;
+
+    // Start on the left edge
+    left: 0;
+
+    .high-contrast & {
+        border-color: var(--text-color);
+    }
+}
+
+#debug-header {
+    cursor: move;
+    padding-left: 0.25em;
+
+    * {
+        cursor: revert;
+    }
+
+    .high-contrast & {
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+    }
 }
 
 #menu .grid {

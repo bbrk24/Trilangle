@@ -8,8 +8,9 @@ common_emcc_args=(-WCL4 -Wnon-gcc -Wno-nullability-completeness
     -o worker.js
     --pre-js pre.js -sINCOMING_MODULE_JS_API='preInit,onRuntimeInitialized,noExitRuntime' --js-library library.js)
 
-npx coffee -co pre.js worker.coffee
+npx coffee -co pre.js worker.coffee &
 npx coffee -co library.js library.coffee
+wait
 
 if [ "$1" = debug ]
 then

@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 ### Added
 
 - Added a `--version` flag. The version must be defined when compiling the interpreter, with `-DVERSION=...` (gcc/clang) or `/DVERSION=...` (MSVC).
+- Added a GUI debugger to the web interface.
 
 ## [1.3.5] - 2023-06-11
 

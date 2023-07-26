@@ -4,7 +4,26 @@ onFinishHook = null
 worker = null
 stdoutBuffer = []
 stderrBuffer = []
+threads = []
 decoder = new TextDecoder
+
+# TODO: Figure out a better mapping for this. The code below can't render two highlights of the same color.
+@threadColors = [
+  'red',
+  'dodgerblue',
+  'green',
+  'goldenrod',
+  'magenta',
+  'orangered',
+  'lightseagreen',
+  'slategray',
+  'mediumorchid',
+  'sienna',
+  'firebrick',
+  'coral'
+]
+getColor = (idx) => threadColors[idx % threadColors.length]
+removeAllHighlights = => threadColors.forEach removeHighlight
 
 # This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 # first access, but then saves it for fast access later.
@@ -56,6 +75,7 @@ workerFinished = =>
   elements.expand.disabled = false
   elements.disassemble.disabled = false
   elements.condense.disabled = false
+  elements.debug.disabled = false
   elements.runStop.textContent = 'Run!'
   elements.runStop.onclick = interpretProgram
   onFinishHook?()
@@ -99,16 +119,18 @@ stderr = (char) =>
     appendText String.fromCharCode char
   
 createWorker = (name) => =>
+  threadCount = -1
   clearOutput()
   elements.disassemble.disabled = true
   elements.expand.disabled = true
   elements.condense.disabled = true
+  elements.debug.disabled = true
   elements.runStop.textContent = 'Stop'
   elements.runStop.onclick = wasmCancel
   elements.stdin.oninput = null
   worker ?= new Worker new URL 'worker.js', location
   @step = => worker.postMessage ['step']
-  worker.onmessage = (event) ->
+  worker.onmessage = (event) =>
     content = event.data[1]
     switch event.data[0]
       when 0 then workerFinished()
@@ -124,16 +146,32 @@ createWorker = (name) => =>
           stderr content
       when 3
         if typeof content is 'number'
-          window.__threadCount = content
-          window.__threads = []
+          threadCount = content
+          threads = []
         else
-          window.__threads[content[0]] = content[1]
+          threads[content[0]] = content[1]
+          if threadCount is threads.reduce (x) => x + 1, 0
+            renderThreads()
+          else
+            step()
       else console.error "Unrecognized destination #{event.data[0]}", content
   worker.postMessage [name, elements.program.value, elements.stdin.value]
   
 interpretProgram = createWorker 'interpretProgram'
 @disassembleProgram = createWorker 'disassembleProgram'
 expandBase = createWorker 'expandInput'
+debugBase = createWorker 'debugProgram'
+
+@debugProgram = =>
+  onFinishHook = =>
+    elements.program.value = elements.stdout.innerText
+    elements.stdout.innerText = ''
+    onFinishHook = =>
+      elements.debugInfo.hidden = true
+      removeAllHighlights()
+      onFinishHook = null
+    debugBase()
+  expandBase()
 
 @expandInput = =>
   onFinishHook = =>
@@ -141,6 +179,54 @@ expandBase = createWorker 'expandInput'
     elements.stdout.innerText = ''
     onFinishHook = null
   expandBase()
+
+renderThreads = =>
+  elements.debugInfo.hidden = false
+  for row in elements.threads.children
+    removeHighlight(row.style.backgroundColor)
+  elements.threads.innerHTML = ''
+  threads.forEach (thread, idx) =>
+    row = document.createElement 'tr'
+    color = getColor(idx)
+    row.style.backgroundColor = color
+    highlightIndex(thread.x, thread.y, color)
+    threadIdEl = document.createElement 'td'
+    threadIdEl.textContent = String(idx)
+    row.append(threadIdEl)
+    threadContentsEl = document.createElement 'td'
+    threadContentsEl.textContent = String(thread.stack)
+    row.append(threadContentsEl)
+    elements.threads.append(row)
+
+# Given y,x, find the column of the x-th non-space character in row y
+getColumn = (y, x, str) =>
+  row = str.split('\n')[y]
+  return -1 unless row?
+  nonspaces = 0
+  idx = 0
+  while true
+    if idx >= row.length
+      return -1
+    if row[idx] isnt ' '
+      ++nonspaces
+    if nonspaces > x
+      return idx
+    ++idx
+
+# TODO: Should these be using elements at all, or their own object?
+highlightIndex = (x, y, color) =>
+  col = getColumn y, x, elements.program.value
+  element = (elements["highlight-#{color}"] ?= document.createElement 'div')
+  element.classList.add('highlight')
+  element.style.backgroundColor = color
+  element.style.top = "calc(1px + 0.25rem + #{(y + 1) * 0.984}em)"
+  element.style.left = "calc(0.25rem + #{col}ch)"
+  elements.programContainer.insertBefore(element, elements.program)
+
+removeHighlight = (color) =>
+  if elements["highlight-#{color}"]?
+    elements.programContainer.removeChild(elements["highlight-#{color}"])
+  elements["highlight-#{color}"] = null
 
 elements.program.oninput = ->
   elements.urlOutBox.className = 'content-hidden'
@@ -160,6 +246,46 @@ elements.contrastSwitch.onchange = ->
   else
     document.body.classList.remove 'high-contrast'
   localStorage.setItem 'high-contrast', if @checked then 'true' else 'false'
+
+# Adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
+pos3 = 0
+pos4 = 0
+elements.debugHeader.onmousedown = (e) ->
+  e ?= window.event
+  e.preventDefault()
+  pos3 = e.clientX
+  pos4 = e.clientY
+  document.onmousemove = (e) ->
+    e ?= window.event
+    e.preventDefault()
+    pos1 = pos3 - e.clientX
+    pos2 = pos4 - e.clientY
+    pos3 = e.clientX
+    pos4 = e.clientY
+    elements.debugInfo.style.top = "#{elements.debugInfo.offsetTop - pos2}px"
+    elements.debugInfo.style.left = "#{elements.debugInfo.offsetLeft - pos1}px"
+  document.onmouseup = ->
+    @onmousemove = null
+    @onmouseup = null
+elements.debugHeader.ontouchstart = (e) ->
+  e ?= window.event
+  e.preventDefault()
+  pos3 = e.touches[0].clientX
+  pos4 = e.touches[0].clientY
+  document.ontouchmove = (e) ->
+    e ?= window.event
+    e.preventDefault()
+    pos1 = pos3 - e.touches[0].clientX
+    pos2 = pos4 - e.touches[0].clientY
+    pos3 = e.touches[0].clientX
+    pos4 = e.touches[0].clientY
+    elements.debugInfo.style.top = "#{elements.debugInfo.offsetTop - pos2}px"
+    elements.debugInfo.style.left = "#{elements.debugInfo.offsetLeft - pos1}px"
+  document.ontouchend = document.ontouchcancel = ->
+    @onmousemove = null
+    @ontouchcancel = null
+    @ontouchend = null
+
   
 width = elements.runStop.offsetWidth
 remSize = parseFloat getComputedStyle(document.body).fontSize
