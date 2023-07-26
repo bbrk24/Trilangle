@@ -282,10 +282,9 @@ elements.debugHeader.ontouchstart = (e) ->
     elements.debugInfo.style.top = "#{elements.debugInfo.offsetTop - pos2}px"
     elements.debugInfo.style.left = "#{elements.debugInfo.offsetLeft - pos1}px"
   document.ontouchend = document.ontouchcancel = ->
-    @onmousemove = null
+    @ontouchmove = null
     @ontouchcancel = null
     @ontouchend = null
-
   
 width = elements.runStop.offsetWidth
 remSize = parseFloat getComputedStyle(document.body).fontSize
