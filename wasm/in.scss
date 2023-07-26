@@ -289,6 +289,12 @@ footer,
     width: 1ch;
     height: 1em;
     z-index: -1;
+    background-color: var(--highlight-color);
+
+    .high-contrast & {
+        background-color: transparent;
+        border: 1px solid var(--highlight-color);
+    }
 
     &:not(:last-of-type) {
         margin-bottom: -1em;

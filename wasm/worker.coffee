@@ -19,16 +19,16 @@ halfReady = (arg) ->
     postMessage [0, null]
 
 Module['preInit'] = ->
-  stdin = => if inputIndex >= stdinBuffer.length then null else stdinBuffer.at inputIndex++
-  stdout = (char) => postMessage [1, char]
-  stderr = (char) => postMessage [2, char]
+  stdin = -> if inputIndex >= stdinBuffer.length then null else stdinBuffer.at inputIndex++
+  stdout = (char) -> postMessage [1, char]
+  stderr = (char) -> postMessage [2, char]
   FS.init stdin, stdout, stderr
 Module['onRuntimeInitialized'] = halfReady
 Module['noExitRuntime'] = true
 
-callInterpreter = (warnings, disassemble, expand) => =>
+callInterpreter = (warnings, disassemble, expand) -> ->
   inputIndex = 0
-  errorHandler = (e) =>
+  errorHandler = (e) ->
     if e? and not (e instanceof ExitStatus)
       postMessage [2, e.toString()]
   ccallReturned = null
@@ -41,7 +41,7 @@ callInterpreter = (warnings, disassemble, expand) => =>
   catch e
     errorHandler(e)
   if ccallReturned instanceof Promise
-    ccallReturned.catch(errorHandler).then => postMessage [0, null]
+    ccallReturned.catch(errorHandler).then -> postMessage [0, null]
   else
     postMessage [0, null]
 

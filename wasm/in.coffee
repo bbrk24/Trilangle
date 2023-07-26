@@ -1,14 +1,16 @@
 'use strict'
 
-onFinishHook = null
 worker = null
 stdoutBuffer = []
 stderrBuffer = []
 threads = []
 decoder = new TextDecoder
+resolve = null
 
 # TODO: Figure out a better mapping for this. The code below can't render two highlights of the same color.
-@threadColors = [
+
+# A list of colors used for threads.
+threadColors = [
   'red',
   'dodgerblue',
   'green',
@@ -16,27 +18,44 @@ decoder = new TextDecoder
   'magenta',
   'orangered',
   'lightseagreen',
-  'slategray',
   'mediumorchid',
-  'sienna',
-  'firebrick',
-  'coral'
 ]
-getColor = (idx) => threadColors[idx % threadColors.length]
-removeAllHighlights = => threadColors.forEach removeHighlight
+
+# A mapping of color -> div element.
+highlights = {}
+
+# A mapping of thread number -> color.
+usedColors = []
+
+# Temporarily remove a single color, but keep the div present in highlights for later use.
+removeHighlight = (color) ->
+  if highlights[color]?
+    elements.programContainer.removeChild highlights[color]
+    usedColors[usedColors.indexOf color] = null
+
+# Get an available color for the thread number.
+getColor = (idx) ->
+  usedColors[idx] ?= threadColors.find (color) -> not (color in usedColors)
+  
+# Destroy all highlight divs, freeing them for the garbage collector.
+removeAllHighlights = -> threadColors.forEach (color) ->
+  if highlights[color]?
+    elements.programContainer.removeChild highlights[color]
+  highlights = {}
+  usedColors = []
 
 # This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 # first access, but then saves it for fast access later.
 elements = new Proxy {}, get: (target, p) ->
   if typeof p is 'string' and not (p of target)
-    target[p] = document.getElementById p.replace /[A-Z]/g, (s) => '-' + s.toLowerCase()
+    target[p] = document.getElementById p.replace /[A-Z]/g, (s) -> '-' + s.toLowerCase()
   target[p]
 
-@clearOutput = =>
+@clearOutput = ->
   elements.stdout.innerHTML = ''
   elements.stderr.innerHTML = ''
   
-generateContracted = =>
+generateContracted = ->
   programText = elements.program.value.replace /^#![^\n]*\n/, ''
     .replace /\n| /g, ''
   # programText.length is wrong when there's high Unicode characters
@@ -49,11 +68,11 @@ generateContracted = =>
     programText = programText.replace new RegExp("\\.{0,#{programLength - minLength}}$"), ''
   programText.replace /^#!/, '#\n!'
 
-@contractInput = =>
+@contractInput = ->
   clearOutput()
   elements.program.value = generateContracted()
   
-generateURL = =>
+generateURL = ->
   newURL = "#{location.href.split('#')[0]}\##{encodeURIComponent generateContracted()}"
   history.pushState {}, '', newURL
   elements.urlOut.textContent = newURL
@@ -61,36 +80,24 @@ generateURL = =>
   elements.urlButton.textContent = 'Copy URL'
   elements.urlButton.onclick = copyURL
   
-copyURL = =>
+copyURL = ->
   url = elements.urlOut.textContent
   elements.urlOut.setSelectionRange? 0, url.length
   navigator.clipboard.writeText url
   elements.copyAlert.className = ''
-  setTimeout => elements.copyAlert.className = 'hide-slow'
+  setTimeout -> elements.copyAlert.className = 'hide-slow'
   
-workerFinished = =>
-  elements.stdin.oninput = ->
-    worker = null
-    @oninput = null
-  elements.expand.disabled = false
-  elements.disassemble.disabled = false
-  elements.condense.disabled = false
-  elements.debug.disabled = false
-  elements.runStop.textContent = 'Run!'
-  elements.runStop.onclick = interpretProgram
-  onFinishHook?()
-  
-wasmCancel = =>
+wasmCancel = ->
   worker?.terminate()
   worker = null
-  workerFinished()
+  resolve()
   
-isBufferFull = (buf) =>
+isBufferFull = (buf) ->
   buf.length is 4 or
   (((buf[0] + 256) & 0xf0) is 0xe0 and buf.length is 3) or
   (((buf[0] + 256) & 0xe0) is 0xc0 and buf.length is 2)
 
-stdout = (char) =>
+stdout = (char) ->
   return unless char?
   if char < 0
     stdoutBuffer.push char
@@ -100,9 +107,9 @@ stdout = (char) =>
   else
     elements.stdout.textContent += String.fromCharCode char
 
-stderr = (char) =>
+stderr = (char) ->
   return unless char?
-  appendText = (text) =>
+  appendText = (text) ->
     if elements.stderr.lastChild instanceof Text
       elements.stderr.lastChild.nodeValue += text
     else
@@ -120,7 +127,9 @@ stderr = (char) =>
   
 createWorker = (name) => =>
   threadCount = -1
+
   clearOutput()
+
   elements.disassemble.disabled = true
   elements.expand.disabled = true
   elements.condense.disabled = true
@@ -128,12 +137,26 @@ createWorker = (name) => =>
   elements.runStop.textContent = 'Stop'
   elements.runStop.onclick = wasmCancel
   elements.stdin.oninput = null
+
   worker ?= new Worker new URL 'worker.js', location
-  @step = => worker.postMessage ['step']
-  worker.onmessage = (event) =>
+  @step = -> worker.postMessage ['step']
+
+  promise = new Promise (r) -> resolve = r
+    .then ->
+      elements.stdin.oninput = ->
+        worker = null
+        @oninput = null
+      elements.expand.disabled = false
+      elements.disassemble.disabled = false
+      elements.condense.disabled = false
+      elements.debug.disabled = false
+      elements.runStop.textContent = 'Run!'
+      elements.runStop.onclick = interpretProgram
+
+  worker.onmessage = (event) ->
     content = event.data[1]
     switch event.data[0]
-      when 0 then workerFinished()
+      when 0 then resolve()
       when 1
         if typeof content is 'string'
           elements.stdout.textContent += content
@@ -150,56 +173,52 @@ createWorker = (name) => =>
           threads = []
         else
           threads[content[0]] = content[1]
-          if threadCount is threads.reduce (x) => x + 1, 0
+          if threadCount is threads.reduce (x) -> x + 1, 0
             renderThreads()
           else
             step()
       else console.error "Unrecognized destination #{event.data[0]}", content
   worker.postMessage [name, elements.program.value, elements.stdin.value]
   
+  return promise
+  
 interpretProgram = createWorker 'interpretProgram'
 @disassembleProgram = createWorker 'disassembleProgram'
 expandBase = createWorker 'expandInput'
 debugBase = createWorker 'debugProgram'
 
-@debugProgram = =>
-  onFinishHook = =>
-    elements.program.value = elements.stdout.innerText
-    elements.stdout.innerText = ''
-    onFinishHook = =>
-      elements.debugInfo.hidden = true
-      removeAllHighlights()
-      onFinishHook = null
-    debugBase()
-  expandBase()
+@expandInput = ->
+  await expandBase()
+  elements.program.value = elements.stdout.innerText
+  elements.stdout.innerText = ''
 
-@expandInput = =>
-  onFinishHook = =>
-    elements.program.value = elements.stdout.innerText
-    elements.stdout.innerText = ''
-    onFinishHook = null
-  expandBase()
+@debugProgram = ->
+  await expandInput()
+  await debugBase()
+  elements.debugInfo.hidden = true
+  removeAllHighlights()
 
-renderThreads = =>
+renderThreads = ->
   elements.debugInfo.hidden = false
   for row in elements.threads.children
-    removeHighlight(row.style.backgroundColor)
+    unless row.firstChild.textContent of threads
+      removeHighlight row.style.backgroundColor
   elements.threads.innerHTML = ''
-  threads.forEach (thread, idx) =>
+  threads.forEach (thread, idx) ->
     row = document.createElement 'tr'
-    color = getColor(idx)
+    color = getColor idx
     row.style.backgroundColor = color
-    highlightIndex(thread.x, thread.y, color)
+    highlightIndex thread.x, thread.y, color
     threadIdEl = document.createElement 'td'
-    threadIdEl.textContent = String(idx)
-    row.append(threadIdEl)
+    threadIdEl.textContent = String idx
+    row.appendChild threadIdEl
     threadContentsEl = document.createElement 'td'
-    threadContentsEl.textContent = String(thread.stack)
-    row.append(threadContentsEl)
-    elements.threads.append(row)
+    threadContentsEl.textContent = String thread.stack
+    row.appendChild threadContentsEl
+    elements.threads.appendChild row
 
 # Given y,x, find the column of the x-th non-space character in row y
-getColumn = (y, x, str) =>
+getColumn = (y, x, str) ->
   row = str.split('\n')[y]
   return -1 unless row?
   nonspaces = 0
@@ -213,20 +232,15 @@ getColumn = (y, x, str) =>
       return idx
     ++idx
 
-# TODO: Should these be using elements at all, or their own object?
-highlightIndex = (x, y, color) =>
+highlightIndex = (x, y, color) ->
   col = getColumn y, x, elements.program.value
-  element = (elements["highlight-#{color}"] ?= document.createElement 'div')
-  element.classList.add('highlight')
-  element.style.backgroundColor = color
+  element = (highlights[color] ?= document.createElement 'div')
+  element.classList.add 'highlight'
+  element.style = "--highlight-color: #{color};"
+  # 0.984 = 0.8 (font size) * 1.23 (line height)
   element.style.top = "calc(1px + 0.25rem + #{(y + 1) * 0.984}em)"
   element.style.left = "calc(0.25rem + #{col}ch)"
-  elements.programContainer.insertBefore(element, elements.program)
-
-removeHighlight = (color) =>
-  if elements["highlight-#{color}"]?
-    elements.programContainer.removeChild(elements["highlight-#{color}"])
-  elements["highlight-#{color}"] = null
+  elements.programContainer.insertBefore element, elements.program
 
 elements.program.oninput = ->
   elements.urlOutBox.className = 'content-hidden'
@@ -289,7 +303,7 @@ elements.debugHeader.ontouchstart = (e) ->
 width = elements.runStop.offsetWidth
 remSize = parseFloat getComputedStyle(document.body).fontSize
 elements.runStop.textContent = 'Run!'
-setTimeout => elements.runStop.style.width = "#{(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}rem"
+setTimeout -> elements.runStop.style.width = "#{(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}rem"
 elements.runStop.onclick = interpretProgram
 elements.urlButton.onclick = generateURL
 

@@ -5,13 +5,13 @@
 # "__trilangle_". Things that are also accessed in worker.coffee are represented in quotes in case the minifier mangles
 # them separately.
 mergeInto LibraryManager.library,
-  send_thread_count: (thread_count) => postMessage [3, thread_count],
+  send_thread_count: (thread_count) -> postMessage [3, thread_count],
   send_debug_info: (thread_number, stack, stack_depth, y, x, instruction) =>
     Asyncify.handleAsync =>
       postMessage [3, [thread_number, {
         'x': x,
         'y': y,
-        'stack': Array::map.call HEAP32.slice(stack >> 2, (stack >> 2) + stack_depth), (x) => x << 8 >> 8
+        'stack': Array::map.call HEAP32.slice(stack >> 2, (stack >> 2) + stack_depth), (x) -> x << 8 >> 8
       }]]
       new Promise (r) =>
         @['__trilangle_resolve'] = r
