@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.4.1] - 2023-07-26
+
 ### Fixed
 
 - The "Step" button in the GUI debugger now works correctly on iOS.
@@ -141,3 +143,4 @@ First versioned release.
 [1.3.4]: https://github.com/bbrk24/Trilangle/tree/1.3.4
 [1.3.5]: https://github.com/bbrk24/Trilangle/tree/1.3.5
 [1.4.0]: https://github.com/bbrk24/Trilangle/tree/1.4.0
+[1.4.0]: https://github.com/bbrk24/Trilangle/tree/1.4.1
