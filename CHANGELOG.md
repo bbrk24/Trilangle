@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.4.0] - 2023-07-26
+
 ### Added
 
 - Added a `--version` flag. The version must be defined when compiling the interpreter, with `-DVERSION=...` (gcc/clang) or `/DVERSION=...` (MSVC).
@@ -133,3 +135,4 @@ First versioned release.
 [1.3.3]: https://github.com/bbrk24/Trilangle/tree/1.3.3
 [1.3.4]: https://github.com/bbrk24/Trilangle/tree/1.3.4
 [1.3.5]: https://github.com/bbrk24/Trilangle/tree/1.3.5
+[1.4.0]: https://github.com/bbrk24/Trilangle/tree/1.4.0
