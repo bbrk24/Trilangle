@@ -143,4 +143,4 @@ First versioned release.
 [1.3.4]: https://github.com/bbrk24/Trilangle/tree/1.3.4
 [1.3.5]: https://github.com/bbrk24/Trilangle/tree/1.3.5
 [1.4.0]: https://github.com/bbrk24/Trilangle/tree/1.4.0
-[1.4.0]: https://github.com/bbrk24/Trilangle/tree/1.4.1
+[1.4.1]: https://github.com/bbrk24/Trilangle/tree/1.4.1
