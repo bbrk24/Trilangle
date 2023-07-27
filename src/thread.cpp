@@ -66,6 +66,12 @@ extern "C" void send_debug_info(
 [[noreturn]] static inline void flush_and_exit(int code) {
     cout << flush;
     cerr << flush;
+#ifdef __EMSCRIPTEN__
+    // https://github.com/bbrk24/Trilangle/issues/4
+    while (!feof(stdin)) {
+        DISCARD getchar();
+    }
+#endif
     exit(code);
 }
 
