@@ -291,15 +291,15 @@ footer,
     height: 1em;
     z-index: -1;
     background-color: var(--highlight-color);
-    margin: 0.125rem;
+    margin: 0.125rem 0.125rem -1em;
 
     .high-contrast & {
         background-color: transparent;
         border: 1px solid var(--highlight-color);
     }
 
-    &:not(:last-of-type) {
-        margin-bottom: -1em;
+    &:last-of-type {
+        margin-bottom: 0.0625rem;
     }
 }
 
