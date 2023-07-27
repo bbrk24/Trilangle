@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- More CSS improvements for Chromium-based browsers and Firefox.
+
 ## [1.4.1] - 2023-07-26
 
 ### Fixed

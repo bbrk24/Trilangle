@@ -40,7 +40,7 @@ void disassembler::write_state(std::ostream& os) {
 }
 
 void disassembler::build_state() {
-    // https://languagedesign.stackexchange.com/a/659/15
+    // https://langdev.stackexchange.com/a/659/15
 
     m_fragments = new vector<vector<instruction>*>{ nullptr };
     // A map of IP -> location in fragments
