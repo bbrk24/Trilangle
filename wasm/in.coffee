@@ -7,18 +7,17 @@ threads = []
 decoder = new TextDecoder
 resolve = null
 
-# TODO: Figure out a better mapping for this. The code below can't render two highlights of the same color.
-
 # A list of colors used for threads.
+# TODO: Should these be customizable?
 threadColors = [
-  'red',
-  'dodgerblue',
-  'green',
-  'goldenrod',
-  'magenta',
-  'orangered',
-  'lightseagreen',
-  'mediumorchid',
+  'rgb(0, 173, 0)',
+  'rgb(255, 40, 255)',
+  'rgb(49, 151, 255)',
+  'rgb(187, 142, 29)',
+  'rgb(255, 93, 94)',
+  'rgb(28, 166, 159)',
+  'rgb(199, 117, 219)',
+  'rgb(255, 97, 38)',
 ]
 
 # A mapping of color -> div element.
