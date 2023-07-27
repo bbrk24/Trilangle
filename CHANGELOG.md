@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 ### Fixed
 
 - The "Step" button in the GUI debugger now works correctly on iOS.
+- The IP highlight now renders in the correct position on Chrome and related browsers.
 
 ## [1.4.0] - 2023-07-26
 

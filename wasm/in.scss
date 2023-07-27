@@ -53,7 +53,8 @@ $min-two-col-width: calc(2 * ($column-padding * 2 + $textarea-cols * $monospace-
 
 pre,
 code,
-textarea {
+textarea,
+.highlight {
     font: 0.8em / 1.23 "Martian Mono", monospace;
 }
 
@@ -290,6 +291,7 @@ footer,
     height: 1em;
     z-index: -1;
     background-color: var(--highlight-color);
+    margin: 0.125rem;
 
     .high-contrast & {
         background-color: transparent;

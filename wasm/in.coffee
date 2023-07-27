@@ -236,9 +236,10 @@ highlightIndex = (x, y, color) ->
   element = (highlights[color] ?= document.createElement 'div')
   element.classList.add 'highlight'
   element.style = "--highlight-color: #{color};"
-  # 0.984 = 0.8 (font size) * 1.23 (line height)
-  element.style.top = "calc(1px + 0.25rem + #{(y + 1) * 0.984}em)"
-  element.style.left = "calc(0.25rem + #{col}ch)"
+  # 1.23 is the line height
+  # TODO: This works right in Blink and Gecko, but WebKit renders it too low (1.23 is too big).
+  element.style.top = "calc(1px + 0.125rem + #{(y + 1) * 1.23}em)"
+  element.style.left = "calc(0.125rem + #{col}ch)"
   elements.programContainer.insertBefore element, elements.program
 
 elements.program.oninput = ->
