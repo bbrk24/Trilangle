@@ -265,6 +265,8 @@ pos3 = 0
 pos4 = 0
 elements.debugHeader.onmousedown = (e) ->
   e ?= window.event
+  if e.target isnt elements.debugHeader
+    return
   e.preventDefault()
   pos3 = e.clientX
   pos4 = e.clientY
@@ -282,6 +284,8 @@ elements.debugHeader.onmousedown = (e) ->
     @onmouseup = null
 elements.debugHeader.ontouchstart = (e) ->
   e ?= window.event
+  if e.target isnt elements.debugHeader
+    return
   e.preventDefault()
   pos3 = e.touches[0].clientX
   pos4 = e.touches[0].clientY

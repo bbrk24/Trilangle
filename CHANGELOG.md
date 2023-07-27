@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- The "Step" button in the GUI debugger now works correctly on iOS.
+
 ## [1.4.0] - 2023-07-26
 
 ### Added
