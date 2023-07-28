@@ -16,9 +16,6 @@ jobs:
           path: /opt/hostedtoolcache/emscripten/latest/x64/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/lto
           key: libs-${{ hashFiles('~/work/Trilangle/Trilangle/emsdk/upstream/emscripten/system/lib/**.c') }}
           restore-keys: "libs-\n"
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ^16.13.0
       - name: Run build script
         shell: bash
         run: |
