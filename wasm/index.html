@@ -53,7 +53,7 @@
         <button type="button" id="url-button">Generate URL</button>
         <span id="copy-alert" class="hidden">Copied!</span>
         <div id="url-out-box" class="content-hidden"><span>URL:</span>&nbsp;<code id="url-out"></code></div>
-        <textarea id="program" rows="10" spellcheck="false">        &quot;
+        <textarea id="program" rows="10" spellcheck="false" class="textarea">        &quot;
        H o
       o &quot; !
      &quot; o ( o
@@ -63,10 +63,11 @@
  l o o o d o : o
 o &quot; &quot; &quot; o ' ( @ .
 </textarea>
+        <div id="debug-program" hidden class="textarea"></div>
       </fieldset>
       <fieldset id="input-container">
         <legend>Input</legend>
-        <textarea id="stdin" rows="10"></textarea>
+        <textarea id="stdin" rows="10" class="textarea"></textarea>
       </fieldset>
       <div id="clear-container"><button type="button" onclick="clearOutput()">Clear output &amp; errors</button></div>
       <div class="out-container" id="stdout-container"><p>Output</p><pre id="stdout"></pre></div>

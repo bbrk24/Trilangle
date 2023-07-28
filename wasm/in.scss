@@ -53,8 +53,7 @@ $min-two-col-width: calc(2 * ($column-padding * 2 + $textarea-cols * $monospace-
 
 pre,
 code,
-textarea,
-.highlight {
+.textarea {
     font: 0.8em / 1.23 "Martian Mono", monospace;
 }
 
@@ -111,15 +110,6 @@ th {
 .dark.high-contrast {
     --bg-color: black;
     --text-color: white;
-}
-
-textarea {
-    background-color: transparent;
-    color: var(--text-color);
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 0.125rem;
-    border-width: 0.125rem;
 }
 
 body,
@@ -251,6 +241,19 @@ footer,
     }
 }
 
+.textarea {
+    background-color: transparent;
+    color: var(--text-color);
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.125rem;
+    border: 0.125rem inset gainsboro;
+
+    .high-contrast & {
+        border-color: var(--text-color);
+    }
+}
+
 .hide-slow {
     visibility: hidden;
     opacity: 0;
@@ -288,18 +291,15 @@ footer,
 .highlight {
     position: relative;
     width: 1ch;
-    height: 1em;
+    height: 1.23em;
     z-index: -1;
     background-color: var(--highlight-color);
-    margin: 0.125rem 0.125rem -1em;
+    margin-bottom: -1.23em;
+    box-sizing: border-box;
 
     .high-contrast & {
         background-color: transparent;
         border: 1px solid var(--highlight-color);
-    }
-
-    &:last-of-type {
-        margin-bottom: 0.0625rem;
     }
 }
 
@@ -486,6 +486,14 @@ footer,
     .high-contrast & {
         border-bottom-width: 1px;
         border-bottom-style: solid;
+    }
+}
+
+#debug-program {
+    min-width: fit-content;
+
+    :not(.highlight) {
+        width: fit-content;
     }
 }
 

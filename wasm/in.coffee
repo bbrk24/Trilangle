@@ -37,9 +37,7 @@ getColor = (idx) ->
   usedColors[idx] ?= threadColors.find (color) -> not (color in usedColors)
   
 # Destroy all highlight divs, freeing them for the garbage collector.
-removeAllHighlights = -> threadColors.forEach (color) ->
-  if highlights[color]?
-    elements.programContainer.removeChild highlights[color]
+removeAllHighlights = ->
   highlights = {}
   usedColors = []
 
@@ -192,10 +190,31 @@ debugBase = createWorker 'debugProgram'
   elements.stdout.innerText = ''
 
 @debugProgram = ->
-  await expandInput()
+  await expandBase()
+
+  elements.debugProgram.hidden = false
+  elements.debugProgram.style.width = "#{elements.program.offsetWidth}px"
+  elements.debugProgram.style.minHeight = "#{elements.program.offsetHeight}px"
+  elements.program.hidden = true
+
+  textRows = elements.stdout.innerText.split '\n'
+  for i in [0 ... textRows.length]
+    el = document.createElement 'div'
+    el.id = "row-#{i}"
+    el.textContent = textRows[i]
+      .replace ' ', '\xA0'
+      # Without the parens, it thinks the first slash is division
+      .replace(/  /gu, () => ' \xA0')
+    elements.debugProgram.appendChild el
+  elements.stdout.innerText = ''
+
   await debugBase()
-  elements.debugInfo.hidden = true
+
   removeAllHighlights()
+  elements.debugInfo.hidden = true
+  elements.debugProgram.innerHTML = ''
+  elements.debugProgram.hidden = true
+  elements.program.hidden = false
 
 renderThreads = ->
   elements.debugInfo.hidden = false
@@ -225,22 +244,19 @@ getColumn = (y, x, str) ->
   while true
     if idx >= row.length
       return -1
-    if row[idx] isnt ' '
+    if row[idx] isnt ' ' and row[idx] isnt '\xA0'
       ++nonspaces
     if nonspaces > x
       return idx
     ++idx
 
 highlightIndex = (x, y, color) ->
-  col = getColumn y, x, elements.program.value
+  col = getColumn y, x, elements.debugProgram.innerText
   element = (highlights[color] ?= document.createElement 'div')
   element.classList.add 'highlight'
   element.style = "--highlight-color: #{color};"
-  # 1.23 is the line height
-  # TODO: This works right in Blink and Gecko, but WebKit renders it too low (1.23 is too big).
-  element.style.top = "calc(1px + 0.125rem + #{(y + 1) * 1.23}em)"
-  element.style.left = "calc(0.125rem + #{col}ch)"
-  elements.programContainer.insertBefore element, elements.program
+  element.style.left = "#{col}ch"
+  elements.debugProgram.insertBefore element, document.getElementById "row-#{y}"
 
 elements.program.oninput = ->
   elements.urlOutBox.className = 'content-hidden'

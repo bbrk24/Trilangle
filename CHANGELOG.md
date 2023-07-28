@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
-- More CSS improvements for Chromium-based browsers and Firefox.
 - The online interpreter correctly resets STDIN each time.
+- The IP highlight now always renders in the correct place while debugging.
 
 ## [1.4.1] - 2023-07-26
 
