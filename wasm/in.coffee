@@ -204,7 +204,7 @@ debugBase = createWorker 'debugProgram'
     el.textContent = textRows[i]
       .replace ' ', '\xA0'
       # Without the parens, it thinks the first slash is division
-      .replace(/  /gu, () => ' \xA0')
+      .replace(/  /gu, -> ' \xA0')
     elements.debugProgram.appendChild el
   elements.stdout.innerText = ''
 
