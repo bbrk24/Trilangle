@@ -3,6 +3,8 @@ name: Lint Builds
   push:
     branches:
       - '*'
+    tags-ignore:
+      - '**'
   workflow_dispatch: ~
 jobs:
   build-native:
