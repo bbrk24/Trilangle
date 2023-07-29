@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.4.2] - 2023-07-29
+
 ### Fixed
 
 - The online interpreter correctly resets STDIN each time.
@@ -149,3 +151,4 @@ First versioned release.
 [1.3.5]: https://github.com/bbrk24/Trilangle/tree/1.3.5
 [1.4.0]: https://github.com/bbrk24/Trilangle/tree/1.4.0
 [1.4.1]: https://github.com/bbrk24/Trilangle/tree/1.4.1
+[1.4.2]: https://github.com/bbrk24/Trilangle/tree/1.4.2
