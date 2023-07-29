@@ -11,7 +11,12 @@ name: Lint Builds
       - .clang-format
       - .github/workflows/lint-build.yml
   pull_request:
-    paths: !reference on.push.paths
+    # GitHub doesn't let you do *ptr even though it's part of the YAML spec
+    paths:
+      - src/*
+      - wasm/*
+      - .clang-format
+      - .github/workflows/lint-build.yml
   workflow_dispatch: ~
 jobs:
   build-native:
