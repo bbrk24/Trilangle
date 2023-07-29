@@ -4,7 +4,7 @@
 #include <utility>
 
 #ifdef __has_include
-#if __has_include(<sal.h>)
+#if __has_include(<sal.h>) && !defined(__clang__)
 #include <sal.h>
 #endif
 
@@ -32,6 +32,15 @@ constexpr int EX_USAGE = 64;
 
 #ifndef EX_NOINPUT
 constexpr int EX_NOINPUT = 66;
+#endif
+
+
+#if !defined(__GNUC__) && defined(_MSC_VER)
+// 1 if the compiler is really MSVC, and not clang pretending to be MSVC. 0 for clang and GCC.
+#define REALLY_MSVC 1
+#else
+// 1 if the compiler is really MSVC, and not clang pretending to be MSVC. 0 for clang and GCC.
+#define REALLY_MSVC 0
 #endif
 
 
@@ -108,7 +117,7 @@ constexpr int EX_NOINPUT = 66;
 #define FALLTHROUGH [[fallthrough]];
 #endif
 
-#if !defined(__GNUC__) && defined(_MSC_VER)
+#if REALLY_MSVC
 #if _MSC_VER >= 1929
 // mark that the padding of this member can be used for other members
 #define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
@@ -160,7 +169,7 @@ constexpr int EX_NOINPUT = 66;
 #endif
 
 
-#if !defined(__GNUC__) && defined(_MSC_VER)
+#if REALLY_MSVC
 #define __builtin_unreachable() __assume(0)
 #endif
 
@@ -172,6 +181,7 @@ constexpr int EX_NOINPUT = 66;
 
 
 #ifdef __clang__
+#pragma clang diagnostic ignored "-Wnullability-completeness"
 // A non-nullable pointer to the specified type.
 #define NONNULL_PTR(...) __VA_ARGS__* _Nonnull
 #elif defined(_Notnull_)
@@ -184,7 +194,7 @@ constexpr int EX_NOINPUT = 66;
 #endif
 
 
-#if (defined(__x86_64__) || defined(_M_X64)) && (defined(__GNUC__) || defined(__clang__))
+#if (defined(__x86_64__) || defined(_M_X64)) && !REALLY_MSVC
 // 1 on gcc or clang for x86-64, where asm blocks are used. 0 otherwise.
 #define ASM_ALLOWED 1
 #else

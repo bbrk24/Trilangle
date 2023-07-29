@@ -97,7 +97,7 @@ public:
         }
     }
 
-#ifdef _MSC_VER
+#if REALLY_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4702)
     // C4702 is unreachable code, which it complains about when constant-folding the template instantiation
@@ -290,7 +290,7 @@ public:
         }
     }
 
-#ifdef _MSC_VER
+#if REALLY_MSVC
 #pragma warning(pop)
 #endif
 protected:

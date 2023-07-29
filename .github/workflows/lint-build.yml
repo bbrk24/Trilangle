@@ -21,8 +21,8 @@ jobs:
       - name: Invoke clang
         shell: bash
         run: >+
-          clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wno-nullability-completeness -Werror -std=c++14 -o
-          /dev/null src/*.cpp
+          clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wimplicit-fallthrough -Werror -std=c++14 -o /dev/null
+          src/*.cpp
   lint-npm:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest

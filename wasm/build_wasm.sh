@@ -2,7 +2,7 @@
 
 set -e
 
-common_emcc_args=(-WCL4 -Wnon-gcc -Wno-nullability-completeness
+common_emcc_args=(-WCL4 -Wnon-gcc -Wimplicit-fallthrough
     -fno-rtti -fno-exceptions
     -sEXPORTED_RUNTIME_METHODS=ccall -sASYNCIFY -sASYNCIFY_IMPORTS='send_debug_info'
     -o worker.js

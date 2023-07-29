@@ -114,6 +114,7 @@ void disassembler::build_state() {
                     case PSI:
                     case PSC:
                         program_walker::advance(ip, m_program->side_length());
+                        break;
                     default:
                         break;
                 }
