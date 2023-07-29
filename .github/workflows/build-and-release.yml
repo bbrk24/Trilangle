@@ -14,14 +14,12 @@ jobs:
     name: Build for ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: getTag
       - name: Compile C++ sources
         shell: bash
         run: >
           mkdir Release/
 
-          tag=${{ steps.getTag.outputs.tag }}
+          tag=${{ github.ref_name }}
 
           g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++17 -o Release/trilangle-${tag}-${{ matrix.os }}
           src/*.cpp
@@ -34,15 +32,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: getTag
       - uses: ilammy/msvc-dev-cmd/@v1.12.1
       - name: Compile C++ sources
         shell: cmd
         run: >
           MD Release
 
-          SET tag=${{ steps.getTag.outputs.tag }}
+          SET tag=${{ github.ref_name }}
 
           CL .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /DVERSION=%tag% /std:c++20 /MT /link
           /out:Release\trilangle-%tag%-windows-latest.exe
@@ -62,22 +58,15 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts/
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: getTag
       - name: Flatten artifacts directory
         # https://unix.stackexchange.com/a/52836
-        # The second command returns 1 for some reason, and GitHub uses 'sh -e', so use 'set +e' to make this not fail.
-        # I'm not 100% sure whether the final 'true' is needed, but I think scripts propagate the return value of the
-        # Last expression, so I'm putting it there to be safe.
         run: |
-          set +e
           find artifacts -type f -exec sh -c 'mv "$@" artifacts' _ {} +
-          find artifacts -depth -exec rmdir {} +
-          true
+          find artifacts -depth -exec rmdir {} + || true
       - name: Parse changelog
         shell: bash
         run: |
-          tag=${{ steps.getTag.outputs.tag }}
+          tag=${{ github.ref_name }}
           sed -n "s/^## \[${tag//./\\.}\].*$//m
           t loop
           d
@@ -88,5 +77,5 @@ jobs:
           b loop" CHANGELOG.md >$tag-CHANGELOG.md
       - uses: softprops/action-gh-release@v1
         with:
-          body_path: ${{ steps.getTag.outputs.tag }}-CHANGELOG.md
+          body_path: ${{ github.ref_name }}-CHANGELOG.md
           files: artifacts/*

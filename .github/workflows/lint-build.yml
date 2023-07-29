@@ -2,7 +2,14 @@ name: Lint Builds
 'on':
   push:
     branches:
-      - '*'
+      - '**'
+    paths:
+      # It would be nice if I could specify this per-job, but I'm not making a whole new file just to avoid running
+      # clang for web-only changes.
+      - src/*
+      - wasm/*
+      - .clang-format
+      - .github/workflows/lint-build.yml
   workflow_dispatch: ~
 jobs:
   build-native:
@@ -22,9 +29,6 @@ jobs:
     name: Lint with JS Tools
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ^18.16.1
       - name: npm lint
         shell: bash
         run: |
