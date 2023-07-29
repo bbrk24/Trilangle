@@ -1,6 +1,6 @@
 name: Lint Builds
 'on':
-  push:
+  push: &p
     branches:
       - '**'
     paths:
@@ -10,6 +10,7 @@ name: Lint Builds
       - wasm/*
       - .clang-format
       - .github/workflows/lint-build.yml
+  pull_request: *p
   workflow_dispatch: ~
 jobs:
   build-native:
