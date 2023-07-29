@@ -24,6 +24,7 @@ jobs:
       - name: Compile and run unit tests
         shell: bash
         run: |
+          git submodule update --init --recursive
           shopt -s globstar
           g++ tests/unit/**/*.cpp -Isrc
           ./a.out
