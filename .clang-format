@@ -12,6 +12,9 @@ BreakConstructorInitializers: AfterColon
 ColumnLimit: 120
 Cpp11BracedListStyle: false
 EmptyLineBeforeAccessModifier: Never
+ForEachMacros: # It doesn't particularly matter if these are ForEachMacros or IfMacros
+  - testcase
+  - testgroup
 IndentWidth: 4
 InsertTrailingCommas: Wrapped
 InsertBraces: true
@@ -19,3 +22,5 @@ MaxEmptyLinesToKeep: 2
 SpaceAfterTemplateKeyword: false
 WhitespaceSensitiveMacros:
   - STRING_NAME
+  - testcase
+  - testgroup

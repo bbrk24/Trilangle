@@ -4,9 +4,12 @@
 #include <chrono>
 #include <cinttypes>
 #include <cstdlib>
-#include <ctime>
 #include <random>
 #include "output.hh"
+
+#ifndef TRILANGLE_CLOCK
+#define TRILANGLE_CLOCK std::chrono::system_clock
+#endif
 
 #define EMPTY_PROTECT(name) \
     if (m_stack.empty() && m_flags.warnings) UNLIKELY { \
@@ -21,12 +24,11 @@ using std::cerr;
 using std::cout;
 using std::flush;
 using std::pair;
-using std::chrono::system_clock;
+using trilangle_clock = TRILANGLE_CLOCK;
 
 using status = thread::status;
 
-constexpr time_t DAY_LENGTH = 24 * 60 * 60;
-constexpr auto ONE_DAY = std::chrono::duration_cast<system_clock::duration>(std::chrono::seconds(DAY_LENGTH));
+constexpr auto ONE_DAY = std::chrono::duration_cast<trilangle_clock::duration>(std::chrono::seconds(24 * 60 * 60));
 constexpr long double TICKS_PER_UNIT = ONE_DAY.count() / static_cast<long double>(INT24_MAX);
 
 unsigned long thread::thread_count;
@@ -442,13 +444,13 @@ void thread::tick() {
             }
             break;
         case GTM: {
-            auto time =
-                static_cast<long double>((system_clock::now().time_since_epoch() % ONE_DAY).count()) / TICKS_PER_UNIT;
+            auto time = static_cast<long double>((trilangle_clock::now().time_since_epoch() % ONE_DAY).count())
+                        / TICKS_PER_UNIT;
             m_stack.emplace_back(time);
             break;
         }
         case GDT: {
-            time_t day = time(nullptr) / DAY_LENGTH;
+            auto day = trilangle_clock::now().time_since_epoch() / ONE_DAY;
             m_stack.emplace_back(day);
             break;
         }

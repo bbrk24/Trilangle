@@ -15,4 +15,3 @@ mergeInto LibraryManager.library,
       }]]
       new Promise (r) =>
         @['__trilangle_resolve'] = r
-        undefined

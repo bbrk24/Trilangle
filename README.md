@@ -283,6 +283,8 @@ The specific compiler used shouldn't matter. I've been using MSVC 14.35 (Visual 
 
 To enable the `--version` flag, the version must be set at compile time. For example, if invoking GCC directly from bash, this could be done with `-DVERSION="$(git describe --always)"`.
 
+Optionally, you can control the behavior of the date/time instructions with `TRILANGLE_CLOCK`. It may be the name of an existing clock in the chrono header (e.g. `-DTRILANGLE_CLOCK=std::chrono::utc_clock`) or C++ code for a class definition (i.e. `-DTRILANGLE_CLOCK='class trilangle_clock { ... };'`). The class must satisfy *[Clock]*. If not specified, defaults to `std::chrono::system_clock`.
+
 C++14 (`201304L`) or later is required to compile this project. Certain features from newer versions will be used if they are available, which may affect the performance of the compiled binary. These features include, but are not limited to:
 
 - `noexcept` in function types (C++17, `201510L`)
@@ -300,3 +302,4 @@ Run the shell script `build_wasm.sh` to compile the project to webassembly and t
 [Hexagony]: https://github.com/m-ender/hexagony
 [turing_completeness.md]: turing_completeness.md
 [issues]: https://github.com/bbrk24/Trilangle/issues
+[Clock]: https://en.cppreference.com/w/cpp/named_req/Clock

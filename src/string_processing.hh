@@ -78,6 +78,11 @@ CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_
         while (*iter != '\n' && iter != end) {
             ++iter;
         }
+
+        // off-by-one error
+        if (iter != end) {
+            ++iter;
+        }
     }
 
     do {

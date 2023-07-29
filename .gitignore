@@ -13,3 +13,8 @@ wasm/node_modules/
 wasm/*.wasm
 wasm/*.js
 wasm/*.css
+
+# Compilation outputs
+*.out
+*.exe
+trilangle

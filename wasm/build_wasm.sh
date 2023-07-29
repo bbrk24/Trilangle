@@ -14,7 +14,7 @@ wait
 
 if [ "$1" = debug ]
 then
-    emcc ../src/*.cpp "${common_emcc_args[@]}" -Wno-unused-value -Og -g2 -sASSERTIONS &
+    emcc ../src/*.cpp "${common_emcc_args[@]}" -Og -g2 -sASSERTIONS &
     # emcc is so much slower than the coffeescript and sass compilers that parallelizing them doesn't matter much
     npx coffee -cMo index.js in.coffee
     npx sass in.scss index.css --embed-source-map

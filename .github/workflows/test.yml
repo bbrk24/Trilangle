@@ -1,0 +1,44 @@
+name: Run Tests
+'on':
+  push:
+    branches:
+      - '**'
+    paths:
+      - src/*
+      - tests/**
+      - .github/workflows/test.yml
+      - .gitmodules
+  pull_request:
+    paths:
+      - src/*
+      - tests/**
+      - .github/workflows/test.yml
+      - .gitmodules
+  workflow_dispatch: ~
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    name: Run Unit Tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Compile and run unit tests
+        shell: bash
+        run: |
+          shopt -s globstar
+          g++ tests/unit/**/*.cpp -Isrc
+          ./a.out
+  cli-tests:
+    runs-on: ubuntu-latest
+    name: Run CLI Tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and run tests
+        shell: bash
+        run: |
+          g++ src/*.cpp -o trilangle
+          export PATH="${PATH}:${PWD}"
+          for script in tests/cli/*/index.sh
+          do
+            echo "Running ${script}..."
+            "$script"
+          done
