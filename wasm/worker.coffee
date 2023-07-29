@@ -31,19 +31,15 @@ callInterpreter = (warnings, disassemble, expand) -> ->
   errorHandler = (e) ->
     if e? and not (e instanceof ExitStatus)
       postMessage [2, e.toString()]
-  ccallReturned = null
   try
-    ccallReturned = Module['ccall'] 'wasm_entrypoint',
+    await Module['ccall'] 'wasm_entrypoint',
       null,
       ['string', 'number', 'number', 'number'],
       [programText, warnings, disassemble, expand],
       async: true
   catch e
     errorHandler(e)
-  if ccallReturned instanceof Promise
-    ccallReturned.catch(errorHandler).then -> postMessage [0, null]
-  else
-    postMessage [0, null]
+  postMessage [0, null]
 
 signals.set 'interpretProgram', callInterpreter 0, 0, 0
 signals.set 'disassembleProgram', callInterpreter 1, 0, 0

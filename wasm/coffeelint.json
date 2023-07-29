@@ -10,9 +10,6 @@
   "bracket_spacing": {
     "level": "error"
   },
-  "coffeescript_error": {
-    "level": "error"
-  },
   "colon_assignment_spacing": {
     "level": "error",
     "spacing": {
@@ -30,6 +27,9 @@
   "missing_parseint_radix": {
     "level": "error"
   },
+  "no_debugger": {
+    "level": "error"
+  },
   "no_empty_functions": {
     "level": "error"
   },
@@ -40,9 +40,6 @@
     "level": "error"
   },
   "no_this": {
-    "level": "error"
-  },
-  "no_trailing_semicolons": {
     "level": "error"
   },
   "no_unnecessary_double_quotes": {
