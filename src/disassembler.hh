@@ -23,11 +23,11 @@ public:
 
     // Write the state to the specified output stream.
     void write_state(std::ostream& os);
-private:
+protected:
     void build_state();
 
     // The list of program "fragments". Each one ends with a branch, jump, thread-kill, or exit.
     std::vector<std::vector<instruction>*>* m_fragments;
-
+private:
     const flags m_flags;
 };

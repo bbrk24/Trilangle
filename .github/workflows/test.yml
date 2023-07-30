@@ -26,8 +26,8 @@ jobs:
       - name: Compile and run unit tests
         shell: bash
         run: |
-          shopt -s globstar
-          g++ -Og tests/unit/**/*.cpp -Isrc src/output.cpp src/program.cpp
+          shopt -s globstar extglob
+          g++ -Og -Isrc -- tests/unit/**/*.cpp src/!(main).cpp
           ./a.out
   cli-tests:
     strategy:

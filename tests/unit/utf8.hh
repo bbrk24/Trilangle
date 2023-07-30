@@ -34,6 +34,15 @@ testgroup (utf8_parsing) {
         vector<int24_t> expected = { '.', INT24_C(0x00e9), '.', 'e', INT24_C(0x0301), '.', INT24_C(0x1f388) };
         test_assert(parsed == expected);
     }
+    , testcase (invalid_char) {
+        vector<int24_t> parsed1 = parse_utf8("\xC0@", false);
+        vector<int24_t> expected1 = { INT24_C(0xfffd) };
+        test_assert(parsed1 == expected1, "Ill-formed UTF-8 should produce U+FFFD");
+
+        vector<int24_t> parsed2 = parse_utf8("\xF9.", false);
+        vector<int24_t> expected2 = { INT24_C(0xfffd), '.' };
+        test_assert(parsed2 == expected2, "Characters after invalid byte should be left as-is");
+    }
 };
 
 testgroup (utf8_output) {
