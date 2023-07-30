@@ -8,6 +8,6 @@ Running the tests is simple:
 
 ```bash
 shopt -s globstar extglob
-g++ -Og -Isrc -- tests/unit/**/*.cpp src/!(main).cpp
+g++ -Og -Isrc tests/unit/**/*.cpp src/!(main).cpp
 ./a.out
 ```
