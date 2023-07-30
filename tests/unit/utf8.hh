@@ -1,10 +1,17 @@
+#pragma once
+
+#include <cstring>
+#include <output.hh>
+#include <sstream>
 #include <string_processing.hh>
 #include "test-framework/test_framework.hh"
 #include "vector_compare.hh"
 
+using std::ostringstream;
+using std::string;
 using std::vector;
 
-testgroup (utf8) {
+testgroup (utf8_parsing) {
     testcase (eof_immediately) {
         int24_t parsed = parse_unichar([]() NOEXCEPT_T { return EOF; });
         test_assert(parsed == (int24_t)-1, "EOF should be -1");
@@ -27,5 +34,29 @@ testgroup (utf8) {
         vector<int24_t> parsed = parse_utf8(".\xC3\xA9.e\xCC\x81.\xF0\x9F\x8E\x88", false);
         vector<int24_t> expected = { '.', INT24_C(0x00e9), '.', 'e', INT24_C(0x0301), '.', INT24_C(0x1f388) };
         test_assert(vector_equal(parsed, expected));
+    }
+};
+
+testgroup (utf8_output) {
+    testcase (ascii_char) {
+        ostringstream oss;
+        print_unichar('a', oss);
+        string result = oss.str();
+
+        test_assert(result == "a", "ASCII character should maintain its value");
+    }
+    , testcase (high_byte) {
+        ostringstream oss;
+        print_unichar(INT24_C(0x00e9), oss);
+        string result = oss.str();
+
+        test_assert(result == "\xC3\xA9");
+    }
+    , testcase (multibyte_char) {
+        ostringstream oss;
+        print_unichar(INT24_C(0x1f388), oss);
+        string result = oss.str();
+
+        test_assert(result == "\xF0\x9F\x8E\x88");
     }
 };

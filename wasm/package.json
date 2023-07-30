@@ -12,7 +12,7 @@
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
-        "lint": "stylelint ./*.scss && coffeelint in.coffee worker.coffee library.coffee && clang-format --Werror --dry-run ../src/* ../tests/unit/*.*"
+        "lint": "stylelint ./*.scss && coffeelint in.coffee worker.coffee library.coffee && clang-format --Werror --dry-run ../src/* ../tests/unit/*.cpp ../tests/unit/*.hh"
     },
     "engines": {
         "node": "^16.13.0 || >=18.0.0"

@@ -1,4 +1,4 @@
-#Unit Tests
+# Unit Tests
 
 This folder is for functions that can be tested easily and should not have side effects.
 
@@ -8,7 +8,7 @@ Running the tests is simple:
 
 ```sh
 shopt -s globstar # bash-only; not necessary in zsh
-g++ tests/unit/**/*.cpp -Isrc # or whichever compiler you prefer
+g++ tests/unit/**/*.cpp -Isrc src/output.cpp # or whichever compiler you prefer
 ./a.out
 ```
 

@@ -21,12 +21,13 @@ jobs:
     name: Run Unit Tests
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: Compile and run unit tests
         shell: bash
         run: |
-          git submodule update --init --recursive
           shopt -s globstar
-          g++ tests/unit/**/*.cpp -Isrc
+          g++ tests/unit/**/*.cpp -Isrc src/output.cpp
           ./a.out
   cli-tests:
     runs-on: ubuntu-latest

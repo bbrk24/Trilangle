@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ostream>
+#include <iosfwd>
 #include "input.hh"
 #include "instruction.hh"
 
