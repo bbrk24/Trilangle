@@ -8,7 +8,7 @@ Running the tests is simple:
 
 ```sh
 shopt -s globstar # bash-only; not necessary in zsh
-g++ tests/unit/**/*.cpp -Isrc src/output.cpp src/program.cpp # or whichever compiler you prefer
+g++ -Og tests/unit/**/*.cpp -Isrc src/output.cpp src/program.cpp # or whichever compiler you prefer
 ./a.out
 ```
 

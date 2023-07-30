@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           shopt -s globstar
-          g++ tests/unit/**/*.cpp -Isrc src/output.cpp src/program.cpp
+          g++ -Og tests/unit/**/*.cpp -Isrc src/output.cpp src/program.cpp
           ./a.out
   cli-tests:
     runs-on: ubuntu-latest
