@@ -42,7 +42,7 @@ jobs:
       - name: Build and run tests
         shell: bash
         run: |
-          g++ -Og src/*.cpp -o trilangle
+          g++ -Og -std=gnu++17 src/*.cpp -o trilangle
           export PATH="${PATH}:${PWD}"
           for script in tests/cli/*/index.sh
           do
