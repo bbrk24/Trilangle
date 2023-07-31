@@ -279,7 +279,7 @@ See [turing_completeness.md].
 
 ### Compiling natively
 
-The specific compiler used shouldn't matter. I've been using MSVC 14.35 (Visual Studio 2022 version 17.5), but it should be compatible with clang and GCC, as well as some earlier versions of MSVC (Visual Studio 2017 or later). Incompatibility with these compilers is considered a bug, and any issues should be reported on [the issues page][issues].
+The specific compiler used shouldn't matter. It should be compatible with clang and GCC, as well as MSVC from Visual Studio 2017 or later. Incompatibility with these compilers is considered a bug, and any issues should be reported on [the issues page][issues].
 
 To enable the `--version` flag, the version must be set at compile time. For example, if invoking GCC directly from bash, this could be done with `-DVERSION="$(git describe --always)"`.
 
@@ -297,7 +297,7 @@ As such, it is recommended to use C++20 or later if performance is a concern. (I
 
 The wasm directory contains most of the wrapper/glue code necessary to run the interpreter in a browser. Emscripten 3.1.41 or later and Node 16.13 or later are required.
 
-Run the shell script `build_wasm.sh` to compile the project to webassembly and to generate the JS glue code. Then, you can run `npm start` to host it locally (at http://localhost:3000), or `npm run deploy` to push it to Github pages.
+Run the shell script `build_wasm.sh` to compile the project to webassembly and to generate the JS glue code. Then, you can run `npm start` to host it locally (at http://localhost:3000).
 
 [Hexagony]: https://github.com/m-ender/hexagony
 [turing_completeness.md]: turing_completeness.md
