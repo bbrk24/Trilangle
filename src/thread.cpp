@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <random>
 #include "output.hh"
+#include "time.hh"
 
 #ifndef TRILANGLE_CLOCK
 #define TRILANGLE_CLOCK std::chrono::system_clock
@@ -27,9 +28,6 @@ using std::pair;
 using trilangle_clock = TRILANGLE_CLOCK;
 
 using status = thread::status;
-
-constexpr auto ONE_DAY = std::chrono::duration_cast<trilangle_clock::duration>(std::chrono::seconds(24 * 60 * 60));
-constexpr long double TICKS_PER_UNIT = ONE_DAY.count() / static_cast<long double>(INT24_MAX);
 
 unsigned long thread::thread_count;
 
@@ -444,14 +442,11 @@ void thread::tick() {
             }
             break;
         case GTM: {
-            auto time = static_cast<long double>((trilangle_clock::now().time_since_epoch() % ONE_DAY).count())
-                        / TICKS_PER_UNIT;
-            m_stack.emplace_back(time);
+            m_stack.push_back(get_time<trilangle_clock>());
             break;
         }
         case GDT: {
-            auto day = trilangle_clock::now().time_since_epoch() / ONE_DAY;
-            m_stack.emplace_back(day);
+            m_stack.push_back(get_date<trilangle_clock>());
             break;
         }
         case DP2:
