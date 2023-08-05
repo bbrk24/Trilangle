@@ -27,7 +27,7 @@ testgroup (disassemble) {
 
         auto* fragments = td.get_fragments();
         test_assert(fragments->size() == 1, "Program without branches or threads should have 1 fragment");
-        auto* fragment = fragments->at(0);
+        const std::vector<instruction>* fragment = fragments->at(0);
         test_assert(fragment->size() == 1, "Program of 1 character should be 1 instruction");
         test_assert(fragment->back().is_exit(), "Program must end in EXT");
     }
@@ -40,12 +40,12 @@ testgroup (disassemble) {
 
         auto* fragments = td.get_fragments();
         test_assert(fragments->size() == 1, "Program without branches or threads should have 1 fragment");
-        auto* fragment = fragments->at(0);
+        const std::vector<instruction>* fragment = fragments->at(0);
         // 1 for the instruction itself and one for the JMP
         // In the general case, this has to be two (e.g. GTC). I'm just using NOP here because it's detectable.
         test_assert(fragment->size() == 2);
         test_assert(fragment->front().is_nop());
-        auto& last_instruction = fragment->back();
+        const instruction& last_instruction = fragment->back();
         test_assert(
             !last_instruction.is_exit() && !last_instruction.is_join() && !last_instruction.is_nop(),
             "Instruction should be JMP, not EXT, TJN, or NOP"

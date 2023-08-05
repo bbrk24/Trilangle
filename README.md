@@ -237,7 +237,7 @@ Reads a single number in. If the number is 0, it prints back a single zero and e
 
 ### Prime Test
 
-Reads in an integer, and prints '1' if it's prime.
+Reads in an integer, and prints '0' if it's prime.
 
 ```
        <
@@ -245,9 +245,9 @@ Reads in an integer, and prints '1' if it's prime.
      < # 2
     % . _ z
    S < . > (
-  / . , ) 2 -
- . ^ \ _ / ! @
-. ) @ . . . . .
+  > . , ) 2 -
+ / \ \ _ / ! @
+@ . . . . . . .
 ```
 
 ### GCD

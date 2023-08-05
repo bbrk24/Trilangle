@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+The debug pop-up now line wraps correctly on smaller screens.
+
 ## [1.4.2] - 2023-07-29
 
 ### Fixed

@@ -231,7 +231,7 @@ renderThreads = ->
     threadIdEl.textContent = String idx
     row.appendChild threadIdEl
     threadContentsEl = document.createElement 'td'
-    threadContentsEl.textContent = String thread.stack
+    threadContentsEl.textContent = thread.stack.join ',\u2009'
     row.appendChild threadContentsEl
     elements.threads.appendChild row
 
