@@ -61,12 +61,12 @@ static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_
     exit(EX_USAGE);
 }
 
-[[noreturn]] static inline void unrecognized_flag(NONNULL_PTR(const char) flag) {
+[[noreturn]] static inline void unrecognized_flag(CONST_C_STR flag) {
     cerr << "Unrecognized flag: " << flag << "\n\n";
     invalid_flags();
 }
 
-static inline void set_flag(NONNULL_PTR(const char) flag_name, flags& f) {
+static inline void set_flag(CONST_C_STR flag_name, flags& f) {
     if (flag_name[1] == '-') {
         for (const auto& t : FLAGS) {
             if (!strcmp(get<0>(t), flag_name + 2)) {

@@ -34,7 +34,7 @@ unsigned long thread::thread_count;
 #ifndef __EMSCRIPTEN__
 extern "C" void send_debug_info(
     unsigned long thread_number,
-    const int24_t* stack,
+    NONNULL_PTR(const int24_t) stack,
     size_t stack_depth,
     size_t y,
     size_t x,

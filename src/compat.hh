@@ -6,6 +6,7 @@
 #ifdef __has_include
 #if __has_include(<sal.h>) && !defined(__clang__)
 #include <sal.h>
+#define _INCLUDED_SAL
 #endif
 
 #if __has_include(<sysexits.h>)
@@ -184,14 +185,26 @@ constexpr int EX_NOINPUT = 66;
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 // A non-nullable pointer to the specified type.
 #define NONNULL_PTR(...) __VA_ARGS__* _Nonnull
-#elif defined(_Notnull_)
+// A null-terminated, read-only array of characters.
+#define CONST_C_STR const char* _Nonnull
+#elif defined(_INCLUDED_SAL)
 // A non-nullable pointer to the specified type.
 #define NONNULL_PTR(...) _Notnull_ __VA_ARGS__*
+// A null-terminated, read-only array of characters.
+#define CONST_C_STR _In_z_ const char*
 #else
 // A non-nullable pointer to the specified type.
 #define NONNULL_PTR(...) __VA_ARGS__*
+// A null-terminated, read-only array of characters.
+#define CONST_C_STR const char*
 // gcc's __attribute__((nonnull)) works differently, so I can't wrap it like this.
 #endif
+
+#ifndef _INCLUDED_SAL
+#define _In_reads_z_(s)
+#endif
+
+#undef _INCLUDED_SAL
 
 
 #if (defined(__x86_64__) || defined(_M_X64)) && !REALLY_MSVC

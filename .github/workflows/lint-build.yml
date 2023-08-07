@@ -19,7 +19,7 @@ name: Lint Builds
       - .github/workflows/lint-build.yml
   workflow_dispatch: ~
 jobs:
-  build-native:
+  build-native-mac:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: macos-latest
     name: Verify C++ Build with clang
@@ -30,6 +30,17 @@ jobs:
         run: >+
           clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wimplicit-fallthrough -Werror -std=c++14 -o /dev/null
           src/*.cpp
+  build-native-windows:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: windows-latest
+    name: Verify C++ Build with MSVC
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ilammy/msvc-dev-cmd/@v1.12.1
+      - name: Invoke MSVC
+        shell: pwsh
+        run: |
+          CL .\src\*.cpp /EHsc /DVERSION=0.0.0 /DNDEBUG /MTd /analyze /W4 /WX
   lint-npm:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
