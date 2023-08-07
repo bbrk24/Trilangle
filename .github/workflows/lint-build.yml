@@ -36,7 +36,7 @@ jobs:
     name: Verify C++ Build with MSVC
     steps:
       - uses: actions/checkout@v3
-      - uses: ilammy/msvc-dev-cmd/@v1.12.1
+      - uses: ilammy/msvc-dev-cmd@v1.12.1
       - name: Invoke MSVC
         shell: pwsh
         run: |

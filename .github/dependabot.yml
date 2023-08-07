@@ -8,6 +8,10 @@ updates:
       stylelint:
         patterns:
           - stylelint*
+      coffeescript:
+        patterns:
+          - '@coffeelint/*'
+          - coffeescript
     labels:
       - 'domain:dependencies'
     versioning-strategy: increase-if-necessary
@@ -21,6 +25,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      artifacts:
+        patterns:
+          - actions/*-artifact
     labels:
       - 'domain:dependencies'
       - 'domain:CI/CD'
