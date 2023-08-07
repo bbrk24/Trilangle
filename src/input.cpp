@@ -108,7 +108,7 @@ static string read_istream(std::istream& stream) {
     return retval;
 }
 
-string parse_args(int argc, const char** argv, flags& f) {
+string parse_args(int argc, _In_reads_z_(argc) const char** argv, flags& f) {
     const char* filename = nullptr;
 
     bool parse_flags = true;
