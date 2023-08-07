@@ -16,7 +16,7 @@ updates:
       - 'domain:dependencies'
     versioning-strategy: increase-if-necessary
   - package-ecosystem: gitsubmodule
-    directory: /tests/unit
+    directory: /
     schedule:
       interval: monthly
     labels:
