@@ -25,7 +25,7 @@ jobs:
           mkdir ../Release
           mv index.css index.js worker.js worker.wasm ../Release/
           cp index.html favicon.ico ../Release/
-      - uses: actions/upload-pages-artifact@v1
+      - uses: actions/upload-pages-artifact@v2
         with:
           path: Release/
   deploy-pages:
