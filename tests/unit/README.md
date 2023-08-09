@@ -1,6 +1,6 @@
 # Unit Tests
 
-This folder is for functions th+at can be tested easily and should not have side effects.
+This folder is for functions that can be tested easily and should not have side effects.
 
 ## Running the tests
 
