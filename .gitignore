@@ -17,4 +17,5 @@ wasm/*.css
 # Compilation outputs
 *.out
 *.exe
+*.obj
 trilangle

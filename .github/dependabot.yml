@@ -21,6 +21,7 @@ updates:
       interval: monthly
     labels:
       - 'domain:dependencies'
+      - 'domain:tests'
   - package-ecosystem: github-actions
     directory: /
     schedule:

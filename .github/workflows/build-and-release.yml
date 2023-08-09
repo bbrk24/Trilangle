@@ -40,7 +40,7 @@ jobs:
 
           SET tag=${{ github.ref_name }}
 
-          CL .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /DVERSION=%tag% /std:c++20 /MT /link
+          cl .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /DVERSION=%tag% /std:c++20 /MT /link
           /out:Release\trilangle-%tag%-windows-latest.exe
       - uses: actions/upload-artifact@v3
         with:

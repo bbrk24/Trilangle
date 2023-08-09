@@ -10,8 +10,8 @@ three="$(trilangle "${folder}/int.trg" <<<'3 with some trailing junk')"
 sixteen="$(trilangle "${folder}/int.trg" <<<'0x10')"
 minus_one="$(trilangle "${folder}/int.trg" <<<'')"
 
-test "$one" = 1
-test "$two" = 2
-test "$three" = 3
-test "$sixteen" = 16
-test "$minus_one" = -1
+test 1 = "$one"
+test 2 = "$two"
+test 3 = "$three"
+test 16 = "$sixteen"
+test -1 = "$minus_one"

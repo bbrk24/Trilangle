@@ -13,7 +13,7 @@ using std::vector;
 testgroup (utf8_parsing) {
     testcase (eof_immediately) {
         int24_t parsed = parse_unichar([]() NOEXCEPT_T { return EOF; });
-        test_assert(parsed == (int24_t)-1, "EOF should be -1");
+        test_assert(parsed == INT24_C(-1), "EOF should be -1");
     }
     , testcase (ascii_string) {
         vector<int24_t> parsed = parse_utf8("abcd", false);

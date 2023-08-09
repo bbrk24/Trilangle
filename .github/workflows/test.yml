@@ -29,7 +29,7 @@ jobs:
           shopt -s globstar extglob
           g++ -Og -Isrc tests/unit/**/*.cpp src/!(main).cpp
           ./a.out
-  cli-tests:
+  cli-tests-unix:
     strategy:
       matrix:
         os:
@@ -43,6 +43,26 @@ jobs:
         shell: bash
         run: |
           g++ -Og -std=gnu++17 src/*.cpp -o trilangle
+          export PATH="${PATH}:${PWD}"
+          for script in tests/cli/*/index.sh
+          do
+            echo "Running ${script}..."
+            "$script"
+          done
+  cli-tests-windows:
+    runs-on: windows-latest
+    name: Run CLI Tests for Windows
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ilammy/msvc-dev-cmd@v1.12.1
+      - name: Compile C++ sources
+        shell: pwsh
+        run: |
+          cl .\src\*.cpp /Od /EHs /std:c++20 /MTd /link /out:trilangle
+      - name: Run test scripts
+        # Screw it, I'm not figuring out how to make this work in PowerShell.
+        shell: bash
+        run: |
           export PATH="${PATH}:${PWD}"
           for script in tests/cli/*/index.sh
           do
