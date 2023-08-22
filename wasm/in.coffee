@@ -197,15 +197,19 @@ debugBase = createWorker 'debugProgram'
   elements.debugProgram.style.minHeight = "#{elements.program.offsetHeight}px"
   elements.program.hidden = true
 
-  textRows = elements.stdout.innerText.split '\n'
-  for i in [0 ... textRows.length]
-    el = document.createElement 'div'
-    el.id = "row-#{i}"
-    el.textContent = textRows[i]
-      .replace ' ', '\xA0'
-      # Without the parens, it thinks the first slash is division
-      .replace(/  /gu, -> ' \xA0')
-    elements.debugProgram.appendChild el
+  elements.stdout.innerText.trimEnd().split '\n'
+  # I can't get an actual for loop to codegen right because coffeescript is dumb about it
+    .forEach (textRow, i) ->
+      el = document.createElement 'div'
+      el.id = "row-#{i}"
+      el.textContent = textRow
+        .replace ' ', '\xA0'
+        # Without the parens, it thinks the first slash is division
+        .replace(/  /gu, -> ' \xA0')
+      # Codegen is just stupid surrounding null-coalescing and null-chaining operators in the same expression
+      match = /^ */u.exec textRow
+      el.dataset.offset = if match? then String match[0].length else '0'
+      elements.debugProgram.appendChild el
   elements.stdout.innerText = ''
 
   await debugBase()
@@ -236,22 +240,15 @@ renderThreads = ->
     elements.threads.appendChild row
 
 # Given y,x, find the column of the x-th non-space character in row y
-getColumn = (y, x, str) ->
-  row = str.split('\n')[y]
-  return -1 unless row?
-  nonspaces = 0
-  idx = 0
-  while true
-    if idx >= row.length
-      return -1
-    if row[idx] isnt ' ' and row[idx] isnt '\xA0'
-      ++nonspaces
-    if nonspaces > x
-      return idx
-    ++idx
+getColumn = (y, x) ->
+  row = document.getElementById "row-#{y}"
+  if row?
+    +row.dataset.offset + 2 * x
+  else
+    -1
 
 highlightIndex = (x, y, color) ->
-  col = getColumn y, x, elements.debugProgram.innerText
+  col = getColumn y, x
   element = (highlights[color] ?= document.createElement 'div')
   element.classList.add 'highlight'
   element.style = "--highlight-color: #{color};"

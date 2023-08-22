@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
-The debug pop-up now line wraps correctly on smaller screens.
+- The debug highlight now respects non-breaking spaces in the source.
+- The debug pop-up now line wraps correctly on smaller screens.
 
 ## [1.4.2] - 2023-07-29
 
