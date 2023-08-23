@@ -70,7 +70,10 @@ generateContracted = ->
   elements.program.value = generateContracted()
   
 generateURL = ->
-  newURL = "#{location.href.split('#')[0]}\##{encodeURIComponent generateContracted()}"
+  baseURL = location.href.split(/(#|\?)/u)[0]
+  fragment = '#' + encodeURIComponent generateContracted()
+  query = if elements.includeInput.checked then "?i=#{encodeURIComponent elements.stdin.value}" else ''
+  newURL = "#{baseURL}#{query}#{fragment}"
   history.pushState {}, '', newURL
   elements.urlOut.textContent = newURL
   elements.urlOutBox.className = ''
@@ -255,7 +258,7 @@ highlightIndex = (x, y, color) ->
   element.style.left = "#{col}ch"
   elements.debugProgram.insertBefore element, document.getElementById "row-#{y}"
 
-elements.program.oninput = ->
+elements.program.oninput = elements.includeInput.onchange = ->
   elements.urlOutBox.className = 'content-hidden'
   elements.urlButton.textContent = 'Generate URL'
   elements.urlButton.onclick = generateURL
@@ -326,3 +329,9 @@ elements.urlButton.onclick = generateURL
 
 if location.hash.length > 1
   elements.program.value = decodeURIComponent location.hash.slice 1
+
+params = new URLSearchParams location.search
+inputParam = params.get 'i'
+if inputParam?
+  elements.stdin.value = inputParam
+  elements.includeInput.checked = true

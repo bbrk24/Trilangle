@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+It is now possible to include the contents of stdin in the URL.
+
 ### Fixed
 
 - The debug highlight now respects non-breaking spaces in the source.
