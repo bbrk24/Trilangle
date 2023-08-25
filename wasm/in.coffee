@@ -263,14 +263,14 @@ elements.program.oninput = elements.includeInput.onchange = ->
   elements.urlButton.textContent = 'Generate URL'
   elements.urlButton.onclick = generateURL
 
-elements.darkSwitch.onchange = ->
+elements.darkSwitch?.onchange = ->
   if @checked
     document.body.classList.add 'dark'
   else
     document.body.classList.remove 'dark'
   localStorage.setItem 'dark-mode', if @checked then 'true' else 'false'
 
-elements.contrastSwitch.onchange = ->
+elements.contrastSwitch?.onchange = ->
   if @checked
     document.body.classList.add 'high-contrast'
   else

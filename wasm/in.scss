@@ -1,5 +1,4 @@
 @use "sass:color";
-@use "sass:meta";
 @import "https://fonts.googleapis.com/css2?family=Martian+Mono:wdth@99&display=swap";
 
 // The color of the background in dark mode.
@@ -17,9 +16,9 @@ $main-scale-fraction: 0.78;
 // The maximum width of the main element, with unit of em. Chosen somewhat arbitrarily to be around 1200px.
 $main-max-width: 75em;
 
-// The minimum width of the screen at which the main and footer elements have responsive width. Chosen somewhat
-// arbitrarily so that the width of the main element is around 600px.
-$min-responsive-screen-width: 37.5em;
+// The minimum width of the screen at which the main and footer elements have responsive width. Chosen so that the
+// text in the footer should not need to line break.
+$min-responsive-screen-width: 42.5em;
 
 // The width of the screen at which the main element has its maximum width.
 $max-responsive-screen-width: calc($main-max-width / $main-scale-fraction);
@@ -201,7 +200,8 @@ footer,
     }
 }
 
-@media screen and (max-width: $min-responsive-screen-width) {
+// It turns out min-width and max-width are *both* inclusive. Subtract 1px to prevent weirdness at the exact value
+@media screen and (max-width: calc($min-responsive-screen-width - 1px)) {
     footer {
         flex-direction: column-reverse;
         padding: 0.5em;
@@ -215,6 +215,14 @@ footer,
 @media screen and (min-width: $min-responsive-screen-width) {
     footer {
         align-items: last baseline;
+
+        > * {
+            width: calc(100% / 3);
+        }
+
+        > :last-child {
+            text-align: right;
+        }
     }
 
     @media (max-width: $max-responsive-screen-width) {
@@ -394,10 +402,6 @@ footer,
             "p i" min-content
             "c ." min-content
             "o e" 1fr / 1fr 1fr;
-    }
-
-    footer > * {
-        flex: 1 0;
     }
 
     .out-container {

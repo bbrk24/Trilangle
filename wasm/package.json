@@ -1,7 +1,8 @@
 {
     "dependencies": {
         "coffeescript": "^2.7.0",
-        "sass": "^1.64.1"
+        "sass": "^1.64.1",
+        "terser": "^5.19.2"
     },
     "devDependencies": {
         "@coffeelint/cli": "^5.2.11",

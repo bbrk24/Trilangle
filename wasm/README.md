@@ -14,6 +14,10 @@ This file is included as-is in the website.
 
 These files are transpiled to index.js and index.css respectively.
 
+## lowdata.scss and lowdata.html
+
+These are stripped-down versions with all the same functionality but which look more barebones and may be less performant.
+
 ## worker.coffee
 
 This file is used in a worker. It deals with the webassembly code directly. The output JavaScript is minified and optimized before its inclusion in the website.

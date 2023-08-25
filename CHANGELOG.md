@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
+- Added a low-data version of the online interpreter.
 - Added the `-z` flag to read the program as null-terminated. This is useful for passing both the program and its input over stdin.
 - It is now possible to include the contents of stdin in the URL.
 
