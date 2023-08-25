@@ -40,7 +40,7 @@ jobs:
       - name: Invoke MSVC
         shell: pwsh
         run: |
-          cl .\src\*.cpp /EHsc /DVERSION=0.0.0 /DNDEBUG /std:c++20 /MTd /analyze /W4 /WX
+          cl .\src\*.cpp /EHsc /DVERSION=0.0.0 /DNDEBUG /std:c++20 /MTd /analyze /W4 /WX /we5219
   lint-npm:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest

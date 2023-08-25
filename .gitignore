@@ -19,3 +19,4 @@ wasm/*.css
 *.exe
 *.obj
 trilangle
+*.nativecodeanalysis.xml
