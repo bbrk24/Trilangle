@@ -43,10 +43,13 @@ static constexpr const char* FLAGS_HELP =
     "\t--hide-nops, -n  \tDon't include NOPs in the disassembly. Requires\n"
     "\t                 \t--disassemble.\n\n"
     "\t--expand, -e     \tSpace the program out to fit the triangle.\n"
-    "\t                 \tIncompatible with all other flags.";
+    "\t                 \tIncompatible with all other flags.\n\n"
+    "\t--null, -z       \tRead the program until null terminator instead of EOF."
+    ;
 
 namespace flag_container {
 static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
+    { "null", 'z', [](flags& f) NOEXCEPT_T { f.null_terminated = true; } },
     { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
     { "expand", 'e', [](flags& f) NOEXCEPT_T { f.expand = true; } },
     { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
@@ -96,14 +99,20 @@ static inline void set_flag(CONST_C_STR flag_name, flags& f) {
 }  // namespace flag_container
 
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
-static string read_istream(std::istream& stream) {
+// If null_terminated is true, only read until the first null byte, not EOF.
+static string read_istream(std::istream& stream, bool null_terminated) {
     string retval;
-    char buf[BUF_SIZE];
 
-    while (stream.read(buf, BUF_SIZE)) {
-        retval.append(buf, BUF_SIZE);
+    if (null_terminated) {
+        std::getline(stream, retval, '\0');
+    } else {
+        char buf[BUF_SIZE];
+
+        while (stream.read(buf, BUF_SIZE)) {
+            retval.append(buf, BUF_SIZE);
+        }
+        retval.append(buf, static_cast<size_t>(stream.gcount()));
     }
-    retval.append(buf, static_cast<size_t>(stream.gcount()));
 
     return retval;
 }
@@ -147,12 +156,12 @@ string parse_args(int argc, _In_reads_z_(argc) const char** argv, flags& f) {
     }
 
     if (filename == nullptr) {
-        return read_istream(std::cin);
+        return read_istream(std::cin, f.null_terminated);
     } else {
         std::ifstream f_input(filename, std::ios_base::in);
 
         if (f_input.is_open()) {
-            return read_istream(f_input);
+            return read_istream(f_input, f.null_terminated);
         } else {
             cerr << "File could not be opened for reading: " << filename << endl;
             exit(EX_NOINPUT);

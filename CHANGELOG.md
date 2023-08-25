@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
-It is now possible to include the contents of stdin in the URL.
+- Added the `-z` flag to read the program as null-terminated. This is useful for passing both the program and its input over stdin.
+- It is now possible to include the contents of stdin in the URL.
 
 ### Fixed
 

@@ -10,6 +10,7 @@ struct flags {
     bool disassemble : 1;
     bool hide_nops : 1;
     bool expand : 1;
+    bool null_terminated : 1;
 
     constexpr flags() noexcept :
         debug(false),
@@ -18,7 +19,8 @@ struct flags {
         pipekill(false),
         disassemble(false),
         hide_nops(false),
-        expand(false) {}
+        expand(false),
+        null_terminated(false) {}
 
     constexpr bool is_valid() const noexcept {
         return !(
