@@ -4,14 +4,6 @@ updates:
     directory: /wasm
     schedule:
       interval: weekly
-    groups:
-      stylelint:
-        patterns:
-          - stylelint*
-      coffeescript:
-        patterns:
-          - '@coffeelint/*'
-          - coffeescript
     labels:
       - 'domain:dependencies'
     versioning-strategy: increase-if-necessary
