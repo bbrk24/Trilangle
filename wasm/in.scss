@@ -200,8 +200,7 @@ footer,
     }
 }
 
-// It turns out min-width and max-width are *both* inclusive. Subtract 1px to prevent weirdness at the exact value
-@media screen and (max-width: calc($min-responsive-screen-width - 1px)) {
+@media screen and (width < $min-responsive-screen-width) {
     footer {
         flex-direction: column-reverse;
         padding: 0.5em;
