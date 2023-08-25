@@ -44,8 +44,7 @@ static constexpr const char* FLAGS_HELP =
     "\t                 \t--disassemble.\n\n"
     "\t--expand, -e     \tSpace the program out to fit the triangle.\n"
     "\t                 \tIncompatible with all other flags.\n\n"
-    "\t--null, -z       \tRead the program until null terminator instead of EOF."
-    ;
+    "\t--null, -z       \tRead the program until null terminator instead of EOF.";
 
 namespace flag_container {
 static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
