@@ -6,15 +6,17 @@
     "devDependencies": {
         "@coffeelint/cli": "^5.2.11",
         "clang-format": "^1.8.0",
+        "engine-check": "git@github.com:bbrk24/engine-check.git#e2eb23075fc166873ceab995cc4c9b206733a9b5",
         "express": "^4.18.0",
         "stylelint": "^15.10.2",
         "stylelint-config-standard-scss": "^10.0.0"
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
-        "lint": "stylelint ./*.scss && coffeelint in.coffee worker.coffee library.coffee && clang-format --Werror --dry-run ../src/* ../tests/unit/*.cpp ../tests/unit/*.hh"
+        "lint": "engine-check && stylelint ./*.scss && coffeelint in.coffee worker.coffee library.coffee && clang-format --Werror --dry-run ../src/* ../tests/unit/*.cpp ../tests/unit/*.hh"
     },
     "engines": {
         "node": "^16.13.0 || >=18.0.0"
-    }
+    },
+    "engineStrict": true
 }

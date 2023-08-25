@@ -10,17 +10,9 @@ name: Lint Builds
       - wasm/*
       - .clang-format
       - .github/workflows/lint-build.yml
-  pull_request:
-    # GitHub doesn't let you do *ptr even though it's part of the YAML spec
-    paths:
-      - src/*
-      - wasm/*
-      - .clang-format
-      - .github/workflows/lint-build.yml
   workflow_dispatch: ~
 jobs:
   build-native-mac:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: macos-latest
     name: Verify C++ Build with clang
     steps:
@@ -31,7 +23,6 @@ jobs:
           clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wimplicit-fallthrough -Werror -std=c++14 -o /dev/null
           src/*.cpp
   build-native-windows:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
     name: Verify C++ Build with MSVC
     steps:
@@ -42,7 +33,6 @@ jobs:
         run: |
           cl .\src\*.cpp /EHsc /DVERSION=0.0.0 /DNDEBUG /std:c++20 /MTd /analyze /W4 /WX /we5219
   lint-npm:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     name: Lint with JS Tools
     steps:
@@ -54,7 +44,6 @@ jobs:
           npm ci --no-fund
           npm run lint
   verify-wasm-build:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     name: Verify wasm build
     steps:

@@ -8,12 +8,6 @@ name: Run Tests
       - tests/**
       - .github/workflows/test.yml
       - .gitmodules
-  pull_request:
-    paths:
-      - src/*
-      - tests/**
-      - .github/workflows/test.yml
-      - .gitmodules
   workflow_dispatch: ~
 jobs:
   unit-tests:
