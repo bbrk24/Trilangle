@@ -138,7 +138,7 @@ createWorker = (name) => =>
   elements.runStop.onclick = wasmCancel
   elements.stdin.oninput = null
 
-  worker ?= new Worker new URL 'worker.js', location
+  worker ?= new Worker @WORKER_URL
   @step = -> worker.postMessage ['step']
 
   promise = new Promise (r) -> resolve = r
@@ -262,20 +262,6 @@ elements.program.oninput = elements.includeInput.onchange = ->
   elements.urlOutBox.className = 'content-hidden'
   elements.urlButton.textContent = 'Generate URL'
   elements.urlButton.onclick = generateURL
-
-elements.darkSwitch?.onchange = ->
-  if @checked
-    document.body.classList.add 'dark'
-  else
-    document.body.classList.remove 'dark'
-  localStorage.setItem 'dark-mode', if @checked then 'true' else 'false'
-
-elements.contrastSwitch?.onchange = ->
-  if @checked
-    document.body.classList.add 'high-contrast'
-  else
-    document.body.classList.remove 'high-contrast'
-  localStorage.setItem 'high-contrast', if @checked then 'true' else 'false'
 
 # Adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
 pos3 = 0

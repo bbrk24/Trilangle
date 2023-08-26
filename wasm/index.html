@@ -32,15 +32,30 @@
       </div>
     </div>
     <script>
+      window.WORKER_URL = new URL('worker.js', location);
+
       let localState = localStorage.getItem('dark-mode');
       const dark = localState === null ? matchMedia('(prefers-color-scheme: dark)').matches : localState === 'true';
-      document.getElementById('dark-switch').checked = dark;
+      const darkSwitch = document.getElementById('dark-switch');
+      darkSwitch.checked = dark;
       if (dark) document.body.classList.add('dark');
 
       localState = localStorage.getItem('high-contrast');
       const contrast = localState === null ? matchMedia('(prefers-contrast: more)').matches : localState === 'true';
-      document.getElementById('contrast-switch').checked = contrast;
+      const contrastSwitch = document.getElementById('contrast-switch');
+      contrastSwitch.checked = contrast;
       if (contrast) document.body.classList.add('high-contrast');
+
+      darkSwitch.onchange = function() {
+        if (this.checked) document.body.classList.add('dark');
+        else document.body.classList.remove('dark');
+        localStorage.setItem('dark-mode', this.checked ? 'true' : 'false');
+      };
+      contrastSwitch.onchange = function() {
+        if (this.checked) document.body.classList.add('high-contrast');
+        else document.body.classList.remove('high-contrast');
+        localStorage.setItem('high-contrast', this.checked ? 'true' : 'false');
+      };
     </script>
     <main class="grid">
       <fieldset id="program-container">
