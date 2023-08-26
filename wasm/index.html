@@ -7,7 +7,11 @@
     <meta name="referrer" content="same-origin" />
     <link rel="icon" href="./favicon.ico" />
     <link rel="stylesheet" href="./index.css" />
-    <link rel="prefetch" href="./worker.wasm" />
+    <link rel="preload" href="./worker.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
+    <!--
+      Chromium doesn't support rel="preload" as="worker", so I'm using rel="prefetch" instead, even though it's
+      semantically incorrect. fetchpriority="low" prevents it being fetched before index.js.
+    -->
     <link rel="prefetch" href="./worker.js" fetchpriority="low" />
     <script defer src="./index.js"></script>
   </head>
@@ -68,15 +72,15 @@
         <button type="button" id="url-button">Generate URL</button>
         <span id="copy-alert" class="hidden">Copied!</span>
         <div id="url-out-box" class="content-hidden"><span>URL:</span>&nbsp;<code id="url-out"></code></div>
-        <textarea id="program" rows="10" spellcheck="false" class="textarea">        &quot;
+        <textarea id="program" rows="10" spellcheck="false" class="textarea">        "
        H o
-      o &quot; !
-     &quot; o ( o
+      o " !
+     " o ( o
     e o o o l
-   o &quot; &quot; &quot; o &quot;
-  &quot; , W r &quot; ! 3
+   o " " " o "
+  " , W r " ! 3
  l o o o d o : o
-o &quot; &quot; &quot; o ' ( @ .
+o " " " o ' ( @ .
 </textarea>
         <div id="debug-program" hidden class="textarea"></div>
       </fieldset>
