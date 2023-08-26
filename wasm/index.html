@@ -5,14 +5,15 @@
     <title>Trilangle online interpreter</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <meta name="referrer" content="same-origin" />
+    <meta name="description" content="A way to test and share Trilangle code online." />
     <link rel="icon" href="./favicon.ico" />
     <link rel="stylesheet" href="./index.css" />
     <link rel="preload" href="./worker.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
     <!--
       Chromium doesn't support rel="preload" as="worker", so I'm using rel="prefetch" instead, even though it's
-      semantically incorrect. fetchpriority="low" prevents it being fetched before index.js.
+      semantically incorrect. Firefox doesn't seem to download it until needed either way.
     -->
-    <link rel="prefetch" href="./worker.js" fetchpriority="low" />
+    <link rel="prefetch" href="./worker.js" />
     <script defer src="./index.js"></script>
   </head>
   <body>
@@ -118,7 +119,7 @@ o " " " o ' ( @ .
         <a rel="license" href="https://github.com/bbrk24/Trilangle/blob/master/LICENSE">MIT License</a>
       </div>
       <div class="center"><a href="https://github.com/bbrk24/Trilangle">GitHub page</a></div>
-      <div><a href="./lowdata.html">Low-data version</a></div>
+      <div><a rel="alternate" href="./lowdata.html" hreflang="en-US" type="text/html">Low-data version</a></div>
     </footer>
   </body>
 </html>
