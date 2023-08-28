@@ -14,6 +14,10 @@ This file is included as-is in the website.
 
 These files are transpiled to index.js and index.css respectively.
 
+## library.coffee
+
+This file includes functions that bridge between C++ and JS. The functions are declared as `extern "C"` in the C++ code, but actually defined in this file.
+
 ## lowdata.scss and lowdata.html
 
 These are stripped-down versions with all the same functionality but which look more barebones and may be less performant.

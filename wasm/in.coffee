@@ -35,7 +35,7 @@ removeHighlight = (color) ->
 # Get an available color for the thread number.
 getColor = (idx) ->
   usedColors[idx] ?= threadColors.find (color) -> not (color in usedColors)
-  
+
 # Destroy all highlight divs, freeing them for the garbage collector.
 removeAllHighlights = ->
   highlights = {}
@@ -51,7 +51,7 @@ elements = new Proxy {}, get: (target, p) ->
 @clearOutput = ->
   elements.stdout.innerHTML = ''
   elements.stderr.innerHTML = ''
-  
+
 generateContracted = ->
   programText = elements.program.value.replace /^#![^\n]*\n/u, ''
     .replace /\n| /gu, ''
@@ -68,7 +68,7 @@ generateContracted = ->
 @contractInput = ->
   clearOutput()
   elements.program.value = generateContracted()
-  
+
 generateURL = ->
   baseURL = location.href.split(/(#|\?)/u)[0]
   fragment = '#' + encodeURIComponent generateContracted()
@@ -79,19 +79,19 @@ generateURL = ->
   elements.urlOutBox.className = ''
   elements.urlButton.textContent = 'Copy URL'
   elements.urlButton.onclick = copyURL
-  
+
 copyURL = ->
   url = elements.urlOut.textContent
   elements.urlOut.setSelectionRange? 0, url.length
   navigator.clipboard.writeText url
   elements.copyAlert.className = ''
   setTimeout -> elements.copyAlert.className = 'hide-slow'
-  
+
 wasmCancel = ->
   worker?.terminate()
   worker = null
   resolve()
-  
+
 isBufferFull = (buf) ->
   buf.length is 4 or
   (((buf[0] + 256) & 0xf0) is 0xe0 and buf.length is 3) or
@@ -124,7 +124,7 @@ stderr = (char) ->
     elements.stderr.appendChild document.createElement 'br'
   else
     appendText String.fromCharCode char
-  
+
 createWorker = (name) => =>
   threadCount = -1
 
@@ -181,7 +181,7 @@ createWorker = (name) => =>
   worker.postMessage [name, elements.program.value, elements.stdin.value]
   
   return promise
-  
+
 interpretProgram = createWorker 'interpretProgram'
 @disassembleProgram = createWorker 'disassembleProgram'
 expandBase = createWorker 'expandInput'
@@ -305,7 +305,7 @@ elements.debugHeader.ontouchstart = (e) ->
     @ontouchmove = null
     @ontouchcancel = null
     @ontouchend = null
-  
+
 width = elements.runStop.offsetWidth
 remSize = parseFloat getComputedStyle(document.body).fontSize
 elements.runStop.textContent = 'Run!'
