@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.5.0] - 2023-08-31
+
 ### Added
 
 - Added a low-data version of the online interpreter.
@@ -163,3 +165,4 @@ First versioned release.
 [1.4.0]: https://github.com/bbrk24/Trilangle/tree/1.4.0
 [1.4.1]: https://github.com/bbrk24/Trilangle/tree/1.4.1
 [1.4.2]: https://github.com/bbrk24/Trilangle/tree/1.4.2
+[1.5.0]: https://github.com/bbrk24/Trilangle/tree/1.5.0
