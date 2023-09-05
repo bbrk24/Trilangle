@@ -473,6 +473,10 @@ footer,
     // Start on the left edge
     left: 0;
 
+    table {
+        width: 100%;
+    }
+
     .high-contrast & {
         border-color: var(--text-color);
     }
@@ -498,6 +502,15 @@ footer,
     :not(.highlight) {
         width: fit-content;
     }
+}
+
+#select-icon {
+    user-select: none;
+    -webkit-user-select: none;
+    float: inline-end;
+    width: 1.86rem;
+    margin: 0.32rem 0;
+    text-align: center;
 }
 
 #menu .grid {

@@ -6,6 +6,8 @@ stderrBuffer = []
 threads = []
 decoder = new TextDecoder
 resolve = null
+delay = 500
+interval = -1
 
 # A list of colors used for threads.
 # TODO: Should these be customizable?
@@ -29,7 +31,7 @@ usedColors = []
 # Temporarily remove a single color, but keep the div present in highlights for later use.
 removeHighlight = (color) ->
   if highlights[color]?
-    elements.programContainer.removeChild highlights[color]
+    highlights[color].remove()
     usedColors[usedColors.indexOf color] = null
 
 # Get an available color for the thread number.
@@ -70,7 +72,7 @@ generateContracted = ->
   elements.program.value = generateContracted()
 
 generateURL = ->
-  baseURL = location.href.split(/(#|\?)/u)[0]
+  baseURL = location.href.split(/[?#]/u)[0]
   fragment = '#' + encodeURIComponent generateContracted()
   query = if elements.includeInput.checked then "?i=#{encodeURIComponent elements.stdin.value}" else ''
   newURL = "#{baseURL}#{query}#{fragment}"
@@ -192,6 +194,30 @@ debugBase = createWorker 'debugProgram'
   elements.program.value = elements.stdout.innerText
   elements.stdout.innerText = ''
 
+pause = ->
+  clearInterval interval
+  elements.playPause.textContent = 'Play'
+  elements.playPause.onclick = play
+  elements.slower.disabled = true
+  elements.faster.disabled = true
+
+play = ->
+  elements.playPause.textContent = 'Pause'
+  elements.playPause.onclick = pause
+  elements.slower.disabled = false
+  elements.faster.disabled = false
+  interval = setInterval step, delay
+
+@faster = ->
+  clearInterval interval
+  delay /= 2
+  interval = setInterval step, delay
+
+@slower = ->
+  clearInterval interval
+  delay *= 2
+  interval = setInterval step, delay
+
 @debugProgram = ->
   await expandBase()
 
@@ -215,6 +241,11 @@ debugBase = createWorker 'debugProgram'
       elements.debugProgram.appendChild el
   elements.stdout.innerText = ''
 
+  elements.debugInfo.hidden = false
+  setTimeout ->
+    elements.playPause.style.width = "#{elements.playPause.offsetWidth}px"
+    pause()
+
   await debugBase()
 
   removeAllHighlights()
@@ -224,7 +255,6 @@ debugBase = createWorker 'debugProgram'
   elements.program.hidden = false
 
 renderThreads = ->
-  elements.debugInfo.hidden = false
   for row in elements.threads.children
     unless row.firstChild.textContent of threads
       removeHighlight row.style.backgroundColor
@@ -267,14 +297,14 @@ elements.program.oninput = elements.includeInput.onchange = ->
 pos3 = 0
 pos4 = 0
 elements.debugHeader.onmousedown = (e) ->
-  e ?= window.event
-  if e.target isnt elements.debugHeader
+  # Allow the header itself, or noninteractable children (e.g. the select icon)
+  if not (e.target is elements.debugHeader or
+  (e.target.tagName isnt 'BUTTON' and elements.debugHeader.contains e.target))
     return
   e.preventDefault()
   pos3 = e.clientX
   pos4 = e.clientY
   document.onmousemove = (e) ->
-    e ?= window.event
     e.preventDefault()
     pos1 = pos3 - e.clientX
     pos2 = pos4 - e.clientY
@@ -286,14 +316,12 @@ elements.debugHeader.onmousedown = (e) ->
     @onmousemove = null
     @onmouseup = null
 elements.debugHeader.ontouchstart = (e) ->
-  e ?= window.event
   if e.target isnt elements.debugHeader
     return
   e.preventDefault()
   pos3 = e.touches[0].clientX
   pos4 = e.touches[0].clientY
   document.ontouchmove = (e) ->
-    e ?= window.event
     e.preventDefault()
     pos1 = pos3 - e.touches[0].clientX
     pos2 = pos4 - e.touches[0].clientY
