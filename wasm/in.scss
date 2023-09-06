@@ -46,6 +46,9 @@ $column-padding: 0.5em;
 // The width of the screen at which it switches to two-column layout.
 $min-two-col-width: calc(2 * ($column-padding * 2 + $textarea-cols * $monospace-ch) / $main-scale-fraction);
 
+// The width of the icon used to click-and-drag the debug box.
+$debug-move-icon-width: 1.86rem;
+
 @function padding-from-width($width, $parent-width: 100%) {
     @return calc(($parent-width - $width) / 2);
 }
@@ -255,6 +258,7 @@ footer,
     box-sizing: border-box;
     padding: 0.125rem;
     border: 0.125rem inset gainsboro;
+    margin: 0;
 
     .high-contrast & {
         border-color: var(--text-color);
@@ -496,19 +500,35 @@ footer,
     }
 }
 
+#debug-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    margin-right: $debug-move-icon-width;
+}
+
 #debug-program {
     min-width: fit-content;
+}
 
-    :not(.highlight) {
-        width: fit-content;
+[id^="row-"] {
+    width: fit-content;
+
+    > span {
+        width: 1ch;
+        margin-right: 1ch;
+        display: inline-block;
     }
 }
 
 #select-icon {
     user-select: none;
     -webkit-user-select: none;
-    float: inline-end;
-    width: 1.86rem;
+    width: $debug-move-icon-width;
+    position: absolute;
+    right: 0;
+    top: 0;
     margin: 0.32rem 0;
     text-align: center;
 }

@@ -200,23 +200,33 @@ pause = ->
   elements.playPause.onclick = play
   elements.slower.disabled = true
   elements.faster.disabled = true
+  elements.step.disabled = false
 
+# At some point, calling `step` doesn't help any. Besides, browsers throttle requests that are too fast.
+minDelay = 4
+# Not really a useful upper limit but one that keeps setInterval from breaking
+maxDelay = 1 << 30
 play = ->
   elements.playPause.textContent = 'Pause'
   elements.playPause.onclick = pause
   elements.slower.disabled = false
-  elements.faster.disabled = false
+  elements.faster.disabled = delay <= minDelay
+  elements.step.disabled = delay >= maxDelay
   interval = setInterval step, delay
 
 @faster = ->
   clearInterval interval
   delay /= 2
   interval = setInterval step, delay
+  elements.slower.disabled = false
+  elements.faster.disabled = delay <= minDelay
 
 @slower = ->
   clearInterval interval
   delay *= 2
   interval = setInterval step, delay
+  elements.faster.disabled = false
+  elements.slower.disabled = delay >= maxDelay
 
 @debugProgram = ->
   await expandBase()
@@ -227,17 +237,19 @@ play = ->
   elements.program.hidden = true
 
   elements.stdout.innerText.trimEnd().split '\n'
-  # I can't get an actual for loop to codegen right because coffeescript is dumb about it
     .forEach (textRow, i) ->
       el = document.createElement 'div'
       el.id = "row-#{i}"
-      el.textContent = textRow
-        .replace ' ', '\xA0'
-        # Without the parens, it thinks the first slash is division
-        .replace(/  /gu, -> ' \xA0')
       # Codegen is just stupid surrounding null-coalescing and null-chaining operators in the same expression
       match = /^ */u.exec textRow
-      el.dataset.offset = if match? then String match[0].length else '0'
+      matchLength = if match? then match[0].length else 0
+      el.dataset.offset = String matchLength
+      el.style.paddingLeft = "#{matchLength}ch"
+      textRow.trimStart().split ' '
+        .forEach (char, i) ->
+          span = document.createElement 'span'
+          span.textContent = char
+          el.appendChild span
       elements.debugProgram.appendChild el
   elements.stdout.innerText = ''
 
@@ -272,7 +284,7 @@ renderThreads = ->
     row.appendChild threadContentsEl
     elements.threads.appendChild row
 
-# Given y,x, find the column of the x-th non-space character in row y
+# Given y,x, find the horizontal offset necessary to highlight that position
 getColumn = (y, x) ->
   row = document.getElementById "row-#{y}"
   if row?
@@ -288,18 +300,22 @@ highlightIndex = (x, y, color) ->
   element.style.left = "#{col}ch"
   elements.debugProgram.insertBefore element, document.getElementById "row-#{y}"
 
-elements.program.oninput = elements.includeInput.onchange = ->
+hideUrl = ->
   elements.urlOutBox.className = 'content-hidden'
   elements.urlButton.textContent = 'Generate URL'
   elements.urlButton.onclick = generateURL
+elements.program.addEventListener 'input', hideUrl, passive: true
+elements.includeInput.addEventListener 'change', hideUrl, passive: true
+
+# Allow the header itself, or noninteractable children (e.g. the select icon)
+isHeader = (target) ->
+  target is elements.debugHeader or (target.tagName isnt 'BUTTON' and elements.debugHeader.contains target)
 
 # Adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
 pos3 = 0
 pos4 = 0
 elements.debugHeader.onmousedown = (e) ->
-  # Allow the header itself, or noninteractable children (e.g. the select icon)
-  if not (e.target is elements.debugHeader or
-  (e.target.tagName isnt 'BUTTON' and elements.debugHeader.contains e.target))
+  if not isHeader e.target
     return
   e.preventDefault()
   pos3 = e.clientX
@@ -316,7 +332,7 @@ elements.debugHeader.onmousedown = (e) ->
     @onmousemove = null
     @onmouseup = null
 elements.debugHeader.ontouchstart = (e) ->
-  if e.target isnt elements.debugHeader
+  if not isHeader e.target
     return
   e.preventDefault()
   pos3 = e.touches[0].clientX

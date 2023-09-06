@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- Added a 'play' feature to the online debugger, to automatically step through the code.
+
 ## [1.5.0] - 2023-08-31
 
 ### Added

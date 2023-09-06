@@ -55,6 +55,16 @@ th {
     display: none;
 }
 
+[id^="row-"] {
+    width: fit-content;
+
+    > span {
+        width: 1ch;
+        margin-right: 1ch;
+        display: inline-block;
+    }
+}
+
 button:disabled {
     opacity: 0.6;
 }
@@ -78,6 +88,10 @@ button:disabled {
     right: 0;
     width: fit-content;
     left: 0;
+
+    table {
+        width: 100%;
+    }
 }
 
 #debug-program {

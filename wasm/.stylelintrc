@@ -8,4 +8,6 @@ rules:
         # WebKit doesn't recognize text-size-adjust, only -webkit-text-size-adjust. Gecko doesn't recognize either one,
         # and Blink recognizes both.
         - text-size-adjust
+        # Thanks WebKit
+        - user-select
   shorthand-property-no-redundant-values: true
