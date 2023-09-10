@@ -13,6 +13,7 @@ ColumnLimit: 120
 Cpp11BracedListStyle: false
 EmptyLineBeforeAccessModifier: Never
 ForEachMacros: # It doesn't particularly matter if these are ForEachMacros or IfMacros
+  # No idea why test_iter doesn't need to be here but the other two do.
   - testcase
   - testgroup
 IndentWidth: 4
@@ -22,5 +23,7 @@ MaxEmptyLinesToKeep: 2
 SpaceAfterTemplateKeyword: false
 WhitespaceSensitiveMacros:
   - STRING_NAME
+  - test_iter
   - testcase
   - testgroup
+  - TEST_ITEM
