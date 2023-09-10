@@ -99,6 +99,19 @@ constexpr int EX_NOINPUT = 66;
 #endif
 
 
+#ifdef __cpp_constexpr
+#if __cpp_constexpr >= 202002L
+// constexpr if unions can be used constexpr
+#define CONSTEXPR_UNION constexpr
+#endif
+#endif
+
+#ifndef CONSTEXPR_UNION
+// constexpr if unions can be used constexpr
+#define CONSTEXPR_UNION inline
+#endif
+
+
 #ifdef __has_cpp_attribute
 #if __has_cpp_attribute(maybe_unused)
 // mark that it's okay if a function is never called

@@ -49,18 +49,18 @@ class instruction {
         pair<size_t> next;
         pair<pair<size_t>> choice;
 
-        inline argument() noexcept { none = {}; }
+        CONSTEXPR_UNION argument() noexcept { none = {}; }
     };
 public:
     instruction(instruction_pointer ip, const program& program) noexcept;
 
-    static inline instruction jump_to(pair<size_t> next) noexcept {
+    static CONSTEXPR_UNION instruction jump_to(pair<size_t> next) noexcept {
         argument arg;
         arg.next = next;
         return instruction(operation::JMP, arg);
     }
 
-    static inline instruction branch_to(pair<pair<size_t>> choice) noexcept {
+    static CONSTEXPR_UNION instruction branch_to(pair<pair<size_t>> choice) noexcept {
         argument arg;
         arg.choice = choice;
         return instruction(operation::BNG, arg);
@@ -71,7 +71,7 @@ public:
     constexpr bool is_nop() const noexcept { return m_op == operation::NOP; }
     std::string to_str() const noexcept;
 
-    inline const pair<size_t>* first_if_branch() const noexcept {
+    CONSTEXPR_UNION const pair<size_t>* first_if_branch() const noexcept {
         switch (m_op) {
             case operation::BNG:
             case operation::TSP:
@@ -81,7 +81,7 @@ public:
         }
     }
 private:
-    inline instruction(operation op, argument arg) noexcept : m_arg(arg), m_op(op) {}
+    CONSTEXPR_UNION instruction(operation op, argument arg) noexcept : m_arg(arg), m_op(op) {}
 
     argument m_arg;
     operation m_op;

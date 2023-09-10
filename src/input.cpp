@@ -97,9 +97,10 @@ static inline void set_flag(CONST_C_STR flag_name, flags& f) {
 }
 }  // namespace flag_container
 
+namespace {
 // Read the entire contents of an istream into a string. Reads BUF_SIZE bytes at a time.
 // If null_terminated is true, only read until the first null byte, not EOF.
-static string read_istream(std::istream& stream, bool null_terminated) {
+string read_istream(std::istream& stream, bool null_terminated) {
     string retval;
 
     if (null_terminated) {
@@ -115,6 +116,7 @@ static string read_istream(std::istream& stream, bool null_terminated) {
 
     return retval;
 }
+}  // namespace
 
 string parse_args(int argc, _In_reads_z_(argc) const char** argv, flags& f) {
     const char* filename = nullptr;
