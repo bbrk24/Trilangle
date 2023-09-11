@@ -16,7 +16,7 @@ jobs:
     runs-on: macos-latest
     name: Verify C++ Build with clang
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Invoke clang
         shell: bash
         run: >+
@@ -26,7 +26,7 @@ jobs:
     runs-on: windows-latest
     name: Verify C++ Build with MSVC
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1.12.1
       - name: Invoke MSVC
         shell: pwsh
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint with JS Tools
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: npm lint
         shell: bash
         run: |
@@ -48,7 +48,7 @@ jobs:
     name: Verify wasm build
     steps:
       # Largely copied from build-and-deploy-pages.jobs.build-wasm.steps
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
       - uses: actions/cache@v3
         with:
