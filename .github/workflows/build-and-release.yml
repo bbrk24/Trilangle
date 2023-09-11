@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Build for ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Compile C++ sources
         shell: bash
         run: >
@@ -31,7 +31,7 @@ jobs:
     name: Build for Windows
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1.12.1
       - name: Compile C++ sources
         shell: cmd
@@ -53,7 +53,7 @@ jobs:
       - build-unix
       - build-windows
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: "mkdir artifacts/\n"
       - uses: actions/download-artifact@v3
         with:
