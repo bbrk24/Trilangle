@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
+- Added prebuilt binaries for ARM64 macOS.
 - Added a 'play' feature to the online debugger, to automatically step through the code.
 
 ## [1.5.0] - 2023-08-31

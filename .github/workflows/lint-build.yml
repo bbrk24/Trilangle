@@ -14,14 +14,19 @@ name: Lint Builds
 jobs:
   build-native-mac:
     runs-on: macos-latest
-    name: Verify C++ Build with clang
+    strategy:
+      matrix:
+        arch:
+          - x86_64
+          - aarch64
+    name: Verify C++ Build with clang on ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v4
       - name: Invoke clang
         shell: bash
         run: >+
           clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wimplicit-fallthrough -Werror -std=c++14 -o /dev/null
-          src/*.cpp
+          -target ${{ matrix.arch }}-apple-macosx src/*.cpp
   build-native-windows:
     runs-on: windows-latest
     name: Verify C++ Build with MSVC

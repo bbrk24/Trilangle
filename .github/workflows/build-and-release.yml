@@ -4,14 +4,9 @@ name: Build & Release Precompiled Binaries
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
 jobs:
-  build-unix:
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-    runs-on: ${{ matrix.os }}
-    name: Build for ${{ matrix.os }}
+  build-ubuntu:
+    runs-on: ubuntu
+    name: Build for Ubuntu
     steps:
       - uses: actions/checkout@v4
       - name: Compile C++ sources
@@ -21,11 +16,34 @@ jobs:
 
           tag=${{ github.ref_name }}
 
-          g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++17 -o Release/trilangle-${tag}-${{ matrix.os }}
+          g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++17 -o Release/trilangle-${tag}-ubuntu-latest
           src/*.cpp
       - uses: actions/upload-artifact@v3
         with:
-          name: trilangle-${{ matrix.os }}
+          name: trilangle-ubuntu-latest
+          path: Release/
+  build-mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch:
+          - x86_64
+          - aarch64
+    name: Build for macOS ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile C++ sources
+        shell: bash
+        run: >
+          mkdir Release/
+
+          tag=${{ github.ref_name }}
+
+          clang++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++20 -target ${{ matrix.arch }}-apple-macosx -o
+          Release/trilangle-${tag}-macos-latest-${{ matrix.arch }} src/*.cpp
+      - uses: actions/upload-artifact@v3
+        with:
+          name: trilangle-macos-latest-${{ matrix.arch }}
           path: Release/
   build-windows:
     name: Build for Windows
@@ -50,7 +68,8 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     needs:
-      - build-unix
+      - build-ubuntu
+      - build-mac
       - build-windows
     steps:
       - uses: actions/checkout@v4
