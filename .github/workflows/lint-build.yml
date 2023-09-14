@@ -25,10 +25,8 @@ jobs:
       - name: Invoke clang
         shell: bash
         run: >+
-          clang -dumpmachine
-
           clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wimplicit-fallthrough -Werror -std=c++14 -o /dev/null
-          -target ${{ matrix.arch }}-apple-macosx src/*.cpp
+          -target "$(clang -dumpmachine | sed -E 's/^\w+-/${{ matrix.arch }}-/')" src/*.cpp
   build-native-windows:
     runs-on: windows-latest
     strategy:
@@ -40,8 +38,6 @@ jobs:
             dispArch: x86
           - cmdArch: amd64_arm64
             dispArch: arm64
-          - cmdArch: amd64_arm
-            dispArch: arm
     name: Verify C++ Build with MSVC on ${{ matrix.dispArch }}
     steps:
       - uses: actions/checkout@v4

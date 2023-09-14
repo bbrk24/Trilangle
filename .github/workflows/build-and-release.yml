@@ -5,7 +5,7 @@ name: Build & Release Precompiled Binaries
       - '[0-9]+.[0-9]+.[0-9]+'
 jobs:
   build-ubuntu:
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     name: Build for Ubuntu
     steps:
       - uses: actions/checkout@v4
@@ -16,11 +16,11 @@ jobs:
 
           tag=${{ github.ref_name }}
 
-          g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++17 -o Release/trilangle-${tag}-ubuntu-latest
+          g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++17 -o "Release/trilangle-${tag}-ubuntu"
           src/*.cpp
       - uses: actions/upload-artifact@v3
         with:
-          name: trilangle-ubuntu-latest
+          name: trilangle-ubuntu
           path: Release/
   build-mac:
     runs-on: macos-latest
@@ -39,11 +39,11 @@ jobs:
 
           tag=${{ github.ref_name }}
 
-          clang++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++20 -target ${{ matrix.arch }}-apple-macosx -o
-          Release/trilangle-${tag}-macos-latest-${{ matrix.arch }} src/*.cpp
+          clang++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++20 -target "$(clang -dumpmachine | sed -E
+          's/^\w+-/${{ matrix.arch }}-/')" -o "Release/trilangle-${tag}-macos-${{ matrix.arch }}" src/*.cpp
       - uses: actions/upload-artifact@v3
         with:
-          name: trilangle-macos-latest-${{ matrix.arch }}
+          name: trilangle-macos-${{ matrix.arch }}
           path: Release/
   build-windows:
     runs-on: windows-latest
@@ -72,10 +72,10 @@ jobs:
           SET tag=${{ github.ref_name }}
 
           cl .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /DVERSION=%tag% /std:c++20 /MT /link
-          /out:Release\trilangle-%tag%-windows-latest-${{ matrix.dispArch }}.exe
+          /out:Release\trilangle-%tag%-windows-${{ matrix.dispArch }}.exe
       - uses: actions/upload-artifact@v3
         with:
-          name: trilangle-windows-latest-${{ matrix.dispArch }}
+          name: trilangle-windows-${{ matrix.dispArch }}
           path: Release/
   release:
     name: Release
