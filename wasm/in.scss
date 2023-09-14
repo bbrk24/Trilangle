@@ -84,7 +84,7 @@ a {
 }
 
 body {
-    font-family: sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     -webkit-text-size-adjust: 100%;
     margin: 0;
     min-height: 100vh;
@@ -510,6 +510,11 @@ footer,
 
 #debug-program {
     min-width: fit-content;
+}
+
+#step {
+    letter-spacing: -0.1875em;
+    padding-right: 0.5625em;
 }
 
 [id^="row-"] {

@@ -194,10 +194,10 @@ debugBase = createWorker 'debugProgram'
   elements.program.value = elements.stdout.innerText
   elements.stdout.innerText = ''
 
-pause = ->
+pause = =>
   clearInterval interval
-  elements.playPause.textContent = 'Play'
-  elements.playPause.onclick = play
+  interval = -1
+  elements.playPause.textContent = @PLAY_TEXT
   elements.slower.disabled = true
   elements.faster.disabled = true
   elements.step.disabled = false
@@ -206,13 +206,17 @@ pause = ->
 minDelay = 4
 # Not really a useful upper limit but one that keeps setInterval from breaking
 maxDelay = 1 << 30
-play = ->
-  elements.playPause.textContent = 'Pause'
-  elements.playPause.onclick = pause
-  elements.slower.disabled = false
+play = =>
+  elements.playPause.textContent = @PAUSE_TEXT
+  elements.slower.disabled = delay >= maxDelay
   elements.faster.disabled = delay <= minDelay
-  elements.step.disabled = delay >= maxDelay
+  elements.step.disabled = true
   interval = setInterval step, delay
+
+Object.defineProperty @, 'isPaused', get: -> interval is -1
+
+@playPause = =>
+  if @isPaused then play() else pause()
 
 @faster = ->
   clearInterval interval
@@ -228,7 +232,7 @@ play = ->
   elements.faster.disabled = false
   elements.slower.disabled = delay >= maxDelay
 
-@debugProgram = ->
+@debugProgram = =>
   await expandBase()
 
   elements.debugProgram.hidden = false
@@ -254,9 +258,11 @@ play = ->
   elements.stdout.innerText = ''
 
   elements.debugInfo.hidden = false
-  setTimeout ->
-    elements.playPause.style.width = "#{elements.playPause.offsetWidth}px"
-    pause()
+  if not elements.playPause.style?.width
+    elements.playPause.textContent = @PAUSE_TEXT
+    setTimeout ->
+      elements.playPause.style.width = "#{elements.playPause.offsetWidth}px"
+      pause()
 
   await debugBase()
 
@@ -265,6 +271,7 @@ play = ->
   elements.debugProgram.innerHTML = ''
   elements.debugProgram.hidden = true
   elements.program.hidden = false
+  pause()
 
 renderThreads = ->
   for row in elements.threads.children
