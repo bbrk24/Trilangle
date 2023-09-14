@@ -29,10 +29,21 @@ jobs:
           -target ${{ matrix.arch }}-apple-macosx src/*.cpp
   build-native-windows:
     runs-on: windows-latest
-    name: Verify C++ Build with MSVC
+    strategy:
+      matrix:
+        include:
+          - cmdArch: amd64
+            dispArch: x86_64
+          - cmdArch: amd64_x86
+            dispArch: x86
+          - cmdArch: amd64_arm64
+            dispArch: arm64
+    name: Verify C++ Build with MSVC on ${{ matrix.dispArch }}
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1.12.1
+        with:
+          arch: ${{ matrix.cmdArch }}
       - name: Invoke MSVC
         shell: pwsh
         run: |

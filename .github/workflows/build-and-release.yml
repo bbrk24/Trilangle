@@ -46,11 +46,24 @@ jobs:
           name: trilangle-macos-latest-${{ matrix.arch }}
           path: Release/
   build-windows:
-    name: Build for Windows
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          # Native compilation only uses the one. Cross compilation is in the form ${HOST}_${TARGET}.
+          # All GH-hosted runners are x86_64, which MSVC calls amd64 because of course it does.
+          - cmdArch: amd64
+            dispArch: x86_64
+          - cmdArch: amd64_x86
+            dispArch: x86
+          - cmdArch: amd64_arm64
+            dispArch: arm64
+    name: Build for Windows ${{ matrix.dispArch }}
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1.12.1
+        with:
+          arch: ${{ matrix.cmdArch }}
       - name: Compile C++ sources
         shell: cmd
         run: >
@@ -59,10 +72,10 @@ jobs:
           SET tag=${{ github.ref_name }}
 
           cl .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /DVERSION=%tag% /std:c++20 /MT /link
-          /out:Release\trilangle-%tag%-windows-latest.exe
+          /out:Release\trilangle-%tag%-windows-latest-${{ matrix.dispArch }}.exe
       - uses: actions/upload-artifact@v3
         with:
-          name: trilangle-windows-latest
+          name: trilangle-windows-latest-${{ matrix.dispArch }}
           path: Release/
   release:
     name: Release
