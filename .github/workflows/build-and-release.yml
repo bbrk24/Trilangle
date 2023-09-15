@@ -52,18 +52,18 @@ jobs:
         include:
           # Native compilation only uses the one. Cross compilation is in the form ${HOST}_${TARGET}.
           # All GH-hosted runners are x86_64, which MSVC calls amd64 because of course it does.
-          - cmdArch: amd64
-            dispArch: x86_64
-          - cmdArch: amd64_x86
-            dispArch: x86
-          - cmdArch: amd64_arm64
-            dispArch: arm64
-    name: Build for Windows ${{ matrix.dispArch }}
+          - cmd_arch: amd64
+            disp_arch: x86_64
+          - cmd_arch: amd64_x86
+            disp_arch: x86
+          - cmd_arch: amd64_arm64
+            disp_arch: arm64
+    name: Build for Windows ${{ matrix.disp_arch }}
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1.12.1
         with:
-          arch: ${{ matrix.cmdArch }}
+          arch: ${{ matrix.cmd_arch }}
       - name: Compile C++ sources
         shell: cmd
         run: >
@@ -72,10 +72,10 @@ jobs:
           SET tag=${{ github.ref_name }}
 
           cl .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /DVERSION=%tag% /std:c++20 /MT /link
-          /out:Release\trilangle-%tag%-windows-${{ matrix.dispArch }}.exe
+          /out:Release\trilangle-%tag%-windows-${{ matrix.disp_arch }}.exe
       - uses: actions/upload-artifact@v3
         with:
-          name: trilangle-windows-${{ matrix.dispArch }}
+          name: trilangle-windows-${{ matrix.disp_arch }}
           path: Release/
   release:
     name: Release

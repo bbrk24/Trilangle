@@ -32,18 +32,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - cmdArch: amd64
-            dispArch: x86_64
-          - cmdArch: amd64_x86
-            dispArch: x86
-          - cmdArch: amd64_arm64
-            dispArch: arm64
-    name: Verify C++ Build with MSVC on ${{ matrix.dispArch }}
+          - cmd_arch: amd64
+            disp_arch: x86_64
+          - cmd_arch: amd64_x86
+            disp_arch: x86
+          - cmd_arch: amd64_arm64
+            disp_arch: arm64
+    name: Verify C++ Build with MSVC on ${{ matrix.disp_arch }}
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1.12.1
         with:
-          arch: ${{ matrix.cmdArch }}
+          arch: ${{ matrix.cmd_arch }}
       - name: Invoke MSVC
         shell: pwsh
         run: |
