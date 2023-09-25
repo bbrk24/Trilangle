@@ -218,12 +218,3 @@ constexpr int EX_NOINPUT = 66;
 #endif
 
 #undef _INCLUDED_SAL
-
-
-#if (defined(__x86_64__) || defined(_M_X64)) && !REALLY_MSVC
-// 1 on gcc or clang for x86-64, where asm blocks are used. 0 otherwise.
-#define ASM_ALLOWED 1
-#else
-// 1 on gcc or clang for x86-64, where asm blocks are used. 0 otherwise.
-#define ASM_ALLOWED 0
-#endif

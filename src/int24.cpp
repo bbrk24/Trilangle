@@ -17,35 +17,17 @@ pair<bool, int24_t> int24_t::subtract_with_overflow(int24_t other) const noexcep
 }
 
 pair<bool, int24_t> int24_t::multiply_with_overflow(int24_t other) const noexcept {
-    bool overflow;
-#if ASM_ALLOWED
-    int32_t lhs = this->value;
-    const int32_t rhs = other.value;
-
-    asm("\timull   %2, %1\n"
-        "\tseto    %0\n"
-        : "=rm"(overflow), "+r"(lhs)
-        : "rm"(rhs)
-        : "cc");
-
-    return { overflow || is_overflow(lhs), int24_t{ lhs } };
+    // The 64-bit version may be less efficient on some archs, e.g. one that can do 32-bit multiplication and then check
+    // an overflow flag. So, use __builtin_mul_overflow when it's available, and fall back to 64-bit multiplication for
+    // MSVC.
+#if REALLY_MSVC
+    auto lhs = static_cast<int64_t>(*this), rhs = static_cast<int64_t>(other);
+    int64_t result = lhs * rhs;
+    return { result < static_cast<int64_t>(INT24_MIN) || result > static_cast<int64_t>(INT24_MAX),
+             static_cast<int24_t>(result) };
 #else
-    if (this->value == 0 || other.value == 0) {
-        return { false, INT24_C(0) };
-    }
-
-    if (this->value > 0) {
-        if (other.value > 0) {
-            overflow = (other.value > INT24_MAX.value / this->value);
-        } else {
-            overflow = (other.value < INT24_MIN.value / this->value);
-        }
-    } else if (other.value > 0) {
-        overflow = (other.value > INT24_MIN.value / this->value);
-    } else {
-        overflow = (other.value < INT24_MAX.value / this->value);
-    }
-
-    return { overflow, int24_t{ this->value * other.value } };
+    int32_t result;
+    bool overflow = __builtin_mul_overflow(this->value, other.value, &result);
+    return { overflow || is_overflow(result), int24_t{ result } };
 #endif
 }

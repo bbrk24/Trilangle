@@ -163,18 +163,13 @@ void thread::tick() {
             int24_t top = m_stack.back();
             m_stack.pop_back();
 
+            pair<bool, int24_t> result = m_stack.back().multiply_with_overflow(top);
 
-            if (m_flags.warnings) {
-                pair<bool, int24_t> result = m_stack.back().multiply_with_overflow(top);
-
-                if (result.first) UNLIKELY {
-                    cerr << "Warning: Overflow on multiplication is undefined behavior.\n";
-                }
-
-                m_stack.back() = result.second;
-            } else {
-                m_stack.back() *= top;
+            if (result.first) UNLIKELY {
+                cerr << "Warning: Overflow on multiplication is undefined behavior.\n";
             }
+
+            m_stack.back() = result.second;
 
             break;
         }
@@ -259,32 +254,14 @@ void thread::tick() {
         case EXT:
             flush_and_exit(EXIT_SUCCESS);
         case INC:
-            if (m_flags.warnings) {
-                if (m_stack.empty()) UNLIKELY {
-                    cerr << "Warning: Attempt to increment empty stack.\n";
-                    break;
-                }
-                if (m_stack.back() == INT24_MAX) UNLIKELY {
-                    cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
-                }
+            EMPTY_PROTECT("increment") {
+                ++m_stack.back();
             }
-
-            ++m_stack.back();
-
             break;
         case DEC:
-            if (m_flags.warnings) {
-                if (m_stack.empty()) UNLIKELY {
-                    cerr << "Warning: Attempt to decrement empty stack.\n";
-                    break;
-                }
-                if (m_stack.back() == INT24_MIN) UNLIKELY {
-                    cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
-                }
+            EMPTY_PROTECT("decrement") {
+                --m_stack.back();
             }
-
-            --m_stack.back();
-
             break;
         case AND: {
             SIZE_CHECK("bitwise and", 2);

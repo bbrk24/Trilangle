@@ -13,13 +13,8 @@ struct int24_t {
     template<typename T>
     constexpr explicit int24_t(T x) noexcept : value(static_cast<int32_t>(x)) {}
 
-    // Returns { false, this + other } when overflow does not occur, and { true, undefined } when overflow does occur.
     std::pair<bool, int24_t> add_with_overflow(int24_t other) const noexcept;
-    // Returns { false, this - other } when overflow does not occur, and { true, undefined } when overflow does occur.
     std::pair<bool, int24_t> subtract_with_overflow(int24_t other) const noexcept;
-    // Returns { false, this * other } when overflow does not occur, and { true, undefined } when overflow does occur.
-    // Note: This may perform divisions for the overflow check. When overflow checking is not required, do not use this
-    // method.
     std::pair<bool, int24_t> multiply_with_overflow(int24_t other) const noexcept;
 
     constexpr operator int32_t() const noexcept { return value; }
