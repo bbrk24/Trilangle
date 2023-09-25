@@ -25,6 +25,8 @@ constexpr bool is_branch(int24_t op, direction dir) noexcept {
 
 // A variant-like type.
 class instruction {
+    friend class compiler;
+
     using instruction_pointer = program_walker::instruction_pointer;
 
     template<typename T>

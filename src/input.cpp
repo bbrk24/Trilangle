@@ -51,6 +51,7 @@ static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_
     { "null", 'z', [](flags& f) NOEXCEPT_T { f.null_terminated = true; } },
     { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
     { "expand", 'e', [](flags& f) NOEXCEPT_T { f.expand = true; } },
+    { "compile", 'c', [](flags& f) NOEXCEPT_T { f.compile = true; } },
     { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
     { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
     { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },

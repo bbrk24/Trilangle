@@ -1,6 +1,7 @@
 #include <iostream>
 #include "disassembler.hh"
 #include "interpreter.hh"
+#include "compiler.hh"
 
 inline void execute(const std::string& prg, flags f) {
     // The only thing cstdio and iostream need to be synced for is the ferror check when pipekill is set.
@@ -13,6 +14,9 @@ inline void execute(const std::string& prg, flags f) {
         d.write_state(std::cout);
     } else if (f.expand) {
         std::cout << p << std::flush;
+    } else if (f.compile) {
+        compiler c(&p, f);
+        c.write_state(std::cout);
     } else {
         interpreter i(&p, f);
         i.run();

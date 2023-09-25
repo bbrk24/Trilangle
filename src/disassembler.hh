@@ -22,7 +22,7 @@ public:
     }
 
     // Write the state to the specified output stream.
-    void write_state(std::ostream& os);
+    virtual void write_state(std::ostream& os);
 protected:
     void build_state();
 
