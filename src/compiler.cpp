@@ -81,10 +81,10 @@ void compiler::get_c_code(const instruction& i, std::ostream& os) {
             os << "(void)lws_pop(stack);";
             return;
         case op::INC:
-            os << "lws_push(stack, lws_pop(stack) + 1);";
+            os << "lws_push(stack, (lws_pop(stack) + 1) << 8 >> 8);";
             return;
         case op::DEC:
-            os << "lws_push(stack, lws_pop(stack) - 1);";
+            os << "lws_push(stack, (lws_pop(stack) - 1) << 8 >> 8);";
             return;
         case op::AND:
             os << "lws_push(stack, lws_pop(stack) & lws_pop(stack));";

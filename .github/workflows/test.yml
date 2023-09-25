@@ -44,6 +44,7 @@ jobs:
             echo "Running ${script}..."
             "$script"
           done
+          echo 'Done.'
   cli-tests-windows:
     runs-on: windows-latest
     name: Run CLI Tests for Windows
