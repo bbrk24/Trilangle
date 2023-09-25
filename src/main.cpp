@@ -1,7 +1,7 @@
 #include <iostream>
+#include "compiler.hh"
 #include "disassembler.hh"
 #include "interpreter.hh"
-#include "compiler.hh"
 
 inline void execute(const std::string& prg, flags f) {
     // The only thing cstdio and iostream need to be synced for is the ferror check when pipekill is set.

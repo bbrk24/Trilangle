@@ -20,3 +20,4 @@ wasm/*.css
 *.obj
 trilangle
 *.nativecodeanalysis.xml
+out.c

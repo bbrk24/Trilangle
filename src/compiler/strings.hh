@@ -7,7 +7,7 @@ constexpr const char* header =
 #include <inttypes.h>
 #include <wchar.h>
 
-int main() {
+int main(int argc, const char** argv) {
     struct lightweight_stack_s stack_storage;
     lws stack = &stack_storage;
     lws_init(stack);

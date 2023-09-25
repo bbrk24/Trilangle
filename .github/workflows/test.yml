@@ -4,7 +4,7 @@ name: Run Tests
     branches:
       - '**'
     paths:
-      - src/*
+      - src/**
       - tests/**
       - .github/workflows/test.yml
       - .gitmodules
@@ -37,8 +37,9 @@ jobs:
         shell: bash
         run: |
           g++ -Og -std=gnu++17 src/*.cpp -o trilangle
-          export PATH="${PATH}:${PWD}"
-          for script in tests/cli/*/index.sh
+          PATH="${PATH}:${PWD}"
+          : "${CC:=gcc}"
+          for script in tests/cli/*/index.sh tests/compiler/*/index.sh
           do
             echo "Running ${script}..."
             "$script"
