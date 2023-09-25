@@ -37,8 +37,8 @@ jobs:
         shell: bash
         run: |
           g++ -Og -std=gnu++17 src/*.cpp -o trilangle
-          PATH="${PATH}:${PWD}"
-          : "${CC:=gcc}"
+          export PATH="${PATH}:${PWD}"
+          export CC="${CC:-gcc}"
           for script in tests/cli/*/index.sh tests/compiler/*/index.sh
           do
             echo "Running ${script}..."

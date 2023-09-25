@@ -28,13 +28,14 @@ void compiler::get_c_code(const instruction& i, std::ostream& os) {
     switch (i.m_op) {
         case op::BNG: {
             os << "if (lws_top(stack) < 0) goto lbl";
-            const auto [dest1, dest2] = i.m_arg.choice;
+            const auto& choice = i.m_arg.choice;
+            const auto &dest1 = choice.first, &dest2 = choice.second;
             os << dest2.first << '_' << dest2.second << "; goto lbl" << dest1.first << '_' << dest1.second << ';';
             return;
         }
         case op::JMP: {
             os << "goto lbl";
-            const auto dest = i.m_arg.next;
+            const auto& dest = i.m_arg.next;
             os << dest.first << '_' << dest.second << ';';
             return;
         }
