@@ -4,7 +4,7 @@ set -euo pipefail
 
 folder=$(dirname "$0")
 
-trilangle -c "${folder}/cat.trg" | $CC -o ./trgcat.out
+trilangle -c "${folder}/cat.trg" | $CC -o ./trgcat.out -xc -
 
 text='
     /\_/\           ___

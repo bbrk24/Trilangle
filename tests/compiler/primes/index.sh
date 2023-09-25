@@ -4,11 +4,11 @@ set -euo pipefail
 
 folder=$(dirname "$0")
 
-trilangle -c "${folder}/primes.trg" | $CC -o ./trgcat.out
+trilangle -c "${folder}/primes.trg" | $CC -o ./trgprimes.out -xc -
 
-one=$(./trgcat.out <<<1)
-two=$(./trgcat.out <<<2)
-four=$(./trgcat.out <<<4)
+one=$(./trgprimes.out <<<1)
+two=$(./trgprimes.out <<<2)
+four=$(./trgprimes.out <<<4)
 
 test -z "$one"
 test 0 = "$two"
