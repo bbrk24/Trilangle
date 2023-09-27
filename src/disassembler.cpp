@@ -12,7 +12,7 @@ using std::pair;
 #define STRING_NAME(x) \
     case operation::x: \
         os << #x; \
-        return \
+        return
 
 void disassembler::to_str(const instruction& i, std::ostream& os) {
     using operation = instruction::operation;
