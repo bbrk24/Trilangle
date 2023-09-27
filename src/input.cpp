@@ -41,9 +41,11 @@ static constexpr const char* FLAGS_HELP =
     "\t                 \tcode. Incompatible with --debug, --warnings, and\n"
     "\t                 \t--pipekill.\n"
     "\t--hide-nops, -n  \tDon't include NOPs in the disassembly. Requires\n"
-    "\t                 \t--disassemble.\n\n"
+    "\t                 \t--disassemble.\n"
+    "\t--compile, -c    \tOutput C code for the program. Doesn't support all\n"
+    "\t                 \toperations. Incompatible with all other flags.\n\n"
     "\t--expand, -e     \tSpace the program out to fit the triangle.\n"
-    "\t                 \tIncompatible with all other flags.\n\n"
+    "\t                 \tIncompatible with all other flags.\n"
     "\t--null, -z       \tRead the program until null terminator instead of EOF.";
 
 namespace flag_container {

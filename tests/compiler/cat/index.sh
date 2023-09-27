@@ -8,10 +8,9 @@ trilangle -c "${folder}/cat.trg" | $CC -o ./trgcat.out -xc -
 
 text='
     /\_/\           ___
-   = ಠ_ಠ =_______    \ \
+   = O_O =_______    \ \
     __^      __(  \.__) )
 (@)<_____>__(_____)____/'
 output=$(./trgcat.out <<<"$text")
 
-# FIXME: getwchar reports ಠ as WEOF
-test "$text" = "$output" || true
+test "$text" = "$output"

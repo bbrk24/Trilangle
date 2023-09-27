@@ -99,6 +99,7 @@ void compiler::get_c_code(const instruction& i, std::ostream& os) {
             os << "lws_push(stack, ~lws_pop(stack));";
             return;
         case op::GTC:
+            // FIXME: reports (some?) high unicode characters as WEOF (on some systems?)
             os << "{ wint_t temp = getwchar(); lws_push(stack, temp == WEOF ? -1 : temp); }";
             return;
         case op::PTC:
@@ -128,7 +129,7 @@ void compiler::get_c_code(const instruction& i, std::ostream& os) {
         case op::RND:
         case op::GDT:
         case op::GTM:
-            std::cerr << "Nondeterministic instructions are not supported for compiled programs." << std::endl;
+            std::cerr << "Nondeterministic instructions are not yet supported for compiled programs." << std::endl;
             exit(EXIT_FAILURE);
         case op::EXP:
             os << "lws_push(stack, 1 << lws_pop(stack));";
