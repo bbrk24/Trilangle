@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 - Added prebuilt binaries for ARM64 macOS, x86 Windows, and ARM64 Windows.
 - Added a 'play' feature to the online debugger, to automatically step through the code.
+- Added a compile mode to emit C code. 
 
 ## [1.5.0] - 2023-08-31
 
