@@ -11,9 +11,10 @@ using std::pair;
 
 #define STRING_NAME(x) \
     case operation::x: \
-        return #x
+        os << #x; \
+        return \
 
-std::string disassembler::to_str(const instruction& i) noexcept {
+void disassembler::to_str(const instruction& i, std::ostream& os) {
     using operation = instruction::operation;
 
     switch (i.m_op) {
@@ -47,39 +48,34 @@ std::string disassembler::to_str(const instruction& i) noexcept {
         STRING_NAME(TJN);
         case operation::PSI: {
             int24_t value = i.m_arg.number;
-            ostringstream result;
-            result << "PSI #";
-            print_unichar(value, result);
-            return result.str();
+            os << "PSI #";
+            print_unichar(value, os);
+            return;
         }
         case operation::PSC: {
             int24_t value = i.m_arg.number;
-            ostringstream result;
-            result << "PSC '";
-            print_unichar(value, result);
-            result << "' ; 0x";
+            os << "PSC '";
+            print_unichar(value, os);
+            os << "' ; 0x";
             char buf[7];
             snprintf(buf, sizeof buf, "%" PRIx32, static_cast<uint32_t>(value));
-            result << buf;
-            return result.str();
+            os << buf;
+            return;
         }
         case operation::JMP: {
             pair<size_t, size_t> target = i.m_arg.next;
-            ostringstream result;
-            result << "JMP " << target.first << "." << target.second;
-            return result.str();
+            os << "JMP " << target.first << "." << target.second;
+            return;
         }
         case operation::BNG: {
             pair<size_t, size_t> target = i.m_arg.choice.second;
-            ostringstream result;
-            result << "BNG " << target.first << "." << target.second;
-            return result.str();
+            os << "BNG " << target.first << "." << target.second;
+            return;
         }
         case operation::TSP: {
             pair<size_t, size_t> target = i.m_arg.choice.second;
-            ostringstream result;
-            result << "TSP " << target.first << "." << target.second;
-            return result.str();
+            os << "TSP " << target.first << "." << target.second;
+            return;
         }
         default:
             cerr << "Unrecognized opcode '";
@@ -106,7 +102,7 @@ void disassembler::write_state(std::ostream& os) {
             // write out the label
             os << i << '.' << j << ":\t";
             // write out the instruction name
-            os << to_str(ins);
+            to_str(ins, os);
 
             // if it's a branch followed by a jump, write that
             const std::pair<size_t, size_t>* next = ins.first_if_branch();

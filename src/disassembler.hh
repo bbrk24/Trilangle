@@ -11,5 +11,5 @@ public:
     void write_state(std::ostream& os);
 private:
     const flags m_flags;
-    static std::string to_str(const instruction& i) noexcept;
+    static void to_str(const instruction& i, std::ostream& os);
 };
