@@ -1,12 +1,12 @@
 #pragma once
 
-#include <disassembler.hh>
+#include <instruction_scanner.hh>
 #include "test-framework/test_framework.hh"
 
 namespace {
-class test_disassemble : public disassembler {
+class test_disassemble : public instruction_scanner {
 public:
-    inline test_disassemble(NONNULL_PTR(const program) p, flags f) : disassembler(p, f) {}
+    inline test_disassemble(NONNULL_PTR(const program) p) : instruction_scanner(p) {}
 
     inline NONNULL_PTR(const std::vector<std::vector<instruction>*>) get_fragments() noexcept {
         if (m_fragments == nullptr) {
@@ -14,16 +14,15 @@ public:
         }
         return m_fragments;
     }
+
+    inline void write_state(std::ostream& os) {}
 };
 }  // namespace
 
 testgroup (disassemble) {
     testcase (exit_immediately) {
         program p("@");
-        flags f;
-        f.disassemble = true;
-
-        test_disassemble td(&p, f);
+        test_disassemble td(&p);
 
         auto* fragments = td.get_fragments();
         test_assert(fragments->size() == 1, "Program without branches or threads should have 1 fragment");
@@ -33,10 +32,7 @@ testgroup (disassemble) {
     }
     , testcase (infinite_loop) {
         program p(".");
-        flags f;
-        f.disassemble = true;
-
-        test_disassemble td(&p, f);
+        test_disassemble td(&p);
 
         auto* fragments = td.get_fragments();
         test_assert(fragments->size() == 1, "Program without branches or threads should have 1 fragment");
@@ -58,10 +54,8 @@ testgroup (disassemble) {
          . > .
         . @ . .
         )");
-        flags f;
-        f.disassemble = true;
 
-        test_disassemble td(&p, f);
+        test_disassemble td(&p);
 
         auto* fragments = td.get_fragments();
         test_assert(fragments->size() == 3, "Program with one branch should have 3 fragments");

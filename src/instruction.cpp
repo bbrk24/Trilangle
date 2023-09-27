@@ -1,15 +1,5 @@
 #include "instruction.hh"
-#include <cinttypes>
-#include <cstdio>
-#include <sstream>
 #include "output.hh"
-
-using std::cerr;
-using std::ostringstream;
-
-#define STRING_NAME(x) \
-    case operation::x: \
-        return #x
 
 instruction::instruction(instruction_pointer ip, const program& program) noexcept : m_arg(), m_op(operation::NOP) {
     int24_t op = program.at(ip.coords.first, ip.coords.second);
@@ -68,79 +58,5 @@ instruction::instruction(instruction_pointer ip, const program& program) noexcep
         // Most things are direction-insensitive and take no arguments
         default:
             m_op = static_cast<operation>(op);
-    }
-}
-
-std::string instruction::to_str() const noexcept {
-    switch (m_op) {
-        STRING_NAME(NOP);
-        STRING_NAME(ADD);
-        STRING_NAME(SUB);
-        STRING_NAME(MUL);
-        STRING_NAME(DIV);
-        STRING_NAME(MOD);
-        STRING_NAME(POP);
-        STRING_NAME(EXT);
-        STRING_NAME(INC);
-        STRING_NAME(DEC);
-        STRING_NAME(AND);
-        STRING_NAME(IOR);
-        STRING_NAME(XOR);
-        STRING_NAME(NOT);
-        STRING_NAME(GTC);
-        STRING_NAME(PTC);
-        STRING_NAME(GTI);
-        STRING_NAME(PTI);
-        STRING_NAME(IDX);
-        STRING_NAME(DUP);
-        STRING_NAME(RND);
-        STRING_NAME(EXP);
-        STRING_NAME(SWP);
-        STRING_NAME(GTM);
-        STRING_NAME(GDT);
-        STRING_NAME(DP2);
-        STRING_NAME(TKL);
-        STRING_NAME(TJN);
-        case operation::PSI: {
-            int24_t value = m_arg.number;
-            ostringstream result;
-            result << "PSI #";
-            print_unichar(value, result);
-            return result.str();
-        }
-        case operation::PSC: {
-            int24_t value = m_arg.number;
-            ostringstream result;
-            result << "PSC '";
-            print_unichar(value, result);
-            result << "' ; 0x";
-            char buf[7];
-            snprintf(buf, sizeof buf, "%" PRIx32, static_cast<uint32_t>(value));
-            result << buf;
-            return result.str();
-        }
-        case operation::JMP: {
-            pair<size_t> target = m_arg.next;
-            ostringstream result;
-            result << "JMP " << target.first << "." << target.second;
-            return result.str();
-        }
-        case operation::BNG: {
-            pair<size_t> target = m_arg.choice.second;
-            ostringstream result;
-            result << "BNG " << target.first << "." << target.second;
-            return result.str();
-        }
-        case operation::TSP: {
-            pair<size_t> target = m_arg.choice.second;
-            ostringstream result;
-            result << "TSP " << target.first << "." << target.second;
-            return result.str();
-        }
-        default:
-            cerr << "Unrecognized opcode '";
-            print_unichar(static_cast<int24_t>(m_op), cerr);
-            cerr << '\'' << std::endl;
-            exit(EXIT_FAILURE);
     }
 }

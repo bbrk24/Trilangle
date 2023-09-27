@@ -4,6 +4,9 @@
 #include <iostream>
 #include "compiler/strings.hh"
 
+using std::cerr;
+using std::endl;
+
 void compiler::write_state(std::ostream& os) {
     if (m_fragments == nullptr) {
         build_state();
@@ -45,7 +48,7 @@ void compiler::get_c_code(const instruction& i, std::ostream& os) {
             return;
         case op::TJN:
         case op::TSP:
-            std::cerr << "Threading is not supported for compiled programs." << std::endl;
+            cerr << "Threading is not supported for compiled programs." << endl;
             exit(EXIT_FAILURE);
         case op::NOP:
             break;
@@ -129,7 +132,7 @@ void compiler::get_c_code(const instruction& i, std::ostream& os) {
         case op::RND:
         case op::GDT:
         case op::GTM:
-            std::cerr << "Nondeterministic instructions are not yet supported for compiled programs." << std::endl;
+            cerr << "Nondeterministic instructions are not yet supported for compiled programs." << endl;
             exit(EXIT_FAILURE);
         case op::EXP:
             os << "lws_push(stack, 1 << lws_pop(stack));";
@@ -143,7 +146,7 @@ void compiler::get_c_code(const instruction& i, std::ostream& os) {
                   "}";
             return;
         default:
-            std::cerr << "Unknown opcode." << std::endl;
+            cerr << "Unknown opcode." << endl;
             exit(EXIT_FAILURE);
     }
 }
