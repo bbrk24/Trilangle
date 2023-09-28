@@ -178,6 +178,14 @@ For example, when passing [the cat program below](#cat) with the flags `-Dn`, th
 2.2:	EXT
 ```
 
+## C compiler
+
+When using the `-c` flag, the input program will be translated into C code. The C code is not meant to be idiomatic or easy to read, as it is a literal translation of the input. Optimizers such as those used by clang and GCC tend to do a good job of improving the program, in some cases removing the heap allocation altogether; MSVC does not.
+
+If the `-a` flag is additionally specified, the output program will use `getchar` and `putchar` for the `GTC` and `PTC` opcodes respectively. Otherwise, the output program will convert between UTF-8 and UTF-32 the same way the interpreter does.
+
+Compiled programs cannot use multiple threads, and at this time cannot use the `RND`, `GTM`, and `GDT` opcodes.
+
 ## Sample Programs
 
 Here are some simple programs I've written.
