@@ -15,7 +15,7 @@ inline void execute(const std::string& prg, flags f) {
     } else if (f.expand) {
         std::cout << p << std::flush;
     } else if (f.compile) {
-        compiler c(&p);
+        compiler c(&p, f);
         c.write_state(std::cout);
     } else {
         interpreter i(&p, f);
