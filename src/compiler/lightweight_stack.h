@@ -67,7 +67,7 @@ static inline int32_t get_unichar() {
                 return INVALID_CHAR;
             }
         }
-        buf[i] = static_cast<unsigned char>(c);
+        buf[i] = c;
         if (i != 0 && (buf[i] & 0xc0) != 0x80) {
             return INVALID_CHAR;
         }
