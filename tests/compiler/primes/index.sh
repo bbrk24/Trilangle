@@ -1,15 +1,9 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eu
 
 folder=$(dirname "$0")
 
-trilangle -c "${folder}/primes.trg" | $CC -o ./trgprimes.out -xc -
-
-one=$(./trgprimes.out <<<1)
-two=$(./trgprimes.out <<<2)
-four=$(./trgprimes.out <<<4)
-
-test -z "$one"
-test 0 = "$two"
-test -z "$four"
+test -z "$($TRILANGLE "${folder}/primes.trg" <<<1)"
+test 0 = "$($TRILANGLE "${folder}/primes.trg" <<<2)"
+test -z "$($TRILANGLE "${folder}/primes.trg" <<<4)"

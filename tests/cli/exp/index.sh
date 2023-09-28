@@ -1,11 +1,8 @@
 #!/bin/bash
 
-set -e
+set -eu
 
-folder="$(dirname "$0")"
+folder=$(dirname "$0")
 
-sixteen="$(trilangle "${folder}/sixteen.trg")"
-big_negative="$(trilangle "${folder}/big_negative.trg")"
-
-test 16 = "$sixteen"
-test "$big_negative" -eq $((-0x800000))
+test 16 = "$($TRILANGLE "${folder}/sixteen.trg")"
+test "$($TRILANGLE "${folder}/big_negative.trg")" -eq $((-0x800000))
