@@ -18,14 +18,14 @@ void compiler::write_state(std::ostream& os) {
         const std::vector<instruction>& frag = *m_fragments->at(i);
         for (size_t j = 0; j < frag.size(); ++j) {
             os << "\nlbl" << i << '_' << j << ": ";
-            get_c_code(frag[j], os);
+            get_c_code(frag[j], os, m_flags.assume_ascii);
         }
     }
 
     os << footer << std::flush;
 }
 
-void compiler::get_c_code(const instruction& i, std::ostream& os) {
+void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_ascii) {
     using op = instruction::operation;
 
     switch (i.m_op) {
@@ -102,11 +102,19 @@ void compiler::get_c_code(const instruction& i, std::ostream& os) {
             os << "lws_push(stack, ~lws_pop(stack));";
             return;
         case op::GTC:
-            // FIXME: reports (some?) high unicode characters as WEOF (on some systems?)
-            os << "{ wint_t temp = getwchar(); lws_push(stack, temp == WEOF ? -1 : temp); }";
+            if (assume_ascii) {
+                os << "{ int temp = getchar(); lws_push(stack, temp == EOF ? -1 : temp); }";
+            } else {
+                os << "lws_push(stack, get_unichar());";
+            }
             return;
         case op::PTC:
-            os << "putwchar(lws_top(stack));";
+            if (assume_ascii) {
+                os << "putchar";
+            } else {
+                os << "print_unichar";
+            }
+            os << "(lws_top(stack));";
             return;
         case op::GTI:
             os << "{"

@@ -36,22 +36,26 @@ static constexpr const char* FLAGS_HELP =
     "\t--show-stack, -s \tShow the stack while debugging. Requires\n"
     "\t                 \t--debug.\n"
     "\t--warnings, -w   \tShow warnings for unspecified behavior.\n"
-    "\t--pipekill, -f   \tEnd the program once STDOUT is closed.\n\n"
+    "\t--pipekill, -f   \tEnd the program once STDOUT is closed.\n"
+    "\t--ascii, -a      \tAssume all I/O is ASCII-only. Incompatible with"
+    "\t                 \t--disassemble and --expand.\n\n"
     "\t--disassemble, -D\tOutput a pseudo-assembly representation of the\n"
     "\t                 \tcode. Incompatible with --debug, --warnings, and\n"
     "\t                 \t--pipekill.\n"
     "\t--hide-nops, -n  \tDon't include NOPs in the disassembly. Requires\n"
     "\t                 \t--disassemble.\n"
     "\t--compile, -c    \tOutput C code for the program. Doesn't support all\n"
-    "\t                 \toperations. Incompatible with all other flags.\n\n"
+    "\t                 \toperations. Incompatible with all other flags except"
+    "\t                 \t--null.\n\n"
     "\t--expand, -e     \tSpace the program out to fit the triangle.\n"
-    "\t                 \tIncompatible with all other flags.\n"
+    "\t                 \tIncompatible with all other flags except --null.\n"
     "\t--null, -z       \tRead the program until null terminator instead of EOF.";
 
 namespace flag_container {
 static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
     { "null", 'z', [](flags& f) NOEXCEPT_T { f.null_terminated = true; } },
     { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
+    { "ascii", 'a', [](flags& f) NOEXCEPT_T { f.assume_ascii = true; } },
     { "expand", 'e', [](flags& f) NOEXCEPT_T { f.expand = true; } },
     { "compile", 'c', [](flags& f) NOEXCEPT_T { f.compile = true; } },
     { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
