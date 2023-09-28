@@ -25,6 +25,9 @@ constexpr bool is_branch(int24_t op, direction dir) noexcept {
 
 // A variant-like type.
 class instruction {
+    friend class disassembler;
+    friend class compiler;
+
     using instruction_pointer = program_walker::instruction_pointer;
 
     template<typename T>
@@ -69,7 +72,6 @@ public:
     constexpr bool is_exit() const noexcept { return m_op == operation::EXT || m_op == operation::TKL; }
     constexpr bool is_join() const noexcept { return m_op == operation::TJN; }
     constexpr bool is_nop() const noexcept { return m_op == operation::NOP; }
-    std::string to_str() const noexcept;
 
     CONSTEXPR_UNION const pair<size_t>* first_if_branch() const noexcept {
         switch (m_op) {
@@ -80,9 +82,9 @@ public:
                 return nullptr;
         }
     }
-private:
-    CONSTEXPR_UNION instruction(operation op, argument arg) noexcept : m_arg(arg), m_op(op) {}
-
+protected:
     argument m_arg;
     operation m_op;
+private:
+    CONSTEXPR_UNION instruction(operation op, argument arg) noexcept : m_arg(arg), m_op(op) {}
 };

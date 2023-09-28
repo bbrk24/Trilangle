@@ -1,33 +1,15 @@
 #pragma once
 
-#include <iosfwd>
-#include "input.hh"
-#include "instruction.hh"
+#include "instruction_scanner.hh"
 
-class disassembler : public program_walker {
+class disassembler : public instruction_scanner {
 public:
-    CONSTEXPR_VECTOR disassembler(NONNULL_PTR(const program) p, flags f) :
-        program_walker(p), m_fragments(nullptr), m_flags(f) {}
-
-    disassembler(const disassembler&) = delete;
-
-    CONSTEXPR_VECTOR ~disassembler() noexcept {
-        if (m_fragments == nullptr) {
-            return;
-        }
-        for (std::vector<instruction>* frag : *m_fragments) {
-            delete frag;
-        }
-        delete m_fragments;
-    }
+    CONSTEXPR_VECTOR disassembler(NONNULL_PTR(const program) p, flags f) noexcept :
+        instruction_scanner(p), m_flags(f) {}
 
     // Write the state to the specified output stream.
     void write_state(std::ostream& os);
-protected:
-    void build_state();
-
-    // The list of program "fragments". Each one ends with a branch, jump, thread-kill, or exit.
-    std::vector<std::vector<instruction>*>* m_fragments;
 private:
     const flags m_flags;
+    static void to_str(const instruction& i, std::ostream& os);
 };

@@ -1,11 +1,8 @@
 #!/bin/bash
 
-set -e
+set -eu
 
-folder="$(dirname "$0")"
+folder=$(dirname "$0")
 
-int="$(trilangle "${folder}/int.trg")"
-char="$(trilangle "${folder}/char.trg")"
-
-test 1 = "$int"
-test 1 = "$char"
+test 1 = "$($TRILANGLE "${folder}/int.trg")"
+test 1 = "$($TRILANGLE -a "${folder}/char.trg")"

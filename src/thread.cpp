@@ -290,13 +290,25 @@ void thread::tick() {
             }
             break;
         case GTC:
-            m_stack.push_back(get_unichar());
+            if (m_flags.assume_ascii) {
+                int character = getchar();
+                if (character == EOF) {
+                    m_stack.push_back(INT24_C(-1));
+                } else {
+                    if (m_flags.warnings && (character & 0x7f) != character) UNLIKELY {
+                        cerr << "Non-ASCII byte read.\n";
+                    }
+                    m_stack.emplace_back(character);
+                }
+            } else {
+                m_stack.push_back(get_unichar());
+            }
             break;
         case PTC:
             EMPTY_PROTECT("print from") {
                 bool should_print = true;
 
-                if (m_stack.back() < INT24_C(0)) {
+                if (m_stack.back() < INT24_C(0)) UNLIKELY {
                     if (m_flags.warnings) {
                         cerr << "Warning: Attempt to print character with negative value.\n";
                         should_print = false;
@@ -307,7 +319,15 @@ void thread::tick() {
                 }
 
                 if (should_print) {
-                    print_unichar(m_stack.back());
+                    if (m_flags.assume_ascii) {
+                        int24_t back = m_stack.back();
+                        if (m_flags.warnings && (back & 0x7f) != back) UNLIKELY {
+                            cerr << "Warning: Printing non-ASCII value.\n";
+                        }
+                        putchar(back);
+                    } else {
+                        print_unichar(m_stack.back());
+                    }
 
 #ifdef __EMSCRIPTEN__
                     if (m_flags.debug) {

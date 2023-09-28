@@ -1,10 +1,89 @@
 #include "disassembler.hh"
-#include <list>
+#include <cinttypes>
+#include <cstdio>
 #include <ostream>
-#include <unordered_map>
+#include <sstream>
+#include "output.hh"
 
+using std::cerr;
+using std::ostringstream;
 using std::pair;
-using std::vector;
+
+#define STRING_NAME(x) \
+    case operation::x: \
+        os << #x; \
+        return
+
+void disassembler::to_str(const instruction& i, std::ostream& os) {
+    using operation = instruction::operation;
+
+    switch (i.m_op) {
+        STRING_NAME(NOP);
+        STRING_NAME(ADD);
+        STRING_NAME(SUB);
+        STRING_NAME(MUL);
+        STRING_NAME(DIV);
+        STRING_NAME(MOD);
+        STRING_NAME(POP);
+        STRING_NAME(EXT);
+        STRING_NAME(INC);
+        STRING_NAME(DEC);
+        STRING_NAME(AND);
+        STRING_NAME(IOR);
+        STRING_NAME(XOR);
+        STRING_NAME(NOT);
+        STRING_NAME(GTC);
+        STRING_NAME(PTC);
+        STRING_NAME(GTI);
+        STRING_NAME(PTI);
+        STRING_NAME(IDX);
+        STRING_NAME(DUP);
+        STRING_NAME(RND);
+        STRING_NAME(EXP);
+        STRING_NAME(SWP);
+        STRING_NAME(GTM);
+        STRING_NAME(GDT);
+        STRING_NAME(DP2);
+        STRING_NAME(TKL);
+        STRING_NAME(TJN);
+        case operation::PSI: {
+            int24_t value = i.m_arg.number;
+            os << "PSI #";
+            print_unichar(value, os);
+            return;
+        }
+        case operation::PSC: {
+            int24_t value = i.m_arg.number;
+            os << "PSC '";
+            print_unichar(value, os);
+            os << "' ; 0x";
+            char buf[7];
+            snprintf(buf, sizeof buf, "%" PRIx32, static_cast<uint32_t>(value));
+            os << buf;
+            return;
+        }
+        case operation::JMP: {
+            pair<size_t, size_t> target = i.m_arg.next;
+            os << "JMP " << target.first << "." << target.second;
+            return;
+        }
+        case operation::BNG: {
+            pair<size_t, size_t> target = i.m_arg.choice.second;
+            os << "BNG " << target.first << "." << target.second;
+            return;
+        }
+        case operation::TSP: {
+            pair<size_t, size_t> target = i.m_arg.choice.second;
+            os << "TSP " << target.first << "." << target.second;
+            return;
+        }
+        default:
+            cerr << "Unrecognized opcode '";
+            print_unichar(static_cast<int24_t>(i.m_op), cerr);
+            cerr << '\'' << std::endl;
+            exit(EXIT_FAILURE);
+    }
+}
 
 void disassembler::write_state(std::ostream& os) {
     if (m_fragments == nullptr) {
@@ -12,7 +91,7 @@ void disassembler::write_state(std::ostream& os) {
     }
 
     for (size_t i = 0; i < m_fragments->size(); ++i) {
-        const vector<instruction>& frag = *m_fragments->at(i);
+        const std::vector<instruction>& frag = *m_fragments->at(i);
         for (size_t j = 0; j < frag.size(); ++j) {
             // skip NOPs if requested
             const instruction& ins = frag[j];
@@ -23,10 +102,10 @@ void disassembler::write_state(std::ostream& os) {
             // write out the label
             os << i << '.' << j << ":\t";
             // write out the instruction name
-            os << ins.to_str();
+            to_str(ins, os);
 
             // if it's a branch followed by a jump, write that
-            const pair<size_t, size_t>* next = ins.first_if_branch();
+            const std::pair<size_t, size_t>* next = ins.first_if_branch();
             if (next != nullptr && (next->first != i + 1 || next->second != 0)) {
                 os << "\n\tJMP " << next->first << '.' << next->second;
             }
@@ -38,144 +117,4 @@ void disassembler::write_state(std::ostream& os) {
 
     // Flush the buffer, if applicable
     os << std::flush;
-}
-
-void disassembler::build_state() {
-    // https://langdev.stackexchange.com/a/659/15
-
-    m_fragments = new vector<vector<instruction>*>{ nullptr };
-    // A map of IP -> location in fragments
-    std::unordered_map<instruction_pointer, pair<size_t, size_t>> location_map;
-
-    // A collection of fragments that have yet to be visited, corresponding to nulls in m_fragments. The first item of
-    // the pair is the index within m_fragments, and the second item is the IP where that fragment begins.
-    std::list<pair<size_t, instruction_pointer>> unvisited_fragments = {
-        { SIZE_C(0), { { SIZE_C(0), SIZE_C(0) }, direction::southwest } }
-    };
-
-    // !empty-back-pop reflects the while let loop in the Rust code in the answer linked above
-    while (!unvisited_fragments.empty()) {
-        pair<size_t, instruction_pointer> p = unvisited_fragments.back();
-        unvisited_fragments.pop_back();
-        size_t& index = p.first;
-        instruction_pointer& ip = p.second;
-
-        auto* fragment = new vector<instruction>();
-
-        int24_t op = m_program->at(ip.coords.first, ip.coords.second);
-        while (!is_branch(op, ip.dir)) {
-            auto loc = location_map.find(ip);
-            if (loc == location_map.end()) {
-                // Special-case TJN
-                // Unlike all other instructions, if TJN at the same location is hit from different directions, it
-                // MUST be emitted into the assembly exactly once.
-                instruction i(ip, *m_program);
-                if (i.is_join()) {
-                    // flip the north/south bit on the direction and check again
-                    loc = location_map.find({ ip.coords, static_cast<direction>(static_cast<char>(ip.dir) ^ 0b100) });
-                    if (loc != location_map.end()) {
-                        location_map.insert({ ip, loc->second });
-
-                        // jump to the other one
-                        fragment->push_back(instruction::jump_to(loc->second));
-                        // Yeah, yeah, goto is bad practice. You look at this loop and tell me you'd rather do it
-                        // another way.
-                        goto continue_outer;
-                    }
-                }
-
-                location_map.insert({ ip, { index, fragment->size() } });
-                fragment->push_back(i);
-
-                if (i.is_exit()) {
-                    // doesn't end in a jump nor a branch
-                    goto continue_outer;
-                }
-
-                switch (op) {
-                    case MIR_EW:
-                    case MIR_NESW:
-                    case MIR_NS:
-                    case MIR_NWSE:
-                        program_walker::reflect(ip.dir, op);
-                        break;
-                    case BNG_E:
-                    case BNG_W:
-                    case BNG_NE:
-                    case BNG_NW:
-                    case BNG_SE:
-                    case BNG_SW:
-                    case THR_E:
-                    case THR_W:
-                        program_walker::branch(ip.dir, op, []() NOEXCEPT_T -> bool {
-                            unreachable("is_branch should've returned true");
-                        });
-                        break;
-                    case SKP:
-                    case PSI:
-                    case PSC:
-                        program_walker::advance(ip, m_program->side_length());
-                        break;
-                    default:
-                        break;
-                }
-
-                program_walker::advance(ip, m_program->side_length());
-            } else {
-                fragment->push_back(instruction::jump_to(loc->second));
-                goto continue_outer;
-            }
-
-            op = m_program->at(ip.coords.first, ip.coords.second);
-        }
-
-        // Putting all the variables in this scope so that way continue_outer can't see them
-        {
-            // Determine whether to emit a jump or branch. If it's a branch, determine what the targets are.
-            auto loc = location_map.find(ip);
-            if (loc == location_map.end()) {
-                location_map.insert({ ip, { index, fragment->size() } });
-
-                // BNG requires that its first target go right and its second go left. TSP doesn't really care.
-                instruction_pointer first_ip = ip;
-                program_walker::branch(first_ip.dir, op, []() NOEXCEPT_T { return false; });
-                program_walker::advance(first_ip, m_program->side_length());
-
-                instruction_pointer second_ip = ip;
-                program_walker::branch(second_ip.dir, op, []() NOEXCEPT_T { return true; });
-                program_walker::advance(second_ip, m_program->side_length());
-
-                pair<size_t, size_t> first_dest, second_dest;
-
-                // Pushing the first one to the end we're about to read from, and the second one to the far end,
-                // minimizes the total number of jumps needed. The second target is going to be pointed to by the BNG or
-                // TSP instruction anyways, but the first target only needs to be explicitly named if it's not the
-                // next instruction.
-                loc = location_map.find(first_ip);
-                if (loc == location_map.end()) {
-                    first_dest = { m_fragments->size(), SIZE_C(0) };
-                    unvisited_fragments.push_back({ m_fragments->size(), first_ip });
-                    m_fragments->push_back(nullptr);
-                } else {
-                    first_dest = loc->second;
-                }
-
-                loc = location_map.find(second_ip);
-                if (loc == location_map.end()) {
-                    second_dest = { m_fragments->size(), SIZE_C(0) };
-                    unvisited_fragments.push_front({ m_fragments->size(), second_ip });
-                    m_fragments->push_back(nullptr);
-                } else {
-                    second_dest = loc->second;
-                }
-
-                fragment->push_back(instruction::branch_to({ first_dest, second_dest }));
-            } else {
-                fragment->push_back(instruction::jump_to(loc->second));
-            }
-        }
-
-    continue_outer:
-        m_fragments->at(index) = fragment;
-    }
 }

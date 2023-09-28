@@ -14,7 +14,7 @@
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
-        "lint": "engine-check && stylelint ./*.scss && coffeelint in.coffee worker.coffee library.coffee && clang-format --Werror --dry-run ../src/* ../tests/unit/*.cpp ../tests/unit/*.hh"
+        "lint": "./lint.sh"
     },
     "engines": {
         "node": "^16.13.0 || >=18.0.0"

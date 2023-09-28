@@ -6,7 +6,7 @@ name: Lint Builds
     paths:
       # It would be nice if I could specify this per-job, but I'm not making a whole new file just to avoid running
       # clang for web-only changes.
-      - src/*
+      - src/**
       - wasm/*
       - .clang-format
       - .github/workflows/lint-build.yml

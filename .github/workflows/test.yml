@@ -4,7 +4,7 @@ name: Run Tests
     branches:
       - '**'
     paths:
-      - src/*
+      - src/**
       - tests/**
       - .github/workflows/test.yml
       - .gitmodules
@@ -37,12 +37,17 @@ jobs:
         shell: bash
         run: |
           g++ -Og -std=gnu++17 src/*.cpp -o trilangle
-          export PATH="${PATH}:${PWD}"
           for script in tests/cli/*/index.sh
           do
             echo "Running ${script}..."
-            "$script"
+            TRILANGLE=./trilangle "$script"
           done
+          for script in tests/compiler/*/index.sh
+          do
+            echo "Running ${script}..."
+            TRILANGLE=./trgc.sh "$script"
+          done
+          echo 'Done.'
   cli-tests-windows:
     runs-on: windows-latest
     name: Run CLI Tests for Windows
@@ -57,9 +62,8 @@ jobs:
         # Screw it, I'm not figuring out how to make this work in PowerShell.
         shell: bash
         run: |
-          export PATH="${PATH}:${PWD}"
           for script in tests/cli/*/index.sh
           do
             echo "Running ${script}..."
-            "$script"
+            TRILANGLE=./trilangle "$script"
           done

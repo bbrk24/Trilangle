@@ -47,6 +47,11 @@ protected:
     NO_UNIQUE_ADDRESS instruction_pointer m_ip;
     status m_status;
     flags m_flags;
+
+    static_assert(
+        sizeof(instruction_pointer) % sizeof(size_t) + sizeof(status) + sizeof(flags) <= sizeof(size_t),
+        "flags, status, or instruction_pointer got too big, adding an entire extra word of padding"
+    );
 private:
     unsigned long m_number;
 };
