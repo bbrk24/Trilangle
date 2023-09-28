@@ -62,9 +62,8 @@ jobs:
         # Screw it, I'm not figuring out how to make this work in PowerShell.
         shell: bash
         run: |
-          export PATH="${PATH}:${PWD}"
           for script in tests/cli/*/index.sh
           do
             echo "Running ${script}..."
-            "$script"
+            TRILANGLE=./trilangle "$script"
           done
