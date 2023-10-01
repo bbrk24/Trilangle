@@ -2,6 +2,34 @@
 
 Trilangle is a 2-D, stack-based programming language inspired by [Hexagony].
 
+## Contents
+
+> - [Program layout](#program-layout)
+> - [Memory layout](#memory-layout)
+> - [Instructions](#instructions)
+>   - [Control flow splits](#control-flow-splits)
+>   - [Mirrors](#mirrors)
+>   - [Other control flow](#other-control-flow)
+>   - [Numeric instructions](#numeric-instructions)
+>   - [Stack-oriented instructions](#stack-oriented-instructions)
+>   - [I/O instructions](#io-instructions)
+>   - [Threading](#threading)
+> - [Interpreter flags](#interpreter-flags)
+> - [The disassembler](#the-disassembler)
+> - [C compiler](#c-compiler)
+> - [Sample programs](#sample-programs)
+>   - [cat](#cat)
+>   - [Hello, World!](#hello-world)
+>   - [Count to 100](#count-to-100)
+>   - [Truth machine](#truth-machine)
+>   - [Prime test](#prime-test)
+>   - [GCD](#gcd)
+>   - [AAAAAAAAAA](#aaaaaaaaaa)
+> - [Proof of Turing-completeness](#proof-of-turing-completeness)
+> - [Compiling the interpreter](#compiling-the-interpreter)
+>   - [Compiling natively](#compiling-natively)
+>   - [Compiling for the web](#compiling-for-the-web)
+
 ## Program layout
 
 Like Hexagony, the characters are layed out in a hexagonal grid. Unlike Hexagony, however, the bounding box of the program as a whole is triangular, not hexagonal. This means that a program grid might look like
@@ -33,7 +61,7 @@ The interpreter does not require the spaces and line breaks, but it ignores them
 
 Additionally, trailing `.`s on the end of the last line may be omitted.
 
-## Memory Layout
+## Memory layout
 
 Trilangle ditches the hexagonal memory layout in favor of a stack. Technically, it's not a pure stack as it is possible to index into it, but the majority of operations treat it as such.
 
@@ -186,7 +214,7 @@ If the `-a` flag is additionally specified, the output program will use `getchar
 
 Compiled programs cannot use multiple threads, and at this time cannot use the `RND`, `GTM`, and `GDT` opcodes.
 
-## Sample Programs
+## Sample programs
 
 Here are some simple programs I've written.
 
@@ -231,7 +259,7 @@ Pushes the same zero twice, from different directions.
 . _ . . ' . .
 ```
 
-### Truth Machine
+### Truth machine
 
 Reads a single number in. If the number is 0, it prints back a single zero and exits. If the number is 1, it prints infinitely many ones back.
 
@@ -243,7 +271,7 @@ Reads a single number in. If the number is 0, it prints back a single zero and e
 ^ ) / . .
 ```
 
-### Prime Test
+### Prime test
 
 Reads in an integer, and prints '0' if it's prime.
 
