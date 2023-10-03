@@ -20,6 +20,7 @@ case "$1" in
         } &
         # emcc is so much slower than the coffeescript and sass compilers that parallelizing them doesn't matter much
         npx coffee -Mo index.js in.coffee
+        npx coffee -Mo Colors.js Colors.coffee
         npx sass in.scss:index.css lowdata.scss:lowdata.css --embed-source-map
         ;;
     lint)
@@ -27,7 +28,7 @@ case "$1" in
             emcc ../src/*.cpp "${common_emcc_args[@]}" -Werror -O0 -DNDEBUG --closure 1
             rm a.out.* || true
         } &
-        npx coffee -p in.coffee >/dev/null
+        npx coffee -p in.coffee Colors.coffee >/dev/null
         # Why does sass not give its version in a format it accepts?
         npx sass in.scss:/dev/null lowdata.scss:/dev/null --no-source-map --fatal-deprecation \
             "$(npx sass --version | cut -d' ' -f1)"
@@ -40,7 +41,9 @@ case "$1" in
             wait
         } &
         npx coffee -p in.coffee | npx terser -c keep_fargs=false,unsafe=true,unsafe_arrows=true -mo index.js --ecma 6 \
-            -f wrap_func_args=false 
+            -f wrap_func_args=false
+        npx coffee -p Colors.coffee | npx terser -c keep_fargs=false,keep_classnames=true,unsafe_arrows=true --ecma 6 \
+            -o Colors.js -f wrap_func_args=false
         npx sass in.scss:index.css lowdata.scss:lowdata.css --no-source-map -s compressed
         ;;
 esac

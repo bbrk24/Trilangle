@@ -9,39 +9,7 @@ resolve = null
 delay = 500
 interval = -1
 
-# A list of colors used for threads.
-# TODO: Should these be customizable?
-threadColors = [
-  'rgb(0, 173, 0)',
-  'rgb(255, 40, 255)',
-  'rgb(49, 151, 255)',
-  'rgb(187, 142, 29)',
-  'rgb(255, 93, 94)',
-  'rgb(28, 166, 159)',
-  'rgb(199, 117, 219)',
-  'rgb(255, 97, 38)',
-]
-
-# A mapping of color -> div element.
-highlights = {}
-
-# A mapping of thread number -> color.
-usedColors = []
-
-# Temporarily remove a single color, but keep the div present in highlights for later use.
-removeHighlight = (color) ->
-  if highlights[color]?
-    highlights[color].remove()
-    usedColors[usedColors.indexOf color] = null
-
-# Get an available color for the thread number.
-getColor = (idx) ->
-  usedColors[idx] ?= threadColors.find (color) -> not (color in usedColors)
-
-# Destroy all highlight divs, freeing them for the garbage collector.
-removeAllHighlights = ->
-  highlights = {}
-  usedColors = []
+@colors = new Colors
 
 # This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 # first access, but then saves it for fast access later.
@@ -173,6 +141,7 @@ createWorker = (name) => =>
         if typeof content is 'number'
           threadCount = content
           threads = []
+          colors.hideHighlights()
         else
           threads[content[0]] = content[1]
           if threadCount is threads.reduce (x) -> x + 1, 0
@@ -266,7 +235,7 @@ Object.defineProperty @, 'isPaused', get: -> interval is -1
 
   await debugBase()
 
-  removeAllHighlights()
+  colors.destroyHighlights()
   elements.debugInfo.hidden = true
   elements.debugProgram.innerHTML = ''
   elements.debugProgram.hidden = true
@@ -274,15 +243,13 @@ Object.defineProperty @, 'isPaused', get: -> interval is -1
   pause()
 
 renderThreads = ->
-  for row in elements.threads.children
-    unless row.firstChild.textContent of threads
-      removeHighlight row.style.backgroundColor
   elements.threads.innerHTML = ''
   threads.forEach (thread, idx) ->
     row = document.createElement 'tr'
-    color = getColor idx
+    highlightDiv = colors.getHighlightDiv(idx) ? throw new TypeError 'You used too many threads'
+    color = highlightDiv.style.getPropertyValue '--highlight-color'
     row.style.backgroundColor = color
-    highlightIndex thread.x, thread.y, color
+    highlightIndex thread.x, thread.y, highlightDiv
     threadIdEl = document.createElement 'td'
     threadIdEl.textContent = String idx
     row.appendChild threadIdEl
@@ -299,13 +266,10 @@ getColumn = (y, x) ->
   else
     -1
 
-highlightIndex = (x, y, color) ->
+highlightIndex = (x, y, div) ->
   col = getColumn y, x
-  element = (highlights[color] ?= document.createElement 'div')
-  element.classList.add 'highlight'
-  element.style = "--highlight-color: #{color};"
-  element.style.left = "#{col}ch"
-  elements.debugProgram.insertBefore element, document.getElementById "row-#{y}"
+  div.style.left = "#{col}ch"
+  elements.debugProgram.insertBefore div, document.getElementById "row-#{y}"
 
 hideUrl = ->
   elements.urlOutBox.className = 'content-hidden'
