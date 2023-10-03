@@ -73,4 +73,4 @@
     entry.div?.style.setProperty '--highlight-color', entry.color
     true
 
-@Colors::[Symbol.toStringTag] = 'Colors'
+  [Symbol.toStringTag]: 'Colors'
