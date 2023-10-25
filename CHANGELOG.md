@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.6.1] - 2023-10-24
+
 ### Fixed
 
 Corrected overloads so it now compiles on macOS.
@@ -180,3 +182,4 @@ First versioned release.
 [1.4.2]: https://github.com/bbrk24/Trilangle/tree/1.4.2
 [1.5.0]: https://github.com/bbrk24/Trilangle/tree/1.5.0
 [1.6.0]: https://github.com/bbrk24/Trilangle/tree/1.6.0
+[1.6.1]: https://github.com/bbrk24/Trilangle/tree/1.6.1
