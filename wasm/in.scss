@@ -503,8 +503,7 @@ footer,
 #debug-buttons {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
-    align-content: flex-start;
+    place-content: flex-start flex-start;
     margin-right: $debug-move-icon-width;
 }
 
