@@ -15,7 +15,7 @@ jobs:
           sdk: 3.1.42
       - uses: actions/cache@v3
         with:
-          path: /opt/hostedtoolcache/emscripten/latest/x64/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/lto
+          path: /opt/hostedtoolcache/emscripten/3.1.42/x64/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/lto
           key: libs-${{ hashFiles('~/work/Trilangle/Trilangle/emsdk/upstream/emscripten/system/lib/**.c') }}
           restore-keys: "libs-\n"
       - name: Run build script
@@ -25,7 +25,7 @@ jobs:
           npm ci --omit dev --no-fund
           ./build_wasm.sh
           mkdir ../Release
-          mv *.css index.js worker.js ldworker.js *.wasm ../Release/
+          mv *.css index.js worker.js ldworker.js Colors.js *.wasm ../Release/
           cp *.html favicon.ico ../Release/
       - uses: actions/upload-pages-artifact@v2
         with:
