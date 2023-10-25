@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+Corrected overloads so it now compiles on macOS.
+
 ## [1.6.0] - 2023-10-24
 
 ### Added

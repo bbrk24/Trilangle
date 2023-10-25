@@ -321,7 +321,7 @@ void thread::tick() {
                 if (should_print) {
                     if (m_flags.assume_ascii) {
                         int24_t back = m_stack.back();
-                        if (m_flags.warnings && (back & 0x7f) != back) UNLIKELY {
+                        if (m_flags.warnings && (back & INT24_C(0x7f)) != back) UNLIKELY {
                             cerr << "Warning: Printing non-ASCII value.\n";
                         }
                         putchar(back);
