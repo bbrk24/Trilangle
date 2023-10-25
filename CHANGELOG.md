@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.6.0] - 2023-10-24
+
 ### Added
 
 - Added prebuilt binaries for ARM64 macOS, x86 Windows, and ARM64 Windows.
