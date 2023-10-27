@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 common_emcc_args=(-WCL4 -Wnon-gcc -Wimplicit-fallthrough
     -fno-rtti -fno-exceptions
@@ -34,10 +34,12 @@ case "$1" in
             "$(npx sass --version | cut -d' ' -f1)"
         ;;
     *)
-        common_emcc_args=("${common_emcc_args[@]}" -flto -DNDEBUG --closure 1 --closure-args='--emit_use_strict')
+        common_emcc_args=("${common_emcc_args[@]}"
+            -flto -DNDEBUG --closure 1 --closure-args='--emit_use_strict'
+            '-Wl,--trace-symbol=emscripten_memcpy_big')
         {
-            EMCC_DEBUG=1 emcc ../src/*.cpp "${common_emcc_args[@]}" -O3 -o worker.js &
-            EMCC_DEBUG=1 emcc ../src/*.cpp "${common_emcc_args[@]}" -Oz -o ldworker.js
+            emcc ../src/*.cpp "${common_emcc_args[@]}" -O3 -o worker.js &
+            emcc ../src/*.cpp "${common_emcc_args[@]}" -Oz -o ldworker.js
             wait
         } &
         npx coffee -p in.coffee | npx terser -c keep_fargs=false,unsafe=true,unsafe_arrows=true -mo index.js --ecma 6 \
