@@ -63,14 +63,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Verify wasm build
     steps:
-      # Largely copied from build-and-deploy-pages.jobs.build-wasm.steps
       - uses: actions/checkout@v4
       - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
-      - uses: actions/cache@v3
-        with:
-          path: /opt/hostedtoolcache/emscripten/latest/x64/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/lto
-          key: libs-${{ hashFiles('~/work/Trilangle/Trilangle/emsdk/upstream/emscripten/system/lib/**.c') }}
-          restore-keys: "libs-\n"
       - name: Run build script
         shell: bash
         run: |
