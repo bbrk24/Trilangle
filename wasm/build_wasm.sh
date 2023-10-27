@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 common_emcc_args=(-WCL4 -Wnon-gcc -Wimplicit-fallthrough
     -fno-rtti -fno-exceptions
@@ -34,9 +34,7 @@ case "$1" in
             "$(npx sass --version | cut -d' ' -f1)"
         ;;
     *)
-        common_emcc_args=("${common_emcc_args[@]}"
-            -flto -DNDEBUG --closure 1 --closure-args='--emit_use_strict'
-            '-Wl,--trace-symbol=emscripten_memcpy_big')
+        common_emcc_args=("${common_emcc_args[@]}" -flto -DNDEBUG --closure 1 --closure-args='--emit_use_strict')
         {
             emcc ../src/*.cpp "${common_emcc_args[@]}" -O3 -o worker.js &
             emcc ../src/*.cpp "${common_emcc_args[@]}" -Oz -o ldworker.js
