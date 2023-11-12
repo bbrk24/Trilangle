@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- You can now customize the colors of the threads in the online debugger.
+
 ## [1.6.1] - 2023-10-24
 
 ### Fixed

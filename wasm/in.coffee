@@ -144,14 +144,24 @@ createWorker = (name) => =>
           colors.hideHighlights()
         else
           threads[content[0]] = content[1]
-          if threadCount is threads.reduce (x) -> x + 1, 0
-            renderThreads()
-          else
-            step()
+          try
+            if threadCount is threads.reduce (x) -> x + 1, 0
+              renderThreads()
+            else
+              step()
+          catch e
+            if elements.stderr.length > 0 and not elements.stderr.innerText.endsWith '\n'
+              elements.stderr.innerText += '\n'
+            if e instanceof Error
+              elements.stderr.innerText += e.message
+            else
+              elements.stderr.innerText += String(e)
+            wasmCancel()
       else console.error "Unrecognized destination #{event.data[0]}", content
+    return
   worker.postMessage [name, elements.program.value, elements.stdin.value]
   
-  return promise
+  promise
 
 interpretProgram = createWorker 'interpretProgram'
 @disassembleProgram = createWorker 'disassembleProgram'
@@ -208,6 +218,7 @@ Object.defineProperty @, 'isPaused', get: -> interval is -1
   elements.debugProgram.style.width = "#{elements.program.offsetWidth}px"
   elements.debugProgram.style.minHeight = "#{elements.program.offsetHeight}px"
   elements.program.hidden = true
+  elements.colorPicker.hidden = true
 
   elements.stdout.innerText.trimEnd().split '\n'
     .forEach (textRow, i) ->
@@ -246,7 +257,9 @@ renderThreads = ->
   elements.threads.innerHTML = ''
   threads.forEach (thread, idx) ->
     row = document.createElement 'tr'
-    highlightDiv = colors.getHighlightDiv(idx) ? throw new TypeError 'You used too many threads'
+    highlightDiv = colors.getHighlightDiv(idx) ? throw new TypeError(
+      "You haven't selected enough colors for that many threads!"
+    )
     color = highlightDiv.style.getPropertyValue '--highlight-color'
     row.style.backgroundColor = color
     highlightIndex thread.x, thread.y, highlightDiv
@@ -257,6 +270,20 @@ renderThreads = ->
     threadContentsEl.textContent = thread.stack.join ',\u2009'
     row.appendChild threadContentsEl
     elements.threads.appendChild row
+
+changeHighlightColor = (before, after) ->
+  threadNum = colors.replaceColor before, after
+  return true unless threadNum?
+  return false if threadNum < 0
+  iter = document.evaluate "//td[text() = #{threadNum}]/..",
+    document,
+    null,
+    XPathResult.ANY_TYPE,
+    null
+  node = iter.iterateNext()
+  if node?
+    node.style.backgroundColor = after
+  true
 
 # Given y,x, find the horizontal offset necessary to highlight that position
 getColumn = (y, x) ->
@@ -277,6 +304,71 @@ hideUrl = ->
   elements.urlButton.onclick = generateURL
 elements.program.addEventListener 'input', hideUrl, passive: true
 elements.includeInput.addEventListener 'change', hideUrl, passive: true
+
+toHex = (rgba) ->
+  return rgba if /^#[0-9a-d]{6}$/i.test rgba
+  # Adapted from https://stackoverflow.com/a/3627747/6253337
+  "\##{
+    rgba.match /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/
+      .slice 1
+      .map (n, i) ->
+        (if i is 3 then Math.round(255 * parseFloat n) else parseInt n, 10)
+          .toString 16
+          .padStart 2, '0'
+          .replace 'NaN', ''
+      .join ''
+  }"
+
+createColorDiv = (color, i) ->
+  input = document.createElement 'input'
+  input.type = 'color'
+  input.value = toHex color
+  input.onchange = ->
+    changeHighlightColor i, @value
+
+  removeButton = document.createElement 'button'
+  div = document.createElement 'div'
+  div.appendChild input
+  div.appendChild removeButton
+  
+  removeButton.type = 'button'
+  removeButton.title = 'remove color'
+  removeButton.onclick = ->
+    if colors.removeColor i
+      updateColorPicker()
+      renderThreads()
+  removeButton.appendChild document.createTextNode 'x'
+  div
+
+updateColorPicker = ->
+  elements.colorPicker.innerHTML = ''
+  colors.allColors().forEach (color, i) ->
+    div = createColorDiv color, i
+    elements.colorPicker.appendChild div
+  
+  if not elements.addColorButton?
+    button = document.createElement 'button'
+    button.id = 'add-color-button'
+    button.type = 'button'
+    button.title = 'add color'
+    button.appendChild document.createTextNode '+'
+    button.onclick = ->
+      loop
+        red = Math.round 255 * Math.random()
+        green = Math.round 255 * Math.random()
+        blue = Math.round 255 * Math.random()
+        color = "rgb(#{red}, #{green}, #{blue})"
+        break if colors.addColor color
+      elements.colorPicker.insertBefore createColorDiv(color, colors.count() - 1), @
+    elements.addColorButton = button
+  elements.colorPicker.appendChild elements.addColorButton
+
+@toggleColorPicker = ->
+  if elements.colorPicker.hidden
+    updateColorPicker()
+    elements.colorPicker.hidden = false
+  else
+    elements.colorPicker.hidden = true
 
 # Allow the header itself, or noninteractable children (e.g. the select icon)
 isHeader = (target) ->

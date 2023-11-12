@@ -23,7 +23,7 @@
       entry.threadNumber = null
 
   getHighlightDiv: (threadNumber) ->
-    entry = @entries.find (el) -> not el.threadNumber?
+    entry = @entries.find (el) -> el.threadNumber is threadNumber or not el.threadNumber?
     if entry?
       entry.threadNumber = threadNumber
       unless entry.div?
@@ -38,7 +38,10 @@
   addColor: (color) ->
     @dummy ?= document.createElement 'div'
     @dummy.style.backgroundColor = color
-    @entries.push color: @dummy.style.backgroundColor
+    color = @dummy.style.backgroundColor
+    return false if (@entries.find (el) -> el.color is color)?
+    @entries.push { color }
+    true
   
   removeColor: (color) ->
     if typeof color is 'string'
@@ -58,19 +61,26 @@
     @entries.splice idx, 1
     true
 
+  ## Replace a color.
+  ## @param before {(string|number)} The current color, or its index in the allColors array.
+  ## @param after {string} The new CSS color value.
+  ## @returns The thread number associated with the color. -1 if the replacement was unsuccessful, such as if the
+  ## old color could not be found. Nullish if the color is not used for any thread.
   replaceColor: (before, after) ->
     if typeof before is 'string'
       entry = @entries.find (el) -> el.color is before
-      return false unless entry?
+      return -1 unless entry?
     else if before of @entries
       entry = @entries[before]
     else
-      return false
+      return -1
 
     @dummy ?= document.createElement 'div'
     @dummy.style.backgroundColor = after
     entry.color = @dummy.style.backgroundColor
     entry.div?.style.setProperty '--highlight-color', entry.color
-    true
+    entry.threadNumber
+
+  count: -> @entries.length
 
   [Symbol.toStringTag]: 'Colors'

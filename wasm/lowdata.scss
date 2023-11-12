@@ -130,3 +130,20 @@ button:disabled {
     border-style: solid;
     background-color: transparent;
 }
+
+input[type="color"],
+#add-color-button {
+    width: 4rem;
+    box-sizing: border-box;
+}
+
+#color-picker:not([hidden]) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 5.6em);
+    grid-gap: 0.5em;
+
+    button {
+        margin: auto 0.25em;
+        height: fit-content;
+    }
+}

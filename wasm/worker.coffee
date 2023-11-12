@@ -28,9 +28,6 @@ Module['noExitRuntime'] = true
 
 callInterpreter = (warnings, disassemble, expand) -> ->
   inputIndex = 0
-  errorHandler = (e) ->
-    if e? and not (e instanceof ExitStatus)
-      postMessage [2, e.toString()]
   try
     await Module['ccall'] 'wasm_entrypoint',
       null,
@@ -38,7 +35,8 @@ callInterpreter = (warnings, disassemble, expand) -> ->
       [programText, warnings, disassemble, expand],
       async: true
   catch e
-    errorHandler(e)
+    if e? and not (e instanceof ExitStatus)
+      postMessage [2, e.toString()]
   postMessage [0, null]
 
 signals.set 'interpretProgram', callInterpreter 0, 0, 0
