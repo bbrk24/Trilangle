@@ -17,7 +17,8 @@ testgroup (expand_program) {
         std::ostringstream oss;
         oss << p;
         std::string result = oss.str();
-        test_assert(result == R"#(       <
+        test_assert(result == &R"#(
+       <
       ' ?
      < # 2
     % . _ z
@@ -25,6 +26,6 @@ testgroup (expand_program) {
   / . , ) 2 -
  . ^ \ _ / ! @
 . ) @ . . . . .
-)#");
+)#"[1]);
     }
 };

@@ -4,9 +4,9 @@
 #include <tuple>
 #include "test-framework/test_framework.hh"
 
+namespace {
 using std::pair;
 
-namespace {
 // Thank you clang-format very cool
 #define TEST_ITEM(dir, prog) \
     { \
@@ -38,6 +38,34 @@ std::initializer_list<pair<const char*, std::tuple<direction, int24_t, bool, dir
 };
 
 #undef LR_PAIR
+
+#define MIRROR(mirror, ne, e, se, sw, w, nw) \
+    { "northeast_to_" #ne, { direction::northeast, mirror, direction::ne } }, \
+        { "east_to_" #e, { direction::east, mirror, direction::e } }, \
+        { "southeast_to_" #se, { direction::southeast, mirror, direction::se } }, \
+        { "southwest_to_" #sw, { direction::southwest, mirror, direction::sw } }, \
+        { "west_to_" #w, { direction::west, mirror, direction::w } }, { \
+        "northwest_to_" #nw, { direction::northwest, mirror, direction::nw } \
+    }
+
+// Tuple: before, mirror, after
+std::initializer_list<pair<const char*, std::tuple<direction, int24_t, direction>>> mirror_tests = {
+    MIRROR('|', northwest, west, southwest, southeast, east, northeast),
+    MIRROR('_', southeast, east, northeast, northwest, west, southwest),
+    MIRROR('/', northeast, northwest, west, southwest, southeast, east),
+    MIRROR('\\', west, southwest, southeast, east, northeast, northwest),
+};
+
+#undef MIRROR
+
+class mirror_tester : public program_walker {
+public:
+    static inline void test(std::tuple<direction, int24_t, direction> input) {
+        direction dir = std::get<0>(input);
+        program_walker::reflect(dir, std::get<1>(input));
+        test_assert(dir == std::get<2>(input));
+    }
+};
 }  // namespace
 
 test_iter(ip_advance, test_programs, input) {
@@ -57,4 +85,6 @@ test_iter(ip_branch, branch_tests, input) {
     test_assert(dir == std::get<3>(input));
 };
 
-// TODO: add mirror tests
+test_iter(ip_mirror, mirror_tests, input) {
+    mirror_tester::test(input);
+};

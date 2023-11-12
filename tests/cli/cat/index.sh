@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 
 text='
     /\_/\           ___
