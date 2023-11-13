@@ -77,8 +77,10 @@
 
     @dummy ?= document.createElement 'div'
     @dummy.style.backgroundColor = after
-    entry.color = @dummy.style.backgroundColor
-    entry.div?.style.setProperty '--highlight-color', entry.color
+    color = @dummy.style.backgroundColor
+    return -1 if (@entries.find (el) -> el.color is color)?
+    entry.color = color
+    entry.div?.style.setProperty '--highlight-color', color
     entry.threadNumber
 
   count: -> @entries.length

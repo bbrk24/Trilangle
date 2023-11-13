@@ -8,8 +8,7 @@ decoder = new TextDecoder
 resolve = null
 delay = 500
 interval = -1
-
-@colors = new Colors
+colors = new Colors
 
 # This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 # first access, but then saves it for fast access later.
@@ -150,12 +149,10 @@ createWorker = (name) => =>
             else
               step()
           catch e
-            if elements.stderr.length > 0 and not elements.stderr.innerText.endsWith '\n'
-              elements.stderr.innerText += '\n'
             if e instanceof Error
-              elements.stderr.innerText += e.message
+              elements.stderr.innerText += e.message + '\n'
             else
-              elements.stderr.innerText += String(e)
+              elements.stderr.innerText += "#{e}\n"
             wasmCancel()
       else console.error "Unrecognized destination #{event.data[0]}", content
     return
@@ -324,7 +321,9 @@ createColorDiv = (color, i) ->
   input.type = 'color'
   input.value = toHex color
   input.onchange = ->
-    changeHighlightColor i, @value
+    unless changeHighlightColor i, @value
+      @value = toHex color
+      elements.stderr.innerText += "You can't have two threads of the same color!\n"
 
   removeButton = document.createElement 'button'
   div = document.createElement 'div'
