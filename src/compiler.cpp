@@ -143,7 +143,7 @@ void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_as
             cerr << "Nondeterministic instructions are not yet supported for compiled programs." << endl;
             exit(EXIT_FAILURE);
         case op::EXP:
-            os << "lws_push(stack, 1 << lws_pop(stack));";
+            os << "lws_push(stack, 1 << (lws_pop(stack) + 8) >> 8);";
             return;
         case op::SWP:
             os << "{"

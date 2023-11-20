@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- The EXP opcode now behaves consistently between the interpreter and the C compiler.
+
 ### Added
 
 - You can now customize the colors of the threads in the online debugger.
