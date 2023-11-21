@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.6.2] - 2023-11-21
+
 ### Fixed
 
 - The EXP opcode now behaves consistently between the interpreter and the C compiler.
@@ -191,3 +193,4 @@ First versioned release.
 [1.5.0]: https://github.com/bbrk24/Trilangle/tree/1.5.0
 [1.6.0]: https://github.com/bbrk24/Trilangle/tree/1.6.0
 [1.6.1]: https://github.com/bbrk24/Trilangle/tree/1.6.1
+[1.6.2]: https://github.com/bbrk24/Trilangle/tree/1.6.2
