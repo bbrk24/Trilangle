@@ -138,10 +138,14 @@ void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_as
             return;
         }
         case op::RND:
-        case op::GDT:
-        case op::GTM:
-            cerr << "Nondeterministic instructions are not yet supported for compiled programs." << endl;
+            cerr << "Random number generation is not yet supported for compiled programs." << endl;
             exit(EXIT_FAILURE);
+        case op::GDT:
+            os << "lws_push(stack, get_date());";
+            return;
+        case op::GTM:
+            os << "lws_push(stack, get_time());";
+            return;
         case op::EXP:
             os << "lws_push(stack, 1 << (lws_pop(stack) + 8) >> 8);";
             return;

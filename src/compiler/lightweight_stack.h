@@ -3,6 +3,7 @@ R"(
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
 
 #ifndef __GNUC__
 #define __builtin_expect(exp, c) exp
@@ -53,7 +54,8 @@ static inline void lws_deinit(const lws stack) {
     free(stack->base);
 }
 
-#define INVALID_CHAR 0xfffd
+static const int32_t INVALID_CHAR = 0xfffd;
+
 // Basically copied from parse_unichar in string_processing.hh
 static inline int32_t get_unichar() {
     unsigned char buf[4];
@@ -91,6 +93,8 @@ static inline int32_t get_unichar() {
         case 4:
             return ((buf[0] & 0x07) << 18) | ((buf[1] & 0x3f) << 12) | ((buf[2] & 0x3f) << 6) | (buf[3] & 0x3f);
     }
+    // Should be unreachable but the compiler doesn't know better
+    return INVALID_CHAR;
 }
 
 static inline void print_unichar(int32_t c) {
@@ -98,13 +102,29 @@ static inline void print_unichar(int32_t c) {
         putchar(c);
     } else if (c <= 0x07ff) {
         char buffer[] = { 0xc0 | (c >> 6), 0x80 | (c & 0x3f), 0 };
-        printf(buffer);
+        printf("%s", buffer);
     } else if (c <= 0xffff) {
         char buffer[] = { 0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f), 0 };
-        printf(buffer);
+        printf("%s", buffer);
     } else {
         char buffer[] = { 0xf0 | (c >> 18), 0x80 | ((c >> 12) & 0x3f), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f), 0 };
-        printf(buffer);
+        printf("%s", buffer);
     }
+}
+
+static const time_t SECS_PER_DAY = 86400;
+
+static inline int32_t get_time() {
+    struct timespec ts;
+    timespec_get(&ts, TIME_UTC);
+    const float UNITS_PER_NSEC = 9.709036e-8F;
+    const float UNITS_PER_SEC = 97.09036F;
+    float value = UNITS_PER_SEC * (float)(ts.tv_sec % SECS_PER_DAY) + UNITS_PER_NSEC * (float)ts.tv_nsec;
+    return (int32_t)value;
+}
+
+static inline int32_t get_date() {
+    time_t t = time(NULL);
+    return (int32_t)(t / SECS_PER_DAY);
 }
 //)"
