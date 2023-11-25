@@ -2,7 +2,7 @@
 
 set -u
 
-errors="$($TRILANGLE - 2>&1 1<&-)"
+errors=$($TRILANGLE - 2>&1 1<&-)
 result=$?
 set -e
 test 0 -ne $result

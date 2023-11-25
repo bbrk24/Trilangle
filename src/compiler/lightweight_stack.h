@@ -117,9 +117,9 @@ static const time_t SECS_PER_DAY = 86400;
 static inline int32_t get_time() {
     struct timespec ts;
     timespec_get(&ts, TIME_UTC);
-    const float UNITS_PER_NSEC = 9.709036e-8F;
-    const float UNITS_PER_SEC = 97.09036F;
-    float value = UNITS_PER_SEC * (float)(ts.tv_sec % SECS_PER_DAY) + UNITS_PER_NSEC * (float)ts.tv_nsec;
+    const double UNITS_PER_NSEC = 9.709037037036571e-8;
+    const double UNITS_PER_SEC = 97.0903703703657;
+    double value = UNITS_PER_SEC * (double)(ts.tv_sec % SECS_PER_DAY) + UNITS_PER_NSEC * (double)ts.tv_nsec;
     return (int32_t)value;
 }
 
