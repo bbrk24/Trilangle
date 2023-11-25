@@ -127,4 +127,36 @@ static inline int32_t get_date() {
     time_t t = time(NULL);
     return (int32_t)(t / SECS_PER_DAY);
 }
+
+static inline int32_t rand24() {
+#if RAND_MAX >= 0x00ffffff
+#if (RAND_MAX | (RAND_MAX >> 1)) == RAND_MAX
+    return (int32_t)(rand() << 8) >> 8;
+#else
+    // Unlikely, but not difficult
+    int x;
+    do {
+        x = rand();
+    } while (x > 0x00ffffff);
+    return (int32_t)(x << 8) >> 8;
+#endif
+#else
+    // RAND_MAX is [0x00007fff, 0x00ffffff)
+    // Uhh just use twelve bits from each call
+#if (RAND_MAX | (RAND_MAX >> 1)) == RAND_MAX
+    int lowTwelve = rand() & 0x0fff;
+    int highTwelve = rand() & 0x0fff;
+#else
+    // :(
+    int lowTwelve, highTwelve;
+    do {
+        lowTwelve = rand();
+    } while (lowTwelve > 0x0fff);
+    do {
+        highTwelve = rand();
+    } while (highTwelve > 0x0fff);
+#endif
+    return (((int32_t)highTwelve << 20) | ((int32_t)lowTwelve << 8)) >> 8;
+#endif
+}
 //)"
