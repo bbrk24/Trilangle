@@ -147,6 +147,13 @@ string parse_args(int argc, _In_reads_z_(argc) const char** argv, flags& f) {
                 continue;
             }
 
+            if (argv[i][1] == '\0') {
+                cerr << "'-' by itself is not a valid flag.\nTo reference a file called '-', use './-' or '-- -'. To "
+                        "read from stdin, pass no\nfilename at all."
+                     << endl;
+                exit(EX_USAGE);
+            }
+
             flag_container::set_flag(argv[i], f);
         } else {
             if (filename != nullptr) {
