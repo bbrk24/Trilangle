@@ -301,6 +301,9 @@ hideUrl = ->
   elements.urlButton.onclick = generateURL
 elements.program.addEventListener 'input', hideUrl, passive: true
 elements.includeInput.addEventListener 'change', hideUrl, passive: true
+elements.stdin.addEventListener 'change', ->
+  hideUrl() if elements.includeInput.checked
+, passive: true
 
 toHex = (rgba) ->
   return rgba if /^#[0-9a-d]{6}$/i.test rgba
