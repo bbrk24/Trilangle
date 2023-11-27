@@ -17,7 +17,7 @@ pair<bool, int24_t> int24_t::subtract_with_overflow(int24_t other) const noexcep
 }
 
 pair<bool, int24_t> int24_t::multiply_with_overflow(int24_t other) const noexcept {
-    if (*this == INT24_MIN && other == INT24_C(-1) || *this == INT24_C(-1) && other == INT24_MIN) UNLIKELY {
+    if ((*this == INT24_MIN && other == INT24_C(-1)) || (*this == INT24_C(-1) && other == INT24_MIN)) UNLIKELY {
         return { true, INT24_MIN };
     }
     auto lhs = static_cast<int64_t>(*this), rhs = static_cast<int64_t>(other);
