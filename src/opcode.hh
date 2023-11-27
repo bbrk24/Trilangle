@@ -8,6 +8,7 @@
         SUB = '-',  /* subtract */ \
         MUL = '*',  /* multiply */ \
         DIV = ':',  /* divide */ \
+        UDV = 'd',  /* unsigned divide */ \
         MOD = '%',  /* modulo */ \
         PSI = '\'', /* push integer */ \
         PSC = '"',  /* push character */ \
@@ -23,6 +24,7 @@
         PTC = 'o',  /* putchar */ \
         GTI = '?',  /* get integer */ \
         PTI = '!',  /* put integer */ \
+        PTU = 'p',  /* put unsigned */ \
         IDX = 'j',  /* index */ \
         DUP = '2',  /* duplicate */ \
         DP2 = 'z',  /* 2-dupe */ \

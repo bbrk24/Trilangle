@@ -193,6 +193,26 @@ void thread::tick() {
             m_stack.back() /= top;
             break;
         }
+        case UDV: {
+            if (m_flags.warnings) {
+                if (m_stack.size() < 2) UNLIKELY {
+                    cerr << "Warning: Attempt to divide from stack with fewer than 2 elements.\n";
+                }
+                if (!m_stack.empty() && m_stack.back() == INT24_C(0)) UNLIKELY {
+                    cerr << "Warning: Attempted division by zero.\n";
+                }
+            }
+
+            int24_t top = m_stack.back();
+            m_stack.pop_back();
+            int24_t second = m_stack.back();
+
+            uint32_t unsigned_first = static_cast<uint32_t>(top) & 0x00ff'ffffU;
+            uint32_t unsigned_second = static_cast<uint32_t>(second) & 0x00ff'ffffU;
+
+            m_stack.back() = static_cast<int24_t>(unsigned_second / unsigned_first);
+            break;
+        }
         case MOD: {
             if (m_flags.warnings) {
                 if (m_stack.size() < 2) UNLIKELY {
@@ -357,6 +377,16 @@ void thread::tick() {
         case PTI:
             EMPTY_PROTECT("print from") {
                 cout << m_stack.back() << '\n';
+            }
+
+            if (m_flags.pipekill && ferror(stdout)) {
+                cerr << flush;
+                exit(EXIT_SUCCESS);
+            }
+            break;
+        case PTU:
+            EMPTY_PROTECT("print from") {
+                cout << (static_cast<uint32_t>(m_stack.back()) & 0x00ff'ffffU) << '\n';
             }
 
             if (m_flags.pipekill && ferror(stdout)) {

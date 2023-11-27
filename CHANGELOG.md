@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
+- Added UDV and PTU opcodes (`d` and `p`).
 - GDT and GTM (`D` and `T`) now work in compiled programs.
 
 ## [1.6.2] - 2023-11-21

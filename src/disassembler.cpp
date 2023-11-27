@@ -23,6 +23,7 @@ void disassembler::to_str(const instruction& i, std::ostream& os) {
         STRING_NAME(SUB);
         STRING_NAME(MUL);
         STRING_NAME(DIV);
+        STRING_NAME(UDV);
         STRING_NAME(MOD);
         STRING_NAME(POP);
         STRING_NAME(EXT);
@@ -36,6 +37,7 @@ void disassembler::to_str(const instruction& i, std::ostream& os) {
         STRING_NAME(PTC);
         STRING_NAME(GTI);
         STRING_NAME(PTI);
+        STRING_NAME(PTU);
         STRING_NAME(IDX);
         STRING_NAME(DUP);
         STRING_NAME(RND);

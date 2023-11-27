@@ -65,6 +65,14 @@ void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_as
         case op::DIV:
             os << "{ int32_t tmp = lws_pop(stack); lws_push(stack, lws_pop(stack) / tmp); }";
             return;
+        case op::UDV:
+            // this one is weird
+            os << "{"
+                  "uint32_t tmp1 = lws_pop(stack) & 0x00ffffffU;"
+                  "uint32_t tmp2 = lws_pop(stack) & 0x00ffffffU;"
+                  "lws_push(stack, tmp2 / tmp1);"
+                  "}";
+            return;
         case op::MOD:
             os << "{ int32_t tmp = lws_pop(stack); lws_push(stack, lws_pop(stack) % tmp); }";
             return;
@@ -125,6 +133,9 @@ void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_as
             return;
         case op::PTI:
             os << R"( printf("%" PRId32 "\n", lws_top(stack)); )";
+            return;
+        case op::PTU:
+            os << R"( printf("%" PRIu32 "\n", lws_top(stack) & 0x00ffffff); )";
             return;
         case op::IDX:
             os << "lws_push(stack, lws_index(stack, lws_pop(stack)));";
