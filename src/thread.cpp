@@ -404,15 +404,15 @@ void thread::tick() {
                 break;
             }
 
-            int24_t top = m_stack.back();
+            size_t index = static_cast<size_t>(m_stack.back()) & 0x00ff'ffffU;
             m_stack.pop_back();
 
-            if (m_flags.warnings && (top < INT24_C(0) || m_stack.size() < static_cast<size_t>(top) + 1)) UNLIKELY {
+            if (m_flags.warnings && m_stack.size() < index + 1) UNLIKELY {
                 cerr << "Warning: Attempt to index out of stack bounds (size = " << m_stack.size()
-                     << ", index = " << top << ")\n";
+                     << ", index = " << index << ")\n";
             }
 
-            size_t i = m_stack.size() - static_cast<size_t>(top) - 1;
+            size_t i = m_stack.size() - index - 1;
             m_stack.push_back(m_stack[i]);
 
             break;

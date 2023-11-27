@@ -65,7 +65,7 @@ Additionally, trailing `.`s on the end of the last line may be omitted.
 
 Trilangle ditches the hexagonal memory layout in favor of a stack. Technically, it's not a pure stack as it is possible to index into it, but the majority of operations treat it as such.
 
-Each item on the stack is a 24-bit signed integer.
+Each item on the stack is a 24-bit integer. Different instructions variously treat it as signed or unsigned.
 
 ## Instructions
 
@@ -179,6 +179,8 @@ When `{` is approached from the northeast or southeast, that interpreter thread 
 | c | f | c |
 | b | e | b |
 | a | d | a |
+
+If the value on top of a stack is negative, that entire stack is carried over.
 
 ## Interpreter flags
 
