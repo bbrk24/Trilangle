@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Fixed
+
+- Modifying the input when "include input in URL" is checked now invalidates the generated URL.
+
 ### Added
 
 - GDT and GTM (`D` and `T`) now work in compiled programs.
