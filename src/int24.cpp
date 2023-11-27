@@ -3,7 +3,7 @@
 using std::pair;
 
 constexpr bool is_overflow(int32_t i) noexcept {
-    return ((i << 8) >> 8) != i;
+    return ((i << 8) >> 8) != i && i != (i & 0x00ff'ffff);
 }
 
 pair<bool, int24_t> int24_t::add_with_overflow(int24_t other) const noexcept {
@@ -17,17 +17,10 @@ pair<bool, int24_t> int24_t::subtract_with_overflow(int24_t other) const noexcep
 }
 
 pair<bool, int24_t> int24_t::multiply_with_overflow(int24_t other) const noexcept {
-    // The 64-bit version may be less efficient on some archs, e.g. one that can do 32-bit multiplication and then check
-    // an overflow flag. So, use __builtin_mul_overflow when it's available, and fall back to 64-bit multiplication for
-    // MSVC.
-#if REALLY_MSVC
+    if (*this == INT24_MIN && other == INT24_C(-1) || *this == INT24_C(-1) && other == INT24_MIN) UNLIKELY {
+        return { true, INT24_MIN };
+    }
     auto lhs = static_cast<int64_t>(*this), rhs = static_cast<int64_t>(other);
     int64_t result = lhs * rhs;
-    return { result < static_cast<int64_t>(INT24_MIN) || result > static_cast<int64_t>(INT24_MAX),
-             static_cast<int24_t>(result) };
-#else
-    int32_t result;
-    bool overflow = __builtin_mul_overflow(this->value, other.value, &result);
-    return { overflow || is_overflow(result), int24_t{ result } };
-#endif
+    return { result < -0x0080'0000 || result > 0x00ff'ffff, static_cast<int24_t>(result) };
 }

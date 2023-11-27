@@ -20,6 +20,12 @@ testgroup (overflow) {
         auto result = huge_enough.multiply_with_overflow(huge_enough);
         test_assert(result.first && result.second == INT24_C(0));
     }
+    , testcase (mul_unsigned) {
+        int24_t first = INT24_C(0x700000);
+        int24_t second = INT24_C(2);
+        auto result = first.multiply_with_overflow(second);
+        test_assert(!result.first && result.second == INT24_C(0xe00000));
+    }
     , testcase (inc_max) {
         int24_t x = INT24_MAX;
         ++x;
