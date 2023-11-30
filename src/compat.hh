@@ -13,6 +13,10 @@
 #include <sysexits.h>
 #endif
 
+#if __has_include(<stdfloat>)
+#include <stdfloat>
+#endif
+
 #if __has_include(<version>)
 #include <version>
 #define _INCLUDED_VERSION
@@ -33,6 +37,18 @@ constexpr int EX_USAGE = 64;
 
 #ifndef EX_NOINPUT
 constexpr int EX_NOINPUT = 66;
+#endif
+
+
+#ifdef __STDCPP_FLOAT16_T__
+// The smallest supported float type.
+typedef std::float16_t small_float;
+#elif defined(__STDCPP_BFLOAT16_T__)
+// The smallest supported float type.
+typedef std::bfloat16_t small_float;
+#else
+// The smallest supported float type.
+typedef float small_float;
 #endif
 
 

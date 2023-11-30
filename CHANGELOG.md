@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Fixed
 
+- Fixed a long-standing rounding bug in `GTM` that affected times shortly before UTC midnight.
 - Added some missing newlines to the help string.
 - Modifying the input when "include input in URL" is checked now invalidates the generated URL.
 
