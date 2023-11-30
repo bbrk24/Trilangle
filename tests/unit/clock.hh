@@ -32,7 +32,7 @@ public:
 
     static inline time_point now() noexcept {
         // One time unit before midnight, rounded up
-        rep x = static_cast<rep>(ceil(86'400'000'000'000.0 * 0x7fffff/0x800000));
+        rep x = static_cast<rep>(ceil(86'400'000'000'000.0 * 0x7fffff / 0x800000));
         return time_point(duration(x));
     }
 };
