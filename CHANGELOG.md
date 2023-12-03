@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Changed
+
+- Overflow checking on most arithmetic operations is now laxer to allow for unsigned numbers.
+
 ### Fixed
 
 - Modifying the input when "include input in URL" is checked now invalidates the generated URL.
