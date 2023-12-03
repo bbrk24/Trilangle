@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Changed
+
+- Overflow checking on most arithmetic operations is now laxer to allow for unsigned numbers.
+
 ### Fixed
 
 - Fixed a long-standing rounding bug in `GTM` that affected times shortly before UTC midnight.
@@ -12,6 +16,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
+- Added UDV and PTU opcodes (`d` and `p`).
 - GDT and GTM (`D` and `T`) now work in compiled programs.
 
 ## [1.6.2] - 2023-11-21

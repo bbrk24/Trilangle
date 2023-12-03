@@ -65,7 +65,7 @@ Additionally, trailing `.`s on the end of the last line may be omitted.
 
 Trilangle ditches the hexagonal memory layout in favor of a stack. Technically, it's not a pure stack as it is possible to index into it, but the majority of operations treat it as such.
 
-Each item on the stack is a 24-bit signed integer.
+Each item on the stack is a 24-bit integer. Different instructions variously treat it as signed or unsigned.
 
 ## Instructions
 
@@ -121,8 +121,9 @@ Trilangle has twelve numeric instructions that operate purely on the stack. In n
 - `+` (ADD): pop two numbers from the stack and push their sum.
 - `-` (SUB): pop two numbers from the stack and push their difference\*.
 - `*` (MUL): pop two numbers from the stack and push their product.
-- `:` (DIV): pop two numbers from the stack, perform integer division and push the quotient\*.
-- `%` (MOD): pop two numbers from the stack, perform integer division and push the remainder\*.
+- `:` (DIV): pop two numbers from the stack, perform signed integer division and push the quotient\*.
+- `d` (UDV): pop two numbers from the stack, perform unsigned integer division and push the quotient\*.
+- `%` (MOD): pop two numbers from the stack, perform integer division and push the remainder\*. This currently operates on signed integers, treating negatives the same way C's `%` operator does.
 - `(` (DEC): decrease the value on top of the stack by 1.
 - `)` (INC): increase the value on top of the stack by 1.
 - `e` (EXP): pop a number _x_ from the stack and push 2<sup>_x_</sup>.
@@ -131,7 +132,7 @@ Trilangle has twelve numeric instructions that operate purely on the stack. In n
 - `x` (XOR): pop two numbers from the stack and push their bitwise difference.
 - `~` (NOT): pop a number from the stack and push its bitwise complement.
 
-\* SUB, DIV, and MOD use the top of the stack as the right operand, and the second value from the top as the left operand.
+\* SUB, DIV, UDV, and MOD use the top of the stack as the right operand, and the second value from the top as the left operand.
 
 ### Stack-oriented instructions
 
@@ -147,12 +148,13 @@ There are a few instructions that operate on the stack directly.
 
 ### I/O instructions
 
-Trilangle has seven instructions for I/O: two for console input, two for console output, two for time, and one for randomness.
+Trilangle has eight instructions for I/O: two for console input, three for console output, two for time, and one for randomness.
 
 - `i` (GTC): read a single UTF-8 character from STDIN and push it to the stack. Pushes -1 on EOF.
 - `?` (GTI): read an integer from STDIN and push it to the stack. Pushes -1 on EOF.
 - `o` (PTC): write the top of the stack as a single character to STDOUT. This currently does not work for multi-byte characters on Windows due to console limitations.
-- `!` (PTI): write the value of the top of the stack as a decimal number to STDOUT.
+- `!` (PTI): write the value of the top of the stack, interpreted as a signed integer, as a decimal number to STDOUT.
+- `p` (PTU): write the value of the top of the stack, interpreted as an unsigned integer, as a decimal number to STDOUT.
 - `$` (RND): push a random 24-bit integer to the stack.
 - `D` (GDT): get the current date (number of days since 1970-01-01).
 - `T` (GTM): get the time of day. 0 corresponds to 00:00:00 and the maximum value corresponds to 23:59:59, so the unit is approximately 1/97 second.
@@ -177,6 +179,8 @@ When `{` is approached from the northeast or southeast, that interpreter thread 
 | c | f | c |
 | b | e | b |
 | a | d | a |
+
+If the value on top of a stack is negative, that entire stack is carried over.
 
 ## Interpreter flags
 
