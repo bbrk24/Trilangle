@@ -123,7 +123,7 @@ Trilangle has twelve numeric instructions that operate purely on the stack. In n
 - `*` (MUL): pop two numbers from the stack and push their product.
 - `:` (DIV): pop two numbers from the stack, perform signed integer division and push the quotient\*.
 - `d` (UDV): pop two numbers from the stack, perform unsigned integer division and push the quotient\*.
-- `%` (MOD): pop two numbers from the stack, perform integer division and push the remainder\*.
+- `%` (MOD): pop two numbers from the stack, perform integer division and push the remainder\*. This currently operates on signed integers, treating negatives the same way C's `%` operator does.
 - `(` (DEC): decrease the value on top of the stack by 1.
 - `)` (INC): increase the value on top of the stack by 1.
 - `e` (EXP): pop a number _x_ from the stack and push 2<sup>_x_</sup>.

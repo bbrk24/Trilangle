@@ -3,7 +3,7 @@
 using std::pair;
 
 constexpr bool is_overflow(int32_t i) noexcept {
-    return ((i << 8) >> 8) != i && i != (i & 0x00ff'ffff);
+    return i < -0x0080'0000 || i > 0x00ff'ffff;
 }
 
 pair<bool, int24_t> int24_t::add_with_overflow(int24_t other) const noexcept {
