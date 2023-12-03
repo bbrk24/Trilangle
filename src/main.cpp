@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include "compiler.hh"
 #include "disassembler.hh"
@@ -8,6 +9,11 @@ inline void execute(const std::string& prg, flags f) {
     std::ios::sync_with_stdio(f.pipekill);
 
     program p(prg);
+
+    if (p.side_length() == 0) {
+        std::cerr << "What program do you want me to run? C'mon, give me something to work with." << std::endl;
+        exit(EX_DATAERR);
+    }
 
     if (f.disassemble) {
         disassembler d(&p, f);

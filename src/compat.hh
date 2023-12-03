@@ -35,6 +35,10 @@
 constexpr int EX_USAGE = 64;
 #endif
 
+#ifndef EX_DATAERR
+constexpr int EX_DATAERR = 65;
+#endif
+
 #ifndef EX_NOINPUT
 constexpr int EX_NOINPUT = 66;
 #endif

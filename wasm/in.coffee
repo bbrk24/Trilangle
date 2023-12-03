@@ -22,8 +22,7 @@ elements = new Proxy {}, get: (target, p) ->
   elements.stderr.innerHTML = ''
 
 generateContracted = ->
-  programText = elements.program.value.replace /^#![^\n]*\n/u, ''
-    .replace /\n| /gu, ''
+  programText = elements.program.value.replace /\n| /gu, ''
   # programText.length is wrong when there's high Unicode characters
   programLength = [programText...].length
   # Calculate the largest triangular number less than the length.

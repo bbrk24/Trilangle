@@ -12,7 +12,16 @@ class program {
 public:
     program() = default;
 
-    CONSTEXPR_ALG program(const std::string& source) : m_code(parse_utf8(source, true)), m_side_length(0) {
+    CONSTEXPR_ALG program(const std::string& source) :
+        m_code(parse_utf8(
+            source,
+#ifdef __EMSCRIPTEN__
+            false
+#else
+            true
+#endif
+        )),
+        m_side_length(0) {
         // remove all whitespace
         auto iter = std::remove_if(m_code.begin(), m_code.end(), [](int24_t c) {
             return c == (int24_t)' ' || c == (int24_t)'\n';
@@ -21,10 +30,10 @@ public:
 
         // Determine the next triangular number
         size_t capacity = 0;
-        do {
+        while (capacity < m_code.size()) {
             ++m_side_length;
             capacity += m_side_length;
-        } while (capacity < m_code.size());
+        }
 
         // Fill the remaining space with NOPs
         m_code.resize(capacity, static_cast<int24_t>(opcode::NOP));
@@ -37,7 +46,9 @@ public:
         return m_code[idx];
     }
 
-    constexpr size_t side_length() const noexcept { return m_side_length; }
+    constexpr size_t side_length() const noexcept {
+        return m_side_length;
+    }
 private:
     std::vector<int24_t> m_code;
     size_t m_side_length;

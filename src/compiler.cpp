@@ -1,6 +1,7 @@
 // This file is not in the compiler folder because the MSVC build script requires this folder to contain all the .cpp
 // files.
 #include "compiler.hh"
+#include <cstdlib>
 #include <iostream>
 #include "compiler/strings.hh"
 

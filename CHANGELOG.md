@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Changed
 
+- The online interpreter no longer interprets shebangs. For compatibility with the CLI, the "condense" button still leaves whitespace in programs that start with `#!`.
+- Some error messages have been reworded.
 - Overflow checking on most arithmetic operations is now laxer to allow for unsigned numbers.
 
 ### Fixed

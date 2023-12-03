@@ -1,6 +1,7 @@
 #include "disassembler.hh"
 #include <cinttypes>
 #include <cstdio>
+#include <cstdlib>
 #include <ostream>
 #include <sstream>
 #include "output.hh"

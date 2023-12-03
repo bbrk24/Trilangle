@@ -85,7 +85,7 @@ CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_
         }
     }
 
-    do {
+    while (iter != end) {
         vec.push_back(parse_unichar([&]() NOEXCEPT_T {
             if (iter == end) {
                 return EOF;
@@ -93,7 +93,7 @@ CONSTEXPR_ALLOC std::vector<int24_t> parse_utf8(const std::string& s, bool skip_
                 return static_cast<int>(*iter++);
             }
         }));
-    } while (iter != end);
+    }
 
     return vec;
 }

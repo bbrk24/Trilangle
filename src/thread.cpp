@@ -485,9 +485,7 @@ void thread::tick() {
             cout << flush;
             cerr << flush;
             fprintf(
-                stderr,
-                "Unicode replacement character (U+%04" PRIX32 ") detected in source. Please check encoding.\n",
-                static_cast<uint32_t>(op)
+                stderr, "Encoding error detected, or U+%04" PRIX32 " present in source.\n", static_cast<uint32_t>(op)
             );
             exit(EXIT_FAILURE);
         default:
