@@ -34,7 +34,7 @@ jobs:
           mkdir ../Release
           mv *.css index.js worker.js ldworker.js Colors.js *.wasm ../Release/
           cp *.html favicon.ico ../Release/
-      - uses: actions/upload-pages-artifact@v2
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: Release/
   deploy-pages:
