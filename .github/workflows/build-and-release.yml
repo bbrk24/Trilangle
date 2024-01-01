@@ -61,7 +61,7 @@ jobs:
     name: Build for Windows ${{ matrix.disp_arch }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ilammy/msvc-dev-cmd@v1.12.1
+      - uses: ilammy/msvc-dev-cmd@v1.13.0
         with:
           arch: ${{ matrix.cmd_arch }}
       - name: Compile C++ sources

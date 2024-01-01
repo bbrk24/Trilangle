@@ -41,7 +41,7 @@ jobs:
     name: Verify C++ Build with MSVC on ${{ matrix.disp_arch }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ilammy/msvc-dev-cmd@v1.12.1
+      - uses: ilammy/msvc-dev-cmd@v1.13.0
         with:
           arch: ${{ matrix.cmd_arch }}
       - name: Invoke MSVC
