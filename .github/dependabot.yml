@@ -22,6 +22,7 @@ updates:
       artifacts:
         patterns:
           - actions/*-artifact
+          - actions/deploy-pages
     labels:
       - 'domain:dependencies'
       - 'domain:CI/CD'
