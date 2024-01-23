@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.7.0] - 2024-01-23
+
 ### Changed
 
 - The online interpreter no longer interprets shebangs. For compatibility with the CLI, the "condense" button still leaves whitespace in programs that start with `#!`.
@@ -211,3 +213,4 @@ First versioned release.
 [1.6.0]: https://github.com/bbrk24/Trilangle/tree/1.6.0
 [1.6.1]: https://github.com/bbrk24/Trilangle/tree/1.6.1
 [1.6.2]: https://github.com/bbrk24/Trilangle/tree/1.6.2
+[1.7.0]: https://github.com/bbrk24/Trilangle/tree/1.7.0
