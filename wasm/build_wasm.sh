@@ -28,8 +28,6 @@ case "$1" in
             emcc ../src/*.cpp "${common_emcc_args[@]}" -Werror -O0 -DNDEBUG --closure 1
             rm a.out.* || true
         } &
-        npx civet <Colors.civet >/dev/null
-        npx civet <in.civet >/dev/null
         # Why does sass not give its version in a format it accepts?
         npx sass in.scss:/dev/null lowdata.scss:/dev/null --no-source-map --fatal-deprecation \
             "$(npx sass --version | cut -d' ' -f1)"

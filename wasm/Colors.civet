@@ -1,7 +1,5 @@
-'civet coffeePrototype'
-
 class Colors
-  entries: Array<{ color: string, div?: HTMLDivElement, threadNumber?: number }> = [
+  entries: { color: string, div?: HTMLDivElement, threadNumber?: number }[] = [
     { color: 'rgb(0, 173, 0)' },
     { color: 'rgb(255, 40, 255)' },
     { color: 'rgb(49, 151, 255)' },
@@ -28,12 +26,11 @@ class Colors
     entry := (@entries.find &.threadNumber is threadNumber) ?? @entries.find not &.threadNumber?
     if entry?
       entry.threadNumber = threadNumber
-      unless entry.div?
-        entry.div = document.createElement 'div'
-        entry.div.classList.add 'highlight'
+      entry.div ?=
+        document.createElement 'div'
+        ||> .classList.add 'highlight'
         // @ts-expect-error What do you mean style is readonly
-        entry.div.style = `--highlight-color: ${entry.color};`
-      entry.div
+        ||> .style = `--highlight-color: ${entry.color};`
 
   allColors()
     @entries.map .color
@@ -60,8 +57,7 @@ class Colors
       replacement := @entries.find not &.threadNumber?
       return false unless replacement?
       entry.div?.style.setProperty '--highlight-color', replacement.color
-      replacement.div = entry.div
-      replacement.threadNumber = entry.threadNumber
+      replacement{div,threadNumber} = entry
     @entries.splice idx, 1
     true
 
@@ -75,7 +71,7 @@ class Colors
   replaceColor(before: string | number, after: string)
     let entry
     if typeof before is 'string'
-      entry = @entries.find (el) -> el.color is before
+      entry = @entries.find &.color is before
       return -1 unless entry?
     else if before in @entries
       entry = @entries[before]

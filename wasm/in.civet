@@ -18,32 +18,33 @@ declare global
     PAUSE_TEXT: string
     WORKER_URL: string
     get isPaused(): boolean
+    playPause: =>
 
 worker: Worker | null .= null
 stdoutBuffer: number[] .= []
 stderrBuffer: number[] .= []
 threads: Thread[] .= []
-let resolve: () => void
+let resolve: =>
 delay .= 500
 interval .= -1
-let step: () => void
+let step: =>
 decoder := new TextDecoder
 colors := new Colors
 
 // This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 // first access, but then saves it for fast access later.
 elements := new Proxy<Record<string, HTMLElement & Record<string, ???>>> {}, get: (target, p) ->
-  if p <? 'string' and not (p in target)
-    // @ts-expect-error shut up
-    target[p] = document.getElementById p.replace /[A-Z]/g, (s) -> '-' + s.toLowerCase()
-  // @ts-expect-error shut up
+  if p <? 'string' and p !in target
+    // @ts-expect-error Yes I know there's a type mismatch. It's the best I can come up with.
+    target[p] = document.getElementById p.replace /[A-Z]/g, (s) => '-' + s.toLowerCase()
+  // @ts-expect-error If it's a symbol then so what.
   target[p]
 
-clearOutput := :void ->
+clearOutput := :void =>
   elements.stdout.innerHTML = ''
   elements.stderr.innerHTML = ''
 
-generateContracted := ->
+generateContracted := =>
   programText .= (elements.program as! HTMLTextAreaElement).value.replace /\n| /gu, ''
   // programText.length is wrong when there's high Unicode characters
   programLength := [programText...].length
@@ -52,15 +53,15 @@ generateContracted := ->
   temp := Math.ceil Math.sqrt(2 * programLength) - 1.5
   minLength := 1 + temp * (temp + 1) / 2
   if programLength > minLength
-    programText = programText.replace new RegExp(`\\.{0,${programLength - minLength}}\$`), ''
+    programText |>= .replace new RegExp(`\\.{0,${programLength - minLength}}$`), ''
   programText.replace /^#!/u, '#\n!'
 
-contractInput := :void ->
+contractInput := :void =>
   clearOutput()
   elements.program.value = generateContracted()
 
-generateURL := :void ->
-  baseURL := location.href.split(/[?#]/u)[0]
+generateURL := :void =>
+  baseURL := location.href.split(/[?#]/u).0
   fragment := '#' + encodeURIComponent generateContracted()
   query :=
     if elements.includeInput.checked
@@ -74,24 +75,24 @@ generateURL := :void ->
   elements.urlButton.textContent = 'Copy URL'
   elements.urlButton.onclick = copyURL
 
-copyURL := :void ->
+copyURL := :void =>
   url := elements.urlOut.textContent!
-  (elements.urlOut.setSelectionRange as (undefined | HTMLInputElement['setSelectionRange']))? 0, url.length
+  (elements.urlOut.setSelectionRange as HTMLInputElement.'setSelectionRange'?)? 0, url.length
   navigator.clipboard.writeText url
   elements.copyAlert.className = ''
-  setTimeout -> elements.copyAlert.className = 'hide-slow'
+  setTimeout :void -> elements.copyAlert.className = 'hide-slow'
 
-wasmCancel := :void ->
+wasmCancel := :void =>
   worker?.terminate()
   worker = null
   resolve()
 
-isBufferFull := (buf: ArrayLike<number>) ->
+isBufferFull := (buf: ArrayLike<number>) =>
   buf.length is 4 or
-  (((buf[0] + 256) & 0xf0) is 0xe0 and buf.length is 3) or
-  (((buf[0] + 256) & 0xe0) is 0xc0 and buf.length is 2)
+  (((buf.0 + 256) & 0xf0) is 0xe0 and buf.length is 3) or
+  (((buf.0 + 256) & 0xe0) is 0xc0 and buf.length is 2)
 
-stdout := (char: number | null): void ->
+stdout := (char: number | null): void =>
   return unless char?
   if char < 0
     stdoutBuffer.push char
@@ -101,7 +102,7 @@ stdout := (char: number | null): void ->
   else
     elements.stdout.textContent += String.fromCharCode char
 
-stderr := (char: number | null): void ->
+stderr := (char: number | null): void =>
   return unless char?
   appendText := (text: string) ->
     if elements.stderr.lastChild instanceof Text
@@ -119,7 +120,7 @@ stderr := (char: number | null): void ->
   else
     appendText String.fromCharCode char
 
-createWorker := (name: string) -> ->
+createWorker := (name: string) => =>
   threadCount .= -1
 
   clearOutput()
@@ -133,11 +134,11 @@ createWorker := (name: string) -> ->
   elements.stdin.oninput = null
 
   worker ?= new Worker window.WORKER_URL
-  step = -> worker!.postMessage ['step']
+  step = => worker!.postMessage ['step']
 
-  promise := new Promise<void> (r) -> resolve = r
-    .then ->
-      elements.stdin.oninput = ->
+  promise := new Promise<void> (r): void -> resolve = r
+    .then :void =>
+      elements.stdin.oninput = :void ->
         worker = null
         @oninput = null
       elements.expand.disabled = false
@@ -161,7 +162,7 @@ createWorker := (name: string) -> ->
       [3, [threadNum, thread]]
         threads[threadNum] = thread
         try
-          if threadCount is threads.reduce (x) -> x + 1, 0
+          if threadCount is threads.reduce (1+), 0
             renderThreads()
           else
             step()
@@ -176,7 +177,7 @@ createWorker := (name: string) -> ->
         threads = []
         colors.hideHighlights()
       else
-        console.error `Unrecognized destination ${event.data[0]}`, event.data[1]
+        console.error `Unrecognized destination ${event.data.0}`, event.data.1
   worker.postMessage [name, elements.program.value, elements.stdin.value]
   
   promise
@@ -186,12 +187,12 @@ disassembleProgram := createWorker 'disassembleProgram'
 expandBase := createWorker 'expandInput'
 debugBase := createWorker 'debugProgram'
 
-expandInput := :Promise<void> ->
+expandInput := :Promise<void> =>
   await expandBase()
   elements.program.value = elements.stdout.innerText
   elements.stdout.innerText = ''
 
-pause := :void ->
+pause := :void =>
   clearInterval interval
   interval = -1
   elements.playPause.textContent = window.PLAY_TEXT
@@ -203,7 +204,7 @@ pause := :void ->
 minDelay := 4
 // Not really a useful upper limit but one that keeps setInterval from breaking
 maxDelay := 1 << 30
-play := :void ->
+play := :void =>
   elements.playPause.textContent = window.PAUSE_TEXT
   elements.slower.disabled = delay >= maxDelay
   elements.faster.disabled = delay <= minDelay
@@ -212,24 +213,23 @@ play := :void ->
 
 Object.defineProperty window, 'isPaused', get: -> interval is -1
 
-playPause := :void ->
-  if window.isPaused then play() else pause()
+window.playPause = => if window.isPaused then play() else pause()
 
-faster := :void ->
+faster := :void =>
   clearInterval interval
   delay /= 2
   interval = setInterval step, delay
   elements.slower.disabled = false
   elements.faster.disabled = delay <= minDelay
 
-slower := :void ->
+slower := :void =>
   clearInterval interval
   delay *= 2
   interval = setInterval step, delay
   elements.faster.disabled = false
   elements.slower.disabled = delay >= maxDelay
 
-debugProgram := :Promise<void> ->
+debugProgram := =>
   await expandBase()
 
   elements.debugProgram.hidden = false
@@ -239,7 +239,7 @@ debugProgram := :Promise<void> ->
   elements.colorPicker.hidden = true
 
   elements.stdout.innerText.trimEnd().split '\n'
-    .forEach (textRow, i): void ->
+    .forEach (textRow, i): void =>
       el := document.createElement 'div'
       el.id = `row-${i}`
       matchLength := (/^ */u.exec textRow)?.0.length ?? 0
@@ -255,7 +255,7 @@ debugProgram := :Promise<void> ->
   elements.debugInfo.hidden = false
   if not elements.playPause.style?.width
     elements.playPause.textContent = window.PAUSE_TEXT
-    setTimeout :void ->
+    setTimeout =>
       elements.playPause.style.width = `${elements.playPause.offsetWidth}px`
       pause()
 
@@ -268,25 +268,24 @@ debugProgram := :Promise<void> ->
   elements.program.hidden = false
   pause()
 
-renderThreads := :void ->
+renderThreads := =>
   elements.threads.innerHTML = ''
-  threads.forEach (thread, idx): void ->
+  threads.forEach (thread, idx): void =>
     row := document.createElement 'tr'
     highlightDiv := colors.getHighlightDiv(idx) ?? throw new TypeError(
       "You haven't selected enough colors for that many threads!"
     )
-    color := highlightDiv.style.getPropertyValue '--highlight-color'
-    row.style.backgroundColor = color
+    row.style.backgroundColor = highlightDiv.style.getPropertyValue '--highlight-color'
     highlightIndex thread.x, thread.y, highlightDiv
-    threadIdEl := document.createElement 'td'
-    threadIdEl.textContent = String idx
-    row.appendChild threadIdEl
-    threadContentsEl := document.createElement 'td'
-    threadContentsEl.textContent = thread.stack.join ',\u2009'
-    row.appendChild threadContentsEl
+    document.createElement 'td'
+      ||> .textContent = String idx
+      |> row.appendChild
+    document.createElement 'td'
+      ||> .textContent = thread.stack.join ',\u2009'
+      |> row.appendChild
     elements.threads.appendChild row
 
-changeHighlightColor := (before: string | number, after: string) ->
+changeHighlightColor := (before: string | number, after: string) =>
   threadNum := colors.replaceColor before, after
   return true unless threadNum?
   return false if threadNum < 0
@@ -301,92 +300,96 @@ changeHighlightColor := (before: string | number, after: string) ->
   true
 
 // Given y,x, find the horizontal offset necessary to highlight that position
-getColumn := (y: number, x: number) ->
+getColumn := (y: number, x: number) =>
   row := document.getElementById(`row-${y}`)
   if row?
     +row.dataset.offset! + 2 * x
   else
     -1
 
-highlightIndex := (x: number, y: number, div: HTMLDivElement): void ->
+highlightIndex := (x: number, y: number, div: HTMLDivElement): void =>
   col := getColumn y, x
   div.style.left = `${col}ch`
   elements.debugProgram.insertBefore div, document.getElementById `row-${y}`
 
-hideUrl := :void ->
+hideUrl := :void =>
   elements.urlOutBox.className = 'content-hidden'
   elements.urlButton.textContent = 'Generate URL'
   elements.urlButton.onclick = generateURL
-elements.program.addEventListener 'input', hideUrl, passive: true
-elements.includeInput.addEventListener 'change', hideUrl, passive: true
-elements.stdin.addEventListener 'change', :void ->
-  hideUrl() if elements.includeInput.checked
-, passive: true
+elements.program.addEventListener 'input', hideUrl, { +passive }
+elements.includeInput.addEventListener 'change', hideUrl, { +passive }
+elements.stdin.addEventListener 'change', => hideUrl() if elements.includeInput.checked, { +passive }
 
-toHex := (rgba: string) ->
+toHex := (rgba: string) =>
   return rgba if /^#[0-9a-d]{6}$/i.test rgba
   // Adapted from https://stackoverflow.com/a/3627747/6253337
-  `#${
-    rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/)![1...]
-      .map (n, i) ->
-        (if i is 3 then Math.round(255 * parseFloat n) else parseInt n, 10)
-          .toString 16
-          .padStart 2, '0'
-          .replace 'NaN', ''
-      .join ''
-  }`
+  '#' + rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/)![1...]
+    .map (n, i) ->
+      (if i is 3 then Math.round(255 * parseFloat n) else parseInt n, 10)
+        .toString 16
+        .padStart 2, '0'
+        .replace 'NaN', ''
+    .join ''
 
-createColorDiv := (color: string, i: number) ->
-  input := document.createElement 'input'
-  input.type = 'color'
-  input.value = toHex color
-  input.addEventListener 'change', :void ->
-    unless changeHighlightColor i, @value
-      @value = toHex color
-      elements.stderr.innerText += "You can't have two threads of the same color!\n"
-  , passive: true
-
-  removeButton := document.createElement 'button'
+createColorDiv := (color: string, i: number) =>
   div := document.createElement 'div'
-  div.appendChild input
-  div.appendChild removeButton
-  
-  removeButton.type = 'button'
-  removeButton.title = 'remove color'
-  removeButton.onclick = :void ->
-    if colors.removeColor i
-      updateColorPicker()
-      renderThreads()
-  removeButton.appendChild document.createTextNode 'x'
+
+  document.createElement 'input'
+    ||> .type = 'color'
+    ||> .value = toHex color
+    ||> .addEventListener
+      'change'
+      :void ->
+        unless changeHighlightColor i, @value
+          @value = toHex color
+          elements.stderr.innerText += "You can't have two threads of the same color!\n"
+      { +passive }
+    |> div.appendChild
+
+  document.createElement 'button'
+    ||> .type = 'button'
+    ||> .title = 'remove color'
+    ||> .addEventListener
+      'click'
+      :void =>
+        if colors.removeColor i
+          updateColorPicker()
+          renderThreads()
+      { +passive }
+    ||> .appendChild document.createTextNode 'x'
+    |> div.appendChild
+
   div
 
-updateColorPicker := ->
+updateColorPicker := :void =>
   elements.colorPicker.innerHTML = ''
   colors.allColors().forEach (color, i): void ->
-    div := createColorDiv color, i
-    elements.colorPicker.appendChild div
-  
-  if not elements.addColorButton?
-    button := document.createElement 'button'
-    button.id = 'add-color-button'
-    button.type = 'button'
-    button.title = 'add color'
-    button.appendChild document.createTextNode '+'
-    button.addEventListener 'click', :void ->
-      let color: string
-      loop
-        red := Math.round 255 * Math.random()
-        green := Math.round 255 * Math.random()
-        blue := Math.round 255 * Math.random()
-        color = `rgb(${red}, ${green}, ${blue})`
-        break if colors.addColor color
-      elements.colorPicker.insertBefore createColorDiv(color, colors.count() - 1), @
-    , passive: true
-    // @ts-expect-error shut up
-    elements.addColorButton = button
+    elements.colorPicker.appendChild createColorDiv color, i
+
+  elements.addColorButton ?=
+    document.createElement 'button'
+    ||> .id = 'add-color-button'
+    ||> .type = 'button'
+    ||> .title = 'add color'
+    ||> .appendChild document.createTextNode '+'
+    ||> .addEventListener
+      'click'
+      :void ->
+        let color: string
+        loop
+          red := Math.round 255 * Math.random()
+          green := Math.round 255 * Math.random()
+          blue := Math.round 255 * Math.random()
+          color = `rgb(${red}, ${green}, ${blue})`
+          break if colors.addColor color
+        elements.colorPicker.insertBefore createColorDiv(color, colors.count() - 1), @
+      { +passive }
+    // https://github.com/DanielXMoore/Civet/issues/959
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    |> as any
   elements.colorPicker.appendChild elements.addColorButton
 
-toggleColorPicker := :void ->
+toggleColorPicker := :void =>
   if elements.colorPicker.hidden
     updateColorPicker()
     elements.colorPicker.hidden = false
@@ -394,7 +397,7 @@ toggleColorPicker := :void ->
     elements.colorPicker.hidden = true
 
 // Allow the header itself, or noninteractable children (e.g. the select icon)
-isHeader := (target: EventTarget | null) ->
+isHeader := (target: EventTarget | null) =>
   target? and
     (target is elements.debugHeader or
       ((target as Element).tagName isnt 'BUTTON' and elements.debugHeader.contains(target as Node))
@@ -403,7 +406,7 @@ isHeader := (target: EventTarget | null) ->
 // Adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
 pos3 .= 0
 pos4 .= 0
-elements.debugHeader.onmousedown = (e): void ->
+elements.debugHeader.addEventListener 'mousedown', (e): void =>
   if not isHeader e.target
     return
   e.preventDefault()
@@ -420,18 +423,18 @@ elements.debugHeader.onmousedown = (e): void ->
   document.onmouseup = :void ->
     @onmousemove = null
     @onmouseup = null
-elements.debugHeader.ontouchstart = (e): void ->
+elements.debugHeader.addEventListener 'touchstart', (e): void =>
   if not isHeader e.target
     return
   e.preventDefault()
-  pos3 = e.touches[0].clientX
-  pos4 = e.touches[0].clientY
+  pos3 = e.touches.0.clientX
+  pos4 = e.touches.0.clientY
   document.ontouchmove = (e): void ->
     e.preventDefault()
-    pos1 := pos3 - e.touches[0].clientX
-    pos2 := pos4 - e.touches[0].clientY
-    pos3 = e.touches[0].clientX
-    pos4 = e.touches[0].clientY
+    pos1 := pos3 - e.touches.0.clientX
+    pos2 := pos4 - e.touches.0.clientY
+    pos3 = e.touches.0.clientX
+    pos4 = e.touches.0.clientY
     elements.debugInfo.style.top = `${elements.debugInfo.offsetTop - pos2}px`
     elements.debugInfo.style.left = `${elements.debugInfo.offsetLeft - pos1}px`
   document.ontouchend = document.ontouchcancel = :void ->
@@ -439,18 +442,20 @@ elements.debugHeader.ontouchstart = (e): void ->
     @ontouchcancel = null
     @ontouchend = null
 
-width := elements.runStop.offsetWidth
-remSize := parseFloat getComputedStyle(document.body).fontSize
-elements.runStop.textContent = 'Run!'
-setTimeout :void -> elements.runStop.style.width = `${(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}rem`
-elements.runStop.onclick = interpretProgram
-elements.urlButton.onclick = generateURL
+do
+  width := elements.runStop.offsetWidth
+  remSize := parseFloat getComputedStyle(document.body).fontSize
+  elements.runStop.textContent = 'Run!'
+  setTimeout :void =>
+    elements.runStop.style.width = `${(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}rem`
+  elements.runStop.onclick = interpretProgram
+  elements.urlButton.onclick = generateURL
 
-if location.hash.length > 1
-  elements.program.value = decodeURIComponent location.hash.slice 1
+  if location.hash.length > 1
+    elements.program.value = decodeURIComponent location.hash[1...]
 
-params := new URLSearchParams location.search
-inputParam := params.get 'i'
-if inputParam?
-  elements.stdin.value = inputParam
-  elements.includeInput.checked = true
+  params := new URLSearchParams location.search
+  inputParam := params.get 'i'
+  if inputParam?
+    elements.stdin.value = inputParam
+    elements.includeInput.checked = true
