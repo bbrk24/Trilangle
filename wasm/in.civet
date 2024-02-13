@@ -1,12 +1,15 @@
 'civet coffeeIsnt'
 'use strict'
 
-import type { Colors as ColorsType } from './Colors.civet'
-declare var Colors: { new(): ColorsType }
+type { Colors as ColorsType } from ./Colors.civet
+declare var Colors: new() => ColorsType
 
-type Thread = { x: number, y: number, stack: number[] }
+interface Thread
+  x: number
+  y: number
+  stack: number[]
 
-type MessageType =
+MessageType ::=
   | [0, null]
   | [1, number | null]
   | [2, number | null | string]
@@ -20,7 +23,7 @@ declare global
     get isPaused(): boolean
     playPause: =>
 
-worker: Worker | null .= null
+let worker: Worker?
 stdoutBuffer: number[] .= []
 stderrBuffer: number[] .= []
 threads: Thread[] .= []
@@ -84,7 +87,7 @@ copyURL := :void =>
 
 wasmCancel := :void =>
   worker?.terminate()
-  worker = null
+  worker = undefined
   resolve()
 
 isBufferFull := (buf: ArrayLike<number>) =>
@@ -136,10 +139,10 @@ createWorker := (name: string) => =>
   worker ?= new Worker window.WORKER_URL
   step = => worker!.postMessage ['step']
 
-  promise := new Promise<void> (r): void -> resolve = r
+  promise := new Promise<void> (r): void => resolve = r
     .then :void =>
       elements.stdin.oninput = :void ->
-        worker = null
+        worker = undefined
         @oninput = null
       elements.expand.disabled = false
       elements.disassemble.disabled = false
@@ -324,7 +327,7 @@ toHex := (rgba: string) =>
   return rgba if /^#[0-9a-d]{6}$/i.test rgba
   // Adapted from https://stackoverflow.com/a/3627747/6253337
   '#' + rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/)![1...]
-    .map (n, i) ->
+    .map (n, i) =>
       (if i is 3 then Math.round(255 * parseFloat n) else parseInt n, 10)
         .toString 16
         .padStart 2, '0'
@@ -366,6 +369,7 @@ updateColorPicker := :void =>
   colors.allColors().forEach (color, i): void ->
     elements.colorPicker.appendChild createColorDiv color, i
 
+  // @ts-expect-error Let me assign to this
   elements.addColorButton ?=
     document.createElement 'button'
     ||> .id = 'add-color-button'
@@ -384,9 +388,6 @@ updateColorPicker := :void =>
           break if colors.addColor color
         elements.colorPicker.insertBefore createColorDiv(color, colors.count() - 1), @
       { +passive }
-    // https://github.com/DanielXMoore/Civet/issues/959
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    |> as any
   elements.colorPicker.appendChild elements.addColorButton
 
 toggleColorPicker := :void =>

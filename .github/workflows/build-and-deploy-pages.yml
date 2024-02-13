@@ -25,6 +25,9 @@ jobs:
           path: /opt/hostedtoolcache/emscripten/latest/x64/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/lto
           key: libsv-${{ steps.em-version.outputs.DETAILS }}
           # restore-keys intentionally omitted
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.x
       - name: Run build script
         shell: bash
         run: |

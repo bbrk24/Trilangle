@@ -12,9 +12,9 @@ declare var Module:
   ): undefined | number | string | Promise<undefined | number | string>
 declare var FS:
   init(
-    stdin: () => (number | null),
-    stdout: (char: number | null) => void,
-    stderr: (char: number | null) => void
+    stdin: => (number | null),
+    stdout: (char: number | null) =>,
+    stderr: (char: number | null) =>
   ): void
 
 let inputIndex: number

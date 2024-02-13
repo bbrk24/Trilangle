@@ -27,6 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.x
       - name: Run build script
         shell: bash
         run: |

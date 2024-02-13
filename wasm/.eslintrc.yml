@@ -4,6 +4,8 @@ env:
 extends:
   - eslint:recommended
   - plugin:@typescript-eslint/recommended
+  - plugin:@typescript-eslint/stylistic
+  - plugin:@typescript-eslint/strict
 parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaVersion: 2021
@@ -13,6 +15,10 @@ rules:
   '@typescript-eslint/ban-ts-comment':
     - error
     - ts-nocheck: false
+  '@typescript-eslint/class-methods-use-this': error
+  '@typescript-eslint/consistent-type-imports': error
+  '@typescript-eslint/default-param-last': error
+  '@typescript-eslint/no-non-null-assertion': 'off'
   '@typescript-eslint/no-unused-vars': 'off'
   no-constant-condition:
     - error
