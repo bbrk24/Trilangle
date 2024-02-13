@@ -1,0 +1,35 @@
+name: Lint Web Build
+'on':
+  push:
+    branches:
+      - '**'
+    paths:
+      - src/**
+      - wasm/*
+      - .clang-format
+      - .github/workflows/lint-web-build.yml
+  workflow_dispatch: ~
+jobs:
+  lint-npm:
+    runs-on: ubuntu-latest
+    name: Lint with JS Tools
+    steps:
+      - uses: actions/checkout@v4
+      - name: npm lint
+        shell: bash
+        run: |
+          cd wasm
+          npm ci --no-fund
+          npm run lint
+  verify-wasm-build:
+    runs-on: ubuntu-latest
+    name: Verify wasm build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
+      - name: Run build script
+        shell: bash
+        run: |
+          cd wasm
+          npm ci --omit dev --no-fund
+          ./build_wasm.sh lint

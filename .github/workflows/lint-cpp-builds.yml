@@ -1,15 +1,12 @@
-name: Lint Builds
+name: Lint C++ Builds
 'on':
   push:
     branches:
       - '**'
     paths:
-      # It would be nice if I could specify this per-job, but I'm not making a whole new file just to avoid running
-      # clang for web-only changes.
       - src/**
-      - wasm/*
       - .clang-format
-      - .github/workflows/lint-build.yml
+      - .github/workflows/lint-cpp-builds.yml
   workflow_dispatch: ~
 jobs:
   build-native-mac:
@@ -48,26 +45,3 @@ jobs:
         shell: pwsh
         run: |
           cl .\src\*.cpp /EHsc /DVERSION=0.0.0 /DNDEBUG /std:c++20 /MTd /analyze /W4 /WX /we5219
-  lint-npm:
-    runs-on: ubuntu-latest
-    name: Lint with JS Tools
-    steps:
-      - uses: actions/checkout@v4
-      - name: npm lint
-        shell: bash
-        run: |
-          cd wasm
-          npm ci --no-fund
-          npm run lint
-  verify-wasm-build:
-    runs-on: ubuntu-latest
-    name: Verify wasm build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
-      - name: Run build script
-        shell: bash
-        run: |
-          cd wasm
-          npm ci --omit dev --no-fund
-          ./build_wasm.sh lint
