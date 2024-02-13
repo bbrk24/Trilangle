@@ -7,7 +7,7 @@
     "devDependencies": {
         "@coffeelint/cli": "^5.2.11",
         "clang-format": "^1.8.0",
-        "engine-check": "git@github.com:bbrk24/engine-check.git#e2eb23075fc166873ceab995cc4c9b206733a9b5",
+        "engine-check": "git@github.com:bbrk24/engine-check.git#6b7fa214f0d5c20508cdad796bd52db4fdcf182f",
         "express": "^4.18.0",
         "stylelint": "^15.11.0",
         "stylelint-config-standard-scss": "^11.0.0"
