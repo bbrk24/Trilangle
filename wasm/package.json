@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@danielx/civet": "~0.6.76",
+        "@danielx/civet": "~0.6.80",
         "sass": "^1.64.1",
         "terser": "^5.19.2"
     },
@@ -16,7 +16,8 @@
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
-        "lint": "./lint.sh"
+        "lint": "./lint.sh",
+        "build": "./build_wasm.sh"
     },
     "engines": {
         "node": "^18.6.0 || >=19"

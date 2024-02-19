@@ -15,7 +15,7 @@ declare var FS:
     stdin: => (number | null),
     stdout: (char: number | null) =>,
     stderr: (char: number | null) =>
-  ): void
+  ): ???
 
 let inputIndex: number
 ready .= false
@@ -30,14 +30,13 @@ halfReady := (arg?: string): void =>
   unless ready
     ready = true
     return
-  signal := signals.get funcName
-  if signal?
+  if signal := signals.get funcName
     signal()
   else
     console.error `Unrecognized signal ${funcName}`
     postMessage [0, null]
 
-Module['preInit'] = ->
+Module['preInit'] = :void ->
   stdin := => if inputIndex >= stdinBuffer.length then null else stdinBuffer.at(inputIndex++)!
   stdout := (char: number | null) => postMessage [1, char]
   stderr := (char: number | null) => postMessage [2, char]

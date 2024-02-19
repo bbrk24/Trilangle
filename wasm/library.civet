@@ -16,5 +16,5 @@ mergeInto LibraryManager.library,
         'y': y,
         'stack': Array::map.call HEAP32[stack >> 2...(stack >> 2) + stack_depth], (x) => x << 8 >> 8
       }]]
-      new Promise (r) =>
+      new Promise (r): void =>
         @['__trilangle_resolve'] = r

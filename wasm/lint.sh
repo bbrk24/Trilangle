@@ -1,5 +1,4 @@
 #!/bin/bash
-# Note: 'npx' should be omitted in this file
 
 shopt -s globstar
 set -e

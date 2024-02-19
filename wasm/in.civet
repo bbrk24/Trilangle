@@ -47,7 +47,7 @@ clearOutput := :void =>
   elements.stdout.innerHTML = ''
   elements.stderr.innerHTML = ''
 
-generateContracted := =>
+generateContracted := :string =>
   programText .= (elements.program as! HTMLTextAreaElement).value.replace /\n| /gu, ''
   // programText.length is wrong when there's high Unicode characters
   programLength := [programText...].length
@@ -90,10 +90,11 @@ wasmCancel := :void =>
   worker = undefined
   resolve()
 
-isBufferFull := (buf: ArrayLike<number>) =>
-  buf.length is 4 or
-  (((buf.0 + 256) & 0xf0) is 0xe0 and buf.length is 3) or
-  (((buf.0 + 256) & 0xe0) is 0xc0 and buf.length is 2)
+isBufferFull := (buf: ArrayLike<number>): boolean =>
+  (or)
+    buf.length is 4
+    (((buf.0 + 256) & 0xf0) is 0xe0 and buf.length is 3)
+    (((buf.0 + 256) & 0xe0) is 0xc0 and buf.length is 2)
 
 stdout := (char: number | null): void =>
   return unless char?
@@ -108,22 +109,22 @@ stdout := (char: number | null): void =>
 stderr := (char: number | null): void =>
   return unless char?
   appendText := (text: string) ->
-    if elements.stderr.lastChild instanceof Text
+    if elements.stderr.lastChild <? Text
       elements.stderr.lastChild.nodeValue += text
     else
-      elements.stderr.appendChild document.createTextNode text
+      text |> document.createTextNode |> elements.stderr.appendChild
 
   if char < 0
     stderrBuffer.push char
     if isBufferFull stderrBuffer
-      appendText decoder.decode new Int8Array stderrBuffer
+      stderrBuffer |> new Int8Array |> decoder.decode |> appendText 
       stderrBuffer = []
   else if char is 10
     elements.stderr.appendChild document.createElement 'br'
   else
-    appendText String.fromCharCode char
+    char |> String.fromCharCode |> appendText
 
-createWorker := (name: string) => =>
+createWorker := (name: string) => :Promise<void> =>
   threadCount .= -1
 
   clearOutput()
@@ -249,9 +250,9 @@ debugProgram := =>
       el.dataset.offset = String matchLength
       el.style.paddingLeft = `${matchLength}ch`
       for char of textRow.trimStart().split ' '
-        span := document.createElement 'span'
-        span.textContent = char
-        el.appendChild span
+        document.createElement 'span'
+          ||> .textContent = char
+          |> el.appendChild
       elements.debugProgram.appendChild el
   elements.stdout.innerText = ''
 
@@ -274,10 +275,10 @@ debugProgram := =>
 renderThreads := =>
   elements.threads.innerHTML = ''
   threads.forEach (thread, idx): void =>
-    row := document.createElement 'tr'
     highlightDiv := colors.getHighlightDiv(idx) ?? throw new TypeError(
       "You haven't selected enough colors for that many threads!"
     )
+    row := document.createElement 'tr'
     row.style.backgroundColor = highlightDiv.style.getPropertyValue '--highlight-color'
     highlightIndex thread.x, thread.y, highlightDiv
     document.createElement 'td'
@@ -288,7 +289,7 @@ renderThreads := =>
       |> row.appendChild
     elements.threads.appendChild row
 
-changeHighlightColor := (before: string | number, after: string) =>
+changeHighlightColor := (before: string | number, after: string): boolean =>
   threadNum := colors.replaceColor before, after
   return true unless threadNum?
   return false if threadNum < 0
@@ -303,8 +304,8 @@ changeHighlightColor := (before: string | number, after: string) =>
   true
 
 // Given y,x, find the horizontal offset necessary to highlight that position
-getColumn := (y: number, x: number) =>
-  row := document.getElementById(`row-${y}`)
+getColumn := (y: number, x: number): number =>
+  row := document.getElementById `row-${y}`
   if row?
     +row.dataset.offset! + 2 * x
   else
@@ -323,19 +324,19 @@ elements.program.addEventListener 'input', hideUrl, { +passive }
 elements.includeInput.addEventListener 'change', hideUrl, { +passive }
 elements.stdin.addEventListener 'change', => hideUrl() if elements.includeInput.checked, { +passive }
 
-toHex := (rgba: string) =>
+toHex := (rgba: string): string =>
   return rgba if /^#[0-9a-d]{6}$/i.test rgba
   // Adapted from https://stackoverflow.com/a/3627747/6253337
   '#' + rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/)![1...]
-    .map (n, i) =>
+    .map (n, i): string =>
       (if i is 3 then Math.round(255 * parseFloat n) else parseInt n, 10)
         .toString 16
         .padStart 2, '0'
         .replace 'NaN', ''
     .join ''
 
-createColorDiv := (color: string, i: number) =>
-  div := document.createElement 'div'
+createColorDiv := (color: string, i: number): HTMLDivElement =>
+  return := document.createElement 'div'
 
   document.createElement 'input'
     ||> .type = 'color'
@@ -347,7 +348,7 @@ createColorDiv := (color: string, i: number) =>
           @value = toHex color
           elements.stderr.innerText += "You can't have two threads of the same color!\n"
       { +passive }
-    |> div.appendChild
+    |> return.value.appendChild
 
   document.createElement 'button'
     ||> .type = 'button'
@@ -360,14 +361,19 @@ createColorDiv := (color: string, i: number) =>
           renderThreads()
       { +passive }
     ||> .appendChild document.createTextNode 'x'
-    |> div.appendChild
-
-  div
+    |> return.value.appendChild
+  // https://github.com/DanielXMoore/Civet/issues/1048
+  ;
 
 updateColorPicker := :void =>
   elements.colorPicker.innerHTML = ''
-  colors.allColors().forEach (color, i): void ->
-    elements.colorPicker.appendChild createColorDiv color, i
+
+  o := <T extends ???[], U, V>(lhs: (arg: U) => V, rhs: (...args: T) => U) =>
+    (...args: T) => lhs rhs ...args
+  operator o right looser(??)
+
+  colors.allColors().forEach
+    elements.colorPicker.appendChild o createColorDiv
 
   // @ts-expect-error Let me assign to this
   elements.addColorButton ?=
@@ -398,7 +404,7 @@ toggleColorPicker := :void =>
     elements.colorPicker.hidden = true
 
 // Allow the header itself, or noninteractable children (e.g. the select icon)
-isHeader := (target: EventTarget | null) =>
+isHeader := (target: EventTarget | null): boolean =>
   target? and
     (target is elements.debugHeader or
       ((target as Element).tagName isnt 'BUTTON' and elements.debugHeader.contains(target as Node))

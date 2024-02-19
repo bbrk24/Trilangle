@@ -1,5 +1,5 @@
 class Colors
-  private entries: { color: string, div?: HTMLDivElement, threadNumber?: number }[] = [
+  #entries: { color: string, div?: HTMLDivElement, threadNumber?: number }[] = [
     { color: 'rgb(0, 173, 0)' },
     { color: 'rgb(255, 40, 255)' },
     { color: 'rgb(49, 151, 255)' },
@@ -9,21 +9,21 @@ class Colors
     { color: 'rgb(199, 117, 219)' },
     { color: 'rgb(255, 97, 38)' },
   ]
-  private dummy?: HTMLElement
+  #dummy?: HTMLElement
   
   hideHighlights(): void
-    for entry of @entries
+    for entry of #entries
       entry.div?.remove()
       entry.threadNumber = undefined
-  
+
   destroyHighlights(): void
-    for entry of @entries
+    for entry of #entries
       entry.div?.remove()
       entry.div = undefined
       entry.threadNumber = undefined
 
   getHighlightDiv(threadNumber: number)
-    entry := (@entries.find &.threadNumber is threadNumber) ?? @entries.find not &.threadNumber?
+    entry := (#entries.find &.threadNumber is threadNumber) ?? #entries.find not &.threadNumber?
     if entry?
       entry.threadNumber = threadNumber
       entry.div ?=
@@ -32,33 +32,32 @@ class Colors
         // @ts-expect-error What do you mean style is readonly
         ||> .style = `--highlight-color: ${entry.color};`
 
-  allColors()
-    @entries.map .color
+  allColors() #entries.map .color
   
   addColor(color: string)
-    @dummy ?= document.createElement 'div'
-    @dummy.style.backgroundColor = color
-    color = @dummy.style.backgroundColor
-    return false if (@entries.find &.color is color)?
-    @entries.push { color }
+    #dummy ?= document.createElement 'div'
+    #dummy.style.backgroundColor = color
+    color = #dummy.style.backgroundColor
+    return false if (#entries.find &.color is color)?
+    #entries.push { color }
     true
   
   removeColor(color: string | number)
     let idx: number
     if color <? 'string'
-      idx = @entries.findIndex &.color is color
+      idx = #entries.findIndex &.color is color
       return false if idx < 0
-    else if color in @entries
+    else if color in #entries
       idx = color
     else
       return false
-    entry := @entries[idx]
+    entry := #entries[idx]
     if entry.threadNumber?
-      replacement := @entries.find not &.threadNumber?
+      replacement := #entries.find not &.threadNumber?
       return false unless replacement?
       entry.div?.style.setProperty '--highlight-color', replacement.color
       replacement{div,threadNumber} = entry
-    @entries.splice idx, 1
+    #entries.splice idx, 1
     true
 
   /**
@@ -71,22 +70,22 @@ class Colors
   replaceColor(before: string | number, after: string)
     let entry
     if before <? 'string'
-      entry = @entries.find &.color is before
+      entry = #entries.find &.color is before
       return -1 unless entry?
-    else if before in @entries
-      entry = @entries[before]
+    else if before in #entries
+      entry = #entries[before]
     else
       return -1
 
-    @dummy ?= document.createElement 'div'
-    @dummy.style.backgroundColor = after
-    color := @dummy.style.backgroundColor
-    return -1 if (@entries.find &.color is color)?
+    #dummy ?= document.createElement 'div'
+    #dummy.style.backgroundColor = after
+    color := #dummy.style.backgroundColor
+    return -1 if (#entries.find &.color is color)?
     entry.color = color
     entry.div?.style.setProperty '--highlight-color', color
     entry.threadNumber
 
-  count() @entries.length
+  count() #entries.length
 
   [Symbol.toStringTag] = 'Colors'
 

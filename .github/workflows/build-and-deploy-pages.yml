@@ -33,7 +33,7 @@ jobs:
         run: |
           cd wasm
           npm ci --omit dev --no-fund
-          ./build_wasm.sh
+          npm run build
           mkdir ../Release
           mv *.css index.js worker.js ldworker.js Colors.js *.wasm ../Release/
           cp *.html favicon.ico ../Release/
