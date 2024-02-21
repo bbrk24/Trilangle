@@ -1,6 +1,6 @@
 env:
   browser: true
-  es2021: true
+  es2022: true
 extends:
   - eslint:recommended
   - plugin:@typescript-eslint/recommended
@@ -8,7 +8,7 @@ extends:
   - plugin:@typescript-eslint/strict
 parser: '@typescript-eslint/parser'
 parserOptions:
-  ecmaVersion: 2021
+  ecmaVersion: 2022
 plugins:
   - '@typescript-eslint'
 rules:

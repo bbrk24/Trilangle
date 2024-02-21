@@ -63,6 +63,13 @@ contractInput := :void =>
   clearOutput()
   elements.program.value = generateContracted()
 
+copyURL := :void =>
+  url := elements.urlOut.textContent!
+  (elements.urlOut.setSelectionRange as HTMLInputElement.'setSelectionRange'?)? 0, url.length
+  navigator.clipboard.writeText url
+  elements.copyAlert.className = ''
+  setTimeout :void -> elements.copyAlert.className = 'hide-slow'
+
 generateURL := :void =>
   baseURL := location.href.split(/[?#]/u).0
   fragment := '#' + encodeURIComponent generateContracted()
@@ -77,13 +84,6 @@ generateURL := :void =>
   elements.urlOutBox.className = ''
   elements.urlButton.textContent = 'Copy URL'
   elements.urlButton.onclick = copyURL
-
-copyURL := :void =>
-  url := elements.urlOut.textContent!
-  (elements.urlOut.setSelectionRange as HTMLInputElement.'setSelectionRange'?)? 0, url.length
-  navigator.clipboard.writeText url
-  elements.copyAlert.className = ''
-  setTimeout :void -> elements.copyAlert.className = 'hide-slow'
 
 wasmCancel := :void =>
   worker?.terminate()
@@ -216,7 +216,6 @@ play := :void =>
   interval = setInterval step, delay
 
 Object.defineProperty window, 'isPaused', get: -> interval is -1
-
 window.playPause = => if window.isPaused then play() else pause()
 
 faster := :void =>
@@ -278,16 +277,19 @@ renderThreads := =>
     highlightDiv := colors.getHighlightDiv(idx) ?? throw new TypeError(
       "You haven't selected enough colors for that many threads!"
     )
-    row := document.createElement 'tr'
-    row.style.backgroundColor = highlightDiv.style.getPropertyValue '--highlight-color'
-    highlightIndex thread.x, thread.y, highlightDiv
+    tableRow := document.createElement 'tr'
+    tableRow.style.backgroundColor = highlightDiv.style.getPropertyValue '--highlight-color'
+    programRow := document.getElementById(`row-${thread.y}`)!
+    col := +programRow.dataset.offset! + 2 * thread.x
+    highlightDiv.style.left = `${col}ch`
+    elements.debugProgram.insertBefore highlightDiv, programRow
     document.createElement 'td'
       ||> .textContent = String idx
-      |> row.appendChild
+      |> tableRow.appendChild
     document.createElement 'td'
       ||> .textContent = thread.stack.join ',\u2009'
-      |> row.appendChild
-    elements.threads.appendChild row
+      |> tableRow.appendChild
+    elements.threads.appendChild tableRow
 
 changeHighlightColor := (before: string | number, after: string): boolean =>
   threadNum := colors.replaceColor before, after
@@ -302,27 +304,6 @@ changeHighlightColor := (before: string | number, after: string): boolean =>
   if node?
     node.style.backgroundColor = after
   true
-
-// Given y,x, find the horizontal offset necessary to highlight that position
-getColumn := (y: number, x: number): number =>
-  row := document.getElementById `row-${y}`
-  if row?
-    +row.dataset.offset! + 2 * x
-  else
-    -1
-
-highlightIndex := (x: number, y: number, div: HTMLDivElement): void =>
-  col := getColumn y, x
-  div.style.left = `${col}ch`
-  elements.debugProgram.insertBefore div, document.getElementById `row-${y}`
-
-hideUrl := :void =>
-  elements.urlOutBox.className = 'content-hidden'
-  elements.urlButton.textContent = 'Generate URL'
-  elements.urlButton.onclick = generateURL
-elements.program.addEventListener 'input', hideUrl, { +passive }
-elements.includeInput.addEventListener 'change', hideUrl, { +passive }
-elements.stdin.addEventListener 'change', => hideUrl() if elements.includeInput.checked, { +passive }
 
 toHex := (rgba: string): string =>
   return rgba if /^#[0-9a-d]{6}$/i.test rgba
@@ -368,9 +349,9 @@ createColorDiv := (color: string, i: number): HTMLDivElement =>
 updateColorPicker := :void =>
   elements.colorPicker.innerHTML = ''
 
-  o := <T extends ???[], U, V>(lhs: (arg: U) => V, rhs: (...args: T) => U) =>
+  // Somehow, terser is smart enough to inline this
+  operator o right looser(??) <T extends ???[], U, V>(lhs: (arg: U) => V, rhs: (...args: T) => U)
     (...args: T) => lhs rhs ...args
-  operator o right looser(??)
 
   colors.allColors().forEach
     elements.colorPicker.appendChild o createColorDiv
@@ -403,53 +384,61 @@ toggleColorPicker := :void =>
   else
     elements.colorPicker.hidden = true
 
-// Allow the header itself, or noninteractable children (e.g. the select icon)
-isHeader := (target: EventTarget | null): boolean =>
-  target? and
-    (target is elements.debugHeader or
-      ((target as Element).tagName isnt 'BUTTON' and elements.debugHeader.contains(target as Node))
-    )
+do
+  hideUrl := :void =>
+    elements.urlOutBox.className = 'content-hidden'
+    elements.urlButton.textContent = 'Generate URL'
+    elements.urlButton.onclick = generateURL
+  elements.program.addEventListener 'input', hideUrl, { +passive }
+  elements.includeInput.addEventListener 'change', hideUrl, { +passive }
+  elements.stdin.addEventListener 'change', => hideUrl() if elements.includeInput.checked, { +passive }
 
-// Adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
-pos3 .= 0
-pos4 .= 0
-elements.debugHeader.addEventListener 'mousedown', (e): void =>
-  if not isHeader e.target
-    return
-  e.preventDefault()
-  pos3 = e.clientX
-  pos4 = e.clientY
-  document.onmousemove = (e): void ->
+  // Allow the header itself, or noninteractable children (e.g. the select icon)
+  isHeader := (target: EventTarget | null): boolean =>
+    target? and
+      (target is elements.debugHeader or
+        ((target as Element).tagName isnt 'BUTTON' and elements.debugHeader.contains(target as Node))
+      )
+
+  // Adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
+  pos3 .= 0
+  pos4 .= 0
+  elements.debugHeader.addEventListener 'mousedown', (e): void =>
+    if not isHeader e.target
+      return
     e.preventDefault()
-    pos1 := pos3 - e.clientX
-    pos2 := pos4 - e.clientY
     pos3 = e.clientX
     pos4 = e.clientY
-    elements.debugInfo.style.top = `${elements.debugInfo.offsetTop - pos2}px`
-    elements.debugInfo.style.left = `${elements.debugInfo.offsetLeft - pos1}px`
-  document.onmouseup = :void ->
-    @onmousemove = null
-    @onmouseup = null
-elements.debugHeader.addEventListener 'touchstart', (e): void =>
-  if not isHeader e.target
-    return
-  e.preventDefault()
-  pos3 = e.touches.0.clientX
-  pos4 = e.touches.0.clientY
-  document.ontouchmove = (e): void ->
+    document.onmousemove = (e): void ->
+      e.preventDefault()
+      pos1 := pos3 - e.clientX
+      pos2 := pos4 - e.clientY
+      pos3 = e.clientX
+      pos4 = e.clientY
+      elements.debugInfo.style.top = `${elements.debugInfo.offsetTop - pos2}px`
+      elements.debugInfo.style.left = `${elements.debugInfo.offsetLeft - pos1}px`
+    document.onmouseup = :void ->
+      @onmousemove = null
+      @onmouseup = null
+  elements.debugHeader.addEventListener 'touchstart', (e): void =>
+    if not isHeader e.target
+      return
     e.preventDefault()
-    pos1 := pos3 - e.touches.0.clientX
-    pos2 := pos4 - e.touches.0.clientY
     pos3 = e.touches.0.clientX
     pos4 = e.touches.0.clientY
-    elements.debugInfo.style.top = `${elements.debugInfo.offsetTop - pos2}px`
-    elements.debugInfo.style.left = `${elements.debugInfo.offsetLeft - pos1}px`
-  document.ontouchend = document.ontouchcancel = :void ->
-    @ontouchmove = null
-    @ontouchcancel = null
-    @ontouchend = null
+    document.ontouchmove = (e): void ->
+      e.preventDefault()
+      pos1 := pos3 - e.touches.0.clientX
+      pos2 := pos4 - e.touches.0.clientY
+      pos3 = e.touches.0.clientX
+      pos4 = e.touches.0.clientY
+      elements.debugInfo.style.top = `${elements.debugInfo.offsetTop - pos2}px`
+      elements.debugInfo.style.left = `${elements.debugInfo.offsetLeft - pos1}px`
+    document.ontouchend = document.ontouchcancel = :void ->
+      @ontouchmove = null
+      @ontouchcancel = null
+      @ontouchend = null
 
-do
   width := elements.runStop.offsetWidth
   remSize := parseFloat getComputedStyle(document.body).fontSize
   elements.runStop.textContent = 'Run!'
