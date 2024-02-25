@@ -52,7 +52,7 @@ static constexpr const char* FLAGS_HELP =
     "\t--null, -z       \tRead the program until null terminator instead of EOF.";
 
 namespace flag_container {
-static CONSTINIT_LAMBDA std::tuple<NONNULL_PTR(const char), char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
+static CONSTINIT_LAMBDA std::tuple<const char*, char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
     { "null", 'z', [](flags& f) NOEXCEPT_T { f.null_terminated = true; } },
     { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
     { "ascii", 'a', [](flags& f) NOEXCEPT_T { f.assume_ascii = true; } },
