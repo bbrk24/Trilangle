@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "es2022",
     "lib": ["DOM", "ES2021", "ES2022.Array", "ES2022.String"],
-    "strict": true,
-    "jsx": "preserve"
+    "strict": true
   }
 }
