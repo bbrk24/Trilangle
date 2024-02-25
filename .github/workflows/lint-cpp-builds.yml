@@ -43,8 +43,5 @@ jobs:
           arch: ${{ matrix.cmd_arch }}
       - name: Invoke MSVC
         shell: pwsh
-        # Set warning 6031 to level 4 and check external headers at level 3, otherwise the STL header <tuple> emits
-        # warning C6031. Set warning 5219 (implicit conversion, possible loss of data) as an error.
-        run: >+
-          cl .\src\*.cpp /EHsc /DVERSION=0.0.0 /DNDEBUG /std:c++20 /MTd /analyze /external:anglebrackets /external:W3
-          /W4 /w46031 /we5219 /WX
+        run: |
+          cl .\src\*.cpp /EHsc /DVERSION=0.0.0 /DNDEBUG /std:c++20 /MTd /analyze /W4 /WX /we5219
