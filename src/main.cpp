@@ -32,7 +32,7 @@ inline void execute(const std::string& prg, flags f) {
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 
-extern "C" EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, int disassemble, int expand, int debug) {
+extern "C" EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(CONST_C_STR program_text, int disassemble, int expand, int debug) {
     // Reset EOF from previous runs
     clearerr(stdin);
     // Input and output don't need to be synced on the web
@@ -49,7 +49,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE void wasm_entrypoint(const char* program_text, i
     execute(program_text, f);
 }
 #else
-int main(int argc, const char** argv) {
+int main(int argc, _In_reads_z_(argc) const char** argv) {
     flags f;
     std::string program_text = parse_args(argc, argv, f);
     execute(program_text, f);
