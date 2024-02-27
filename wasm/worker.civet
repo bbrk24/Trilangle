@@ -3,13 +3,20 @@ declare var Module:
   preInit: =>
   onRuntimeInitialized: =>
   noExitRuntime: boolean
-  ccall(
+
+  // Type safety? What's that? This is JavaScript.
+  ccall<
+    const TRetType < null | 'string' | 'number',
+    const TArgTypes < readonly ('string' | 'number')[],
+    TAsync < boolean = false,
+    TReturn < undefined | string | number = { null: undefined; string: string; number: number }[`${TRetType}`]
+  >(
     func: string,
-    retType: null | 'string' | 'number',
-    argTypes: readonly ('string' | 'number')[],
-    args: readonly (string | number)[],
-    options?: { readonly async?: boolean }
-  ): undefined | number | string | Promise<undefined | number | string>
+    retType: TRetType,
+    argTypes: TArgTypes,
+    args: { [K in keyof TArgTypes]: { string: string; number: number }[TArgTypes[K]] },
+    options?: { readonly async?: TAsync }
+  ): TReturn | (if true < TAsync then Promise<TReturn>)
 declare var FS:
   init(
     stdin: => (number | null),
@@ -36,8 +43,8 @@ halfReady := (arg?: string): void =>
     console.error `Unrecognized signal ${funcName}`
     postMessage [0, null]
 
-Module['preInit'] = :void ->
-  stdin := => if inputIndex >= stdinBuffer.length then null else stdinBuffer.at(inputIndex++)!
+Module['preInit'] = :void =>
+  stdin := => if inputIndex >= stdinBuffer.# then null else stdinBuffer.at(inputIndex++)!
   stdout := (char: number | null) => postMessage [1, char]
   stderr := (char: number | null) => postMessage [2, char]
   FS.init stdin, stdout, stderr
@@ -47,10 +54,11 @@ Module['noExitRuntime'] = true
 callInterpreter := (warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1) => =>
   inputIndex = 0
   try
-    await Module['ccall'] 'wasm_entrypoint',
-      null,
-      ['string', 'number', 'number', 'number'],
-      [programText, warnings, disassemble, expand],
+    await Module['ccall']
+      'wasm_entrypoint'
+      null
+      ['string', 'number', 'number', 'number']
+      [programText, warnings, disassemble, expand]
       async: true
   catch e
     if e? !<? ExitStatus
@@ -64,8 +72,8 @@ signals.set 'debugProgram', callInterpreter 0, 0, 1
 // @ts-expect-error __trilangle_resolve is set in library.civet
 signals.set 'step', => @['__trilangle_resolve']()
 
-@onmessage = (event: MessageEvent<[string] | [string, string, string]>) ->
-  if event.data.length > 1
+@onmessage = (event: MessageEvent<[string] | [string, string, string]>) =>
+  if event.data.# > 1
     stdinBuffer = encoder.encode event.data.2
     programText = event.data.1!
   halfReady event.data.0

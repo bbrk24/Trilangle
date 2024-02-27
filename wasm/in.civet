@@ -36,7 +36,7 @@ colors := new Colors
 
 // This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 // first access, but then saves it for fast access later.
-elements := new Proxy<Record<string, HTMLElement & Record<string, ???>>> {}, get: (target, p) ->
+elements := new Proxy<Record<string, HTMLElement & Record<string, ???>>> {}, get: (target, p) =>
   if p <? 'string' and p !in target
     // @ts-expect-error Yes I know there's a type mismatch. It's the best I can come up with.
     target[p] = document.getElementById p.replace /[A-Z]/g, (s) => '-' + s.toLowerCase()
@@ -50,7 +50,7 @@ clearOutput := :void =>
 generateContracted := :string =>
   programText .= (elements.program as! HTMLTextAreaElement).value.replace /\n| /gu, ''
   // programText.length is wrong when there's high Unicode characters
-  programLength := [programText...].length
+  programLength := [programText...].#
   // Calculate the largest triangular number less than the length.
   // minLength is 1 more than that
   temp := Math.ceil Math.sqrt(2 * programLength) - 1.5
@@ -65,10 +65,10 @@ contractInput := :void =>
 
 copyURL := :void =>
   url := elements.urlOut.textContent!
-  (elements.urlOut.setSelectionRange as HTMLInputElement.'setSelectionRange'?)? 0, url.length
+  (elements.urlOut.setSelectionRange as HTMLInputElement.'setSelectionRange'?)? 0, url.#
   navigator.clipboard.writeText url
   elements.copyAlert.className = ''
-  setTimeout :void -> elements.copyAlert.className = 'hide-slow'
+  setTimeout :void => elements.copyAlert.className = 'hide-slow'
 
 generateURL := :void =>
   baseURL := location.href.split(/[?#]/u).0
@@ -92,9 +92,9 @@ wasmCancel := :void =>
 
 isBufferFull := (buf: ArrayLike<number>): boolean =>
   (or)
-    buf.length is 4
-    (((buf.0 + 256) & 0xf0) is 0xe0 and buf.length is 3)
-    (((buf.0 + 256) & 0xe0) is 0xc0 and buf.length is 2)
+    buf.# is 4
+    ((buf.0 + 256) & 0xf0) is 0xe0 and buf.# is 3
+    ((buf.0 + 256) & 0xe0) is 0xc0 and buf.# is 2
 
 stdout := (char: number | null): void =>
   return unless char?
@@ -108,7 +108,7 @@ stdout := (char: number | null): void =>
 
 stderr := (char: number | null): void =>
   return unless char?
-  appendText := (text: string) ->
+  appendText := (text: string) =>
     if elements.stderr.lastChild <? Text
       elements.stderr.lastChild.nodeValue += text
     else
@@ -137,8 +137,9 @@ createWorker := (name: string) => :Promise<void> =>
   elements.runStop.onclick = wasmCancel
   elements.stdin.oninput = null
 
-  worker ?= new Worker window.WORKER_URL
-  step = => worker!.postMessage ['step']
+  if not worker?
+    worker = new Worker window.WORKER_URL
+    step = worker@postMessage ['step']
 
   promise := new Promise<void> (r): void => resolve = r
     .then :void =>
@@ -215,7 +216,7 @@ play := :void =>
   elements.step.disabled = true
   interval = setInterval step, delay
 
-Object.defineProperty window, 'isPaused', get: -> interval is -1
+Object.defineProperty window, 'isPaused', get: => interval is -1
 window.playPause = => if window.isPaused then play() else pause()
 
 faster := :void =>
@@ -245,7 +246,7 @@ debugProgram := =>
     .forEach (textRow, i): void =>
       el := document.createElement 'div'
       el.id = `row-${i}`
-      matchLength := (/^ */u.exec textRow)?.0.length ?? 0
+      matchLength := (/^ */u.exec textRow)?.0.# ?? 0
       el.dataset.offset = String matchLength
       el.style.paddingLeft = `${matchLength}ch`
       for char of textRow.trimStart().split ' '
@@ -404,12 +405,11 @@ do
   pos3 .= 0
   pos4 .= 0
   elements.debugHeader.addEventListener 'mousedown', (e): void =>
-    if not isHeader e.target
-      return
+    return unless isHeader e.target
     e.preventDefault()
     pos3 = e.clientX
     pos4 = e.clientY
-    document.onmousemove = (e): void ->
+    document.onmousemove = (e): void =>
       e.preventDefault()
       pos1 := pos3 - e.clientX
       pos2 := pos4 - e.clientY
@@ -421,12 +421,11 @@ do
       @onmousemove = null
       @onmouseup = null
   elements.debugHeader.addEventListener 'touchstart', (e): void =>
-    if not isHeader e.target
-      return
+    return unless isHeader e.target
     e.preventDefault()
     pos3 = e.touches.0.clientX
     pos4 = e.touches.0.clientY
-    document.ontouchmove = (e): void ->
+    document.ontouchmove = (e): void =>
       e.preventDefault()
       pos1 := pos3 - e.touches.0.clientX
       pos2 := pos4 - e.touches.0.clientY
@@ -447,7 +446,7 @@ do
   elements.runStop.onclick = interpretProgram
   elements.urlButton.onclick = generateURL
 
-  if location.hash.length > 1
+  if location.hash.# > 1
     elements.program.value = decodeURIComponent location.hash[1...]
 
   params := new URLSearchParams location.search

@@ -10,7 +10,7 @@ class Colors
     { color: 'rgb(255, 97, 38)' },
   ]
   #dummy?: HTMLElement
-  
+
   hideHighlights(): void
     for entry of #entries
       entry.div?.remove()
@@ -29,19 +29,18 @@ class Colors
       entry.div ?=
         document.createElement 'div'
         ||> .classList.add 'highlight'
-        // @ts-expect-error What do you mean style is readonly
-        ||> .style = `--highlight-color: ${entry.color};`
+        ||> .style.setProperty '--highlight-color', entry.color
 
   allColors() #entries.map .color
-  
+
   addColor(color: string)
     #dummy ?= document.createElement 'div'
     #dummy.style.backgroundColor = color
     color = #dummy.style.backgroundColor
-    return false if (#entries.find &.color is color)?
+    return false if #entries.some &.color is color
     #entries.push { color }
     true
-  
+
   removeColor(color: string | number)
     let idx: number
     if color <? 'string'
@@ -80,12 +79,12 @@ class Colors
     #dummy ?= document.createElement 'div'
     #dummy.style.backgroundColor = after
     color := #dummy.style.backgroundColor
-    return -1 if (#entries.find &.color is color)?
+    return -1 if #entries.some &.color is color
     entry.color = color
     entry.div?.style.setProperty '--highlight-color', color
     entry.threadNumber
 
-  count() #entries.length
+  count() #entries.#
 
   [Symbol.toStringTag] = 'Colors'
 
