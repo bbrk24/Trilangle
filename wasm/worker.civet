@@ -73,7 +73,7 @@ signals.set 'debugProgram', callInterpreter 0, 0, 1
 signals.set 'step', => @['__trilangle_resolve']()
 
 @onmessage = (event: MessageEvent<[string] | [string, string, string]>) =>
-  if event.data.# > 1
+  if event.data.# is 3
     stdinBuffer = encoder.encode event.data.2
-    programText = event.data.1!
+    programText = event.data.1
   halfReady event.data.0

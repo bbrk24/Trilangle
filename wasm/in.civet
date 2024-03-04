@@ -344,14 +344,12 @@ createColorDiv := (color: string, i: number): HTMLDivElement =>
       { +passive }
     ||> .appendChild document.createTextNode 'x'
     |> return.value.appendChild
-  // https://github.com/DanielXMoore/Civet/issues/1048
-  ;
 
 updateColorPicker := :void =>
   elements.colorPicker.innerHTML = ''
 
   // Somehow, terser is smart enough to inline this
-  operator o right looser(??) <T extends ???[], U, V>(lhs: (arg: U) => V, rhs: (...args: T) => U)
+  operator o right looser(??) <T < ???[], U, V>(lhs: (arg: U) => V, rhs: (...args: T) => U)
     (...args: T) => lhs rhs ...args
 
   colors.allColors().forEach
