@@ -348,12 +348,8 @@ createColorDiv := (color: string, i: number): HTMLDivElement =>
 updateColorPicker := :void =>
   elements.colorPicker.innerHTML = ''
 
-  // Somehow, terser is smart enough to inline this
-  operator o right looser(??) <T < ???[], U, V>(lhs: (arg: U) => V, rhs: (...args: T) => U)
-    (...args: T) => lhs rhs ...args
-
-  colors.allColors().forEach
-    elements.colorPicker.appendChild o createColorDiv
+  colors.allColors().forEach (el, i) =>
+    elements.colorPicker.appendChild createColorDiv el, i
 
   // @ts-expect-error Let me assign to this
   elements.addColorButton ?=
