@@ -363,10 +363,8 @@ updateColorPicker := :void =>
       :void ->
         let color: string
         loop
-          red := Math.round 255 * Math.random()
-          green := Math.round 255 * Math.random()
-          blue := Math.round 255 * Math.random()
-          color = `rgb(${red}, ${green}, ${blue})`
+          { R, G, B } := colors.randomColor()
+          color = `rgb(${R}, ${G}, ${B})`
           break if colors.addColor color
         elements.colorPicker.insertBefore createColorDiv(color, colors.count() - 1), @
       { +passive }

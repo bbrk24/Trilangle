@@ -15,7 +15,6 @@ rules:
   '@typescript-eslint/ban-ts-comment':
     - error
     - ts-nocheck: false
-  '@typescript-eslint/class-methods-use-this': error
   '@typescript-eslint/consistent-type-imports': error
   '@typescript-eslint/default-param-last': error
   '@typescript-eslint/no-non-null-assertion': 'off'

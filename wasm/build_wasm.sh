@@ -40,7 +40,7 @@ case "$1" in
 
         civet --js -c in.civet -o - | terser -c unsafe=true,unsafe_arrows=true -mo index.js --ecma 13 \
             -f wrap_func_args=false
-        civet --js -c Colors.civet -o - | terser -cmf wrap_func_args=false -o Colors.js --ecma 13
+        civet --js -c Colors.civet -o - | terser -c unsafe_math=true -mf wrap_func_args=false -o Colors.js --ecma 13
         sass in.scss:index.css lowdata.scss:lowdata.css --no-source-map -s compressed
 
         wait -n
