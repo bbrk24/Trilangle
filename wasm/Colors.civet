@@ -133,6 +133,9 @@ class Colors
     v *= relativeSat
     // Scale L*, but centered at 50 rather than 0
     L = (L - 50) * relativeSat + 50
+    // The point (u*=0,v*=0,L*=50) actually lies a little below the triangle formed by red, green, and blue:
+    // https://www.desmos.com/3d/c8aec09879 so colors with lower saturation will also be slightly darker than they
+    // should be. I think it's fine.
 
     // Convert from L*u*v* to XYZ
     uPrime := u / (13 * L) + 0.2009
