@@ -216,7 +216,7 @@ When using the `-c` flag, the input program will be translated into C code. The 
 
 If the `-a` flag is additionally specified, the output program will use `getchar` and `putchar` for the `GTC` and `PTC` opcodes respectively. Otherwise, the output program will convert between UTF-8 and UTF-32 the same way the interpreter does.
 
-Compiled programs cannot use multiple threads, and at this time cannot use the `RND` opcode.
+Compiled programs cannot use multiple threads.
 
 ## Sample programs
 

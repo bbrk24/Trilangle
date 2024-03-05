@@ -15,6 +15,14 @@ void compiler::write_state(std::ostream& os) {
 
     os << header;
 
+    if (std::any_of(m_fragments->cbegin(), m_fragments->cend(), [](const auto& v) {
+            return std::any_of(v->begin(), v->end(), [](const auto& i) {
+                return i.m_op == instruction::operation::RND;
+            });
+        })) {
+        os << "srand(time(NULL));";
+    }
+
     for (size_t i = 0; i < m_fragments->size(); ++i) {
         const std::vector<instruction>& frag = *m_fragments->at(i);
         for (size_t j = 0; j < frag.size(); ++j) {
@@ -150,8 +158,8 @@ void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_as
             return;
         }
         case op::RND:
-            cerr << "Random number generation is not yet supported for compiled programs." << endl;
-            exit(EXIT_FAILURE);
+            os << "lws_push(stack, rand24());";
+            return;
         case op::GDT:
             os << "lws_push(stack, get_date());";
             return;

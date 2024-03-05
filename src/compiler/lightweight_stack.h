@@ -127,4 +127,45 @@ static inline int32_t get_date() {
     time_t t = time(NULL);
     return (int32_t)(t / SECS_PER_DAY);
 }
+
+typedef struct {
+    uint32_t x[5];
+    uint32_t counter;
+} xorwow_state;
+
+static inline int32_t rand24() {
+#if RAND_MAX <= 0xffff
+#define RAND32() (rand() << 16) | rand()
+#else
+#define RAND32() rand()
+#endif
+    static int initialized_state = 0;
+    static xorwow_state state;
+
+    if (!initialized_state) {
+        state = (xorwow_state){
+            { RAND32(), RAND32(), RAND32() | 0x00008000, RAND32(), RAND32() },
+            0
+        };
+        initialized_state = 1;
+    }
+#undef RAND32
+
+    /* Algorithm "xorwow" from p. 5 of Marsaglia, "Xorshift RNGs" */
+    uint32_t t  = state.x[4];
+
+    uint32_t s  = state.x[0];  /* Perform a contrived 32-bit shift. */
+    state.x[4] = state.x[3];
+    state.x[3] = state.x[2];
+    state.x[2] = state.x[1];
+    state.x[1] = s;
+
+    t ^= t >> 2;
+    t ^= t << 1;
+    t ^= s ^ (s << 4);
+    state.x[0] = t;
+    state.counter += 362437;
+    // Deviation from actual xorwow algorithm: shift out the low byte to get only 24 bits
+    return (int32_t)(t + state.counter) >> 8;
+}
 //)"

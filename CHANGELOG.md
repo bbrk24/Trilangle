@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- RND (`$`) now works in compiled programs, though backed by a different source of randomness.
+
 ### Changed
 
 - Changed the way new colors are generated for the web interface.
