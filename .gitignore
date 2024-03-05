@@ -13,6 +13,7 @@ wasm/node_modules/
 wasm/*.wasm
 wasm/*.js
 wasm/*.css
+wasm/*.ts
 
 # Compilation outputs
 *.out

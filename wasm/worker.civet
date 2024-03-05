@@ -1,0 +1,79 @@
+declare class ExitStatus < Error
+declare var Module:
+  preInit: =>
+  onRuntimeInitialized: =>
+  noExitRuntime: boolean
+
+  // Type safety? What's that? This is JavaScript.
+  ccall<
+    const TRetType < null | 'string' | 'number',
+    const TArgTypes < readonly ('string' | 'number')[],
+    TAsync < boolean = false,
+    TReturn < undefined | string | number = { null: undefined; string: string; number: number }[`${TRetType}`]
+  >(
+    func: string,
+    retType: TRetType,
+    argTypes: TArgTypes,
+    args: { [K in keyof TArgTypes]: { string: string; number: number }[TArgTypes[K]] },
+    options?: { readonly async?: TAsync }
+  ): TReturn | (if true < TAsync then Promise<TReturn>)
+declare var FS:
+  init(
+    stdin: => (number | null),
+    stdout: (char: number | null) =>,
+    stderr: (char: number | null) =>
+  ): ???
+
+let inputIndex: number
+ready .= false
+let stdinBuffer: Uint8Array
+programText .= ''
+let funcName?: string
+encoder := new TextEncoder
+signals := new Map<string?, =>>
+
+halfReady := (arg?: string): void =>
+  funcName = arg ?? funcName
+  unless ready
+    ready = true
+    return
+  if signal := signals.get funcName
+    signal()
+  else
+    console.error `Unrecognized signal ${funcName}`
+    postMessage [0, null]
+
+Module['preInit'] = :void =>
+  stdin := => if inputIndex >= stdinBuffer.# then null else stdinBuffer.at(inputIndex++)!
+  stdout := (char: number | null) => postMessage [1, char]
+  stderr := (char: number | null) => postMessage [2, char]
+  FS.init stdin, stdout, stderr
+Module['onRuntimeInitialized'] = halfReady
+Module['noExitRuntime'] = true
+
+callInterpreter := (warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1) => =>
+  inputIndex = 0
+  try
+    await Module['ccall']
+      'wasm_entrypoint'
+      null
+      ['string', 'number', 'number', 'number']
+      [programText, warnings, disassemble, expand]
+      async: true
+  catch e
+    if e? !<? ExitStatus
+      postMessage [2, e.toString()]
+  postMessage [0, null]
+
+signals.set 'interpretProgram', callInterpreter 0, 0, 0
+signals.set 'disassembleProgram', callInterpreter 1, 0, 0
+signals.set 'expandInput', callInterpreter 0, 1, 0
+signals.set 'debugProgram', callInterpreter 0, 0, 1
+// @ts-expect-error __trilangle_resolve is set in library.civet
+signals.set 'step', => @['__trilangle_resolve']()
+
+@onmessage = (event: MessageEvent<[string] | [string, string, string]>) =>
+  if event.data.# is 3
+    stdinBuffer = encoder.encode event.data.2
+    programText = event.data.1
+  halfReady event.data.0

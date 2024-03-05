@@ -1,23 +1,26 @@
 {
     "dependencies": {
-        "coffeescript": "^2.7.0",
+        "@danielx/civet": "~0.6.83",
         "sass": "^1.64.1",
-        "terser": "^5.19.2"
+        "terser": "^5.27.2"
     },
     "devDependencies": {
-        "@coffeelint/cli": "^5.2.11",
+        "@typescript-eslint/eslint-plugin": "^6.20.0",
+        "@typescript-eslint/parser": "^6.20.0",
         "clang-format": "^1.8.0",
         "engine-check": "git@github.com:bbrk24/engine-check.git#6b7fa214f0d5c20508cdad796bd52db4fdcf182f",
+        "eslint": "^8.56.0",
         "express": "^4.18.0",
         "stylelint": "^15.11.0",
         "stylelint-config-standard-scss": "^11.0.0"
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
-        "lint": "./lint.sh"
+        "lint": "./lint.sh",
+        "build": "./build_wasm.sh"
     },
     "engines": {
-        "node": "^16.13.0 || >=18.0.0"
+        "node": "^18.6.0 || >=19"
     },
     "engineStrict": true
 }

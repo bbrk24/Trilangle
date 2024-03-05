@@ -1,0 +1,450 @@
+'civet coffeeIsnt'
+'use strict'
+
+type { Colors as ColorsType } from ./Colors.civet
+declare var Colors: new() => ColorsType
+
+interface Thread
+  x: number
+  y: number
+  stack: number[]
+
+MessageType ::=
+  | [0, null]
+  | [1, number | null]
+  | [2, number | null | string]
+  | [3, number | [number, Thread]]
+
+declare global
+  interface Window
+    PLAY_TEXT: string
+    PAUSE_TEXT: string
+    WORKER_URL: string
+    get isPaused(): boolean
+    playPause: =>
+
+let worker: Worker?
+stdoutBuffer: number[] .= []
+stderrBuffer: number[] .= []
+threads: Thread[] .= []
+let resolve: =>
+delay .= 500
+interval .= -1
+let step: =>
+decoder := new TextDecoder
+colors := new Colors
+
+// This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
+// first access, but then saves it for fast access later.
+elements := new Proxy<Record<string, HTMLElement & Record<string, ???>>> {}, get: (target, p) =>
+  if p <? 'string' and p !in target
+    // @ts-expect-error Yes I know there's a type mismatch. It's the best I can come up with.
+    target[p] = document.getElementById p.replace /[A-Z]/g, (s) => '-' + s.toLowerCase()
+  // @ts-expect-error If it's a symbol then so what.
+  target[p]
+
+clearOutput := :void =>
+  elements.stdout.innerHTML = ''
+  elements.stderr.innerHTML = ''
+
+generateContracted := :string =>
+  programText .= (elements.program as! HTMLTextAreaElement).value.replace /\n| /gu, ''
+  // programText.length is wrong when there's high Unicode characters
+  programLength := [programText...].#
+  // Calculate the largest triangular number less than the length.
+  // minLength is 1 more than that
+  temp := Math.ceil Math.sqrt(2 * programLength) - 1.5
+  minLength := 1 + temp * (temp + 1) / 2
+  if programLength > minLength
+    programText |>= .replace new RegExp(`\\.{0,${programLength - minLength}}$`), ''
+  programText.replace /^#!/u, '#\n!'
+
+contractInput := :void =>
+  clearOutput()
+  elements.program.value = generateContracted()
+
+copyURL := :void =>
+  url := elements.urlOut.textContent!
+  (elements.urlOut.setSelectionRange as HTMLInputElement.'setSelectionRange'?)? 0, url.#
+  navigator.clipboard.writeText url
+  elements.copyAlert.className = ''
+  setTimeout :void => elements.copyAlert.className = 'hide-slow'
+
+generateURL := :void =>
+  baseURL := location.href.split(/[?#]/u).0
+  fragment := '#' + encodeURIComponent generateContracted()
+  query :=
+    if elements.includeInput.checked
+      `?i=${encodeURIComponent (elements.stdin as! HTMLTextAreaElement).value}`
+    else
+      ''
+  newURL := `${baseURL}${query}${fragment}`
+  history.pushState {}, '', newURL
+  elements.urlOut.textContent = newURL
+  elements.urlOutBox.className = ''
+  elements.urlButton.textContent = 'Copy URL'
+  elements.urlButton.onclick = copyURL
+
+wasmCancel := :void =>
+  worker?.terminate()
+  worker = undefined
+  resolve()
+
+isBufferFull := (buf: ArrayLike<number>): boolean =>
+  (or)
+    buf.# is 4
+    ((buf.0 + 256) & 0xf0) is 0xe0 and buf.# is 3
+    ((buf.0 + 256) & 0xe0) is 0xc0 and buf.# is 2
+
+stdout := (char: number | null): void =>
+  return unless char?
+  if char < 0
+    stdoutBuffer.push char
+    if isBufferFull stdoutBuffer
+      elements.stdout.textContent += decoder.decode new Int8Array stdoutBuffer
+      stdoutBuffer = []
+  else
+    elements.stdout.textContent += String.fromCharCode char
+
+stderr := (char: number | null): void =>
+  return unless char?
+  appendText := (text: string) =>
+    if elements.stderr.lastChild <? Text
+      elements.stderr.lastChild.nodeValue += text
+    else
+      text |> document.createTextNode |> elements.stderr.appendChild
+
+  if char < 0
+    stderrBuffer.push char
+    if isBufferFull stderrBuffer
+      stderrBuffer |> new Int8Array |> decoder.decode |> appendText 
+      stderrBuffer = []
+  else if char is 10
+    elements.stderr.appendChild document.createElement 'br'
+  else
+    char |> String.fromCharCode |> appendText
+
+createWorker := (name: string) => :Promise<void> =>
+  threadCount .= -1
+
+  clearOutput()
+
+  elements.disassemble.disabled = true
+  elements.expand.disabled = true
+  elements.condense.disabled = true
+  elements.debug.disabled = true
+  elements.runStop.textContent = 'Stop'
+  elements.runStop.onclick = wasmCancel
+  elements.stdin.oninput = null
+
+  if not worker?
+    worker = new Worker window.WORKER_URL
+    step = worker@postMessage ['step']
+
+  promise := new Promise<void> (r): void => resolve = r
+    .then :void =>
+      elements.stdin.oninput = :void ->
+        worker = undefined
+        @oninput = null
+      elements.expand.disabled = false
+      elements.disassemble.disabled = false
+      elements.condense.disabled = false
+      elements.debug.disabled = false
+      elements.runStop.textContent = 'Run!'
+      elements.runStop.onclick = interpretProgram
+
+  worker.onmessage = (event: MessageEvent<MessageType>): void ->
+    switch event.data
+      [0, null]
+        resolve()
+      [1, content]
+        stdout content
+      [2, content]
+        if content <? 'string'
+          elements.stderr.innerText += content
+        else
+          stderr content
+      [3, [threadNum, thread]]
+        threads[threadNum] = thread
+        try
+          if threadCount is threads.reduce (1+), 0
+            renderThreads()
+          else
+            step()
+        catch e
+          if e <? Error
+            elements.stderr.innerText += e.message + '\n'
+          else
+            elements.stderr.innerText += `${e}\n`
+          wasmCancel()
+      [3, count]
+        threadCount = count as number
+        threads = []
+        colors.hideHighlights()
+      else
+        console.error `Unrecognized destination ${event.data.0}`, event.data.1
+  worker.postMessage [name, elements.program.value, elements.stdin.value]
+  
+  promise
+
+interpretProgram := createWorker 'interpretProgram'
+disassembleProgram := createWorker 'disassembleProgram'
+expandBase := createWorker 'expandInput'
+debugBase := createWorker 'debugProgram'
+
+expandInput := :Promise<void> =>
+  await expandBase()
+  elements.program.value = elements.stdout.innerText
+  elements.stdout.innerText = ''
+
+pause := :void =>
+  clearInterval interval
+  interval = -1
+  elements.playPause.textContent = window.PLAY_TEXT
+  elements.slower.disabled = true
+  elements.faster.disabled = true
+  elements.step.disabled = false
+
+// At some point, calling `step` doesn't help any. Besides, browsers throttle requests that are too fast.
+minDelay := 4
+// Not really a useful upper limit but one that keeps setInterval from breaking
+maxDelay := 1 << 30
+play := :void =>
+  elements.playPause.textContent = window.PAUSE_TEXT
+  elements.slower.disabled = delay >= maxDelay
+  elements.faster.disabled = delay <= minDelay
+  elements.step.disabled = true
+  interval = setInterval step, delay
+
+Object.defineProperty window, 'isPaused', get: => interval is -1
+window.playPause = => if window.isPaused then play() else pause()
+
+faster := :void =>
+  clearInterval interval
+  delay /= 2
+  interval = setInterval step, delay
+  elements.slower.disabled = false
+  elements.faster.disabled = delay <= minDelay
+
+slower := :void =>
+  clearInterval interval
+  delay *= 2
+  interval = setInterval step, delay
+  elements.faster.disabled = false
+  elements.slower.disabled = delay >= maxDelay
+
+debugProgram := =>
+  await expandBase()
+
+  elements.debugProgram.hidden = false
+  elements.debugProgram.style.width = `${elements.program.offsetWidth}px`
+  elements.debugProgram.style.minHeight = `${elements.program.offsetHeight}px`
+  elements.program.hidden = true
+  elements.colorPicker.hidden = true
+
+  elements.stdout.innerText.trimEnd().split '\n'
+    .forEach (textRow, i): void =>
+      el := document.createElement 'div'
+      el.id = `row-${i}`
+      matchLength := (/^ */u.exec textRow)?.0.# ?? 0
+      el.dataset.offset = String matchLength
+      el.style.paddingLeft = `${matchLength}ch`
+      for char of textRow.trimStart().split ' '
+        document.createElement 'span'
+          ||> .textContent = char
+          |> el.appendChild
+      elements.debugProgram.appendChild el
+  elements.stdout.innerText = ''
+
+  elements.debugInfo.hidden = false
+  if not elements.playPause.style?.width
+    elements.playPause.textContent = window.PAUSE_TEXT
+    setTimeout =>
+      elements.playPause.style.width = `${elements.playPause.offsetWidth}px`
+      pause()
+
+  await debugBase()
+
+  colors.destroyHighlights()
+  elements.debugInfo.hidden = true
+  elements.debugProgram.innerHTML = ''
+  elements.debugProgram.hidden = true
+  elements.program.hidden = false
+  pause()
+
+renderThreads := =>
+  elements.threads.innerHTML = ''
+  threads.forEach (thread, idx): void =>
+    highlightDiv := colors.getHighlightDiv(idx) ?? throw new TypeError(
+      "You haven't selected enough colors for that many threads!"
+    )
+    tableRow := document.createElement 'tr'
+    tableRow.style.backgroundColor = highlightDiv.style.getPropertyValue '--highlight-color'
+    programRow := document.getElementById(`row-${thread.y}`)!
+    col := +programRow.dataset.offset! + 2 * thread.x
+    highlightDiv.style.left = `${col}ch`
+    elements.debugProgram.insertBefore highlightDiv, programRow
+    document.createElement 'td'
+      ||> .textContent = String idx
+      |> tableRow.appendChild
+    document.createElement 'td'
+      ||> .textContent = thread.stack.join ',\u2009'
+      |> tableRow.appendChild
+    elements.threads.appendChild tableRow
+
+changeHighlightColor := (before: string | number, after: string): boolean =>
+  threadNum := colors.replaceColor before, after
+  return true unless threadNum?
+  return false if threadNum < 0
+  iter := document.evaluate `//td[text() = ${threadNum}]/..`,
+    document,
+    null,
+    XPathResult.ANY_TYPE,
+    null
+  node := iter.iterateNext() as HTMLElement | null
+  if node?
+    node.style.backgroundColor = after
+  true
+
+toHex := (rgba: string): string =>
+  return rgba if /^#[0-9a-d]{6}$/i.test rgba
+  // Adapted from https://stackoverflow.com/a/3627747/6253337
+  '#' + rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/)![1...]
+    .map (n, i): string =>
+      (if i is 3 then Math.round(255 * parseFloat n) else parseInt n, 10)
+        .toString 16
+        .padStart 2, '0'
+        .replace 'NaN', ''
+    .join ''
+
+createColorDiv := (color: string, i: number): HTMLDivElement =>
+  return := document.createElement 'div'
+
+  document.createElement 'input'
+    ||> .type = 'color'
+    ||> .value = toHex color
+    ||> .addEventListener
+      'change'
+      :void ->
+        unless changeHighlightColor i, @value
+          @value = toHex color
+          elements.stderr.innerText += "You can't have two threads of the same color!\n"
+      { +passive }
+    |> return.value.appendChild
+
+  document.createElement 'button'
+    ||> .type = 'button'
+    ||> .title = 'remove color'
+    ||> .addEventListener
+      'click'
+      :void =>
+        if colors.removeColor i
+          updateColorPicker()
+          renderThreads()
+      { +passive }
+    ||> .appendChild document.createTextNode 'x'
+    |> return.value.appendChild
+
+updateColorPicker := :void =>
+  elements.colorPicker.innerHTML = ''
+
+  colors.allColors().forEach (el, i) =>
+    elements.colorPicker.appendChild createColorDiv el, i
+
+  // @ts-expect-error Let me assign to this
+  elements.addColorButton ?=
+    document.createElement 'button'
+    ||> .id = 'add-color-button'
+    ||> .type = 'button'
+    ||> .title = 'add color'
+    ||> .appendChild document.createTextNode '+'
+    ||> .addEventListener
+      'click'
+      :void ->
+        let color: string
+        loop
+          red := Math.round 255 * Math.random()
+          green := Math.round 255 * Math.random()
+          blue := Math.round 255 * Math.random()
+          color = `rgb(${red}, ${green}, ${blue})`
+          break if colors.addColor color
+        elements.colorPicker.insertBefore createColorDiv(color, colors.count() - 1), @
+      { +passive }
+  elements.colorPicker.appendChild elements.addColorButton
+
+toggleColorPicker := :void =>
+  if elements.colorPicker.hidden
+    updateColorPicker()
+    elements.colorPicker.hidden = false
+  else
+    elements.colorPicker.hidden = true
+
+do
+  hideUrl := :void =>
+    elements.urlOutBox.className = 'content-hidden'
+    elements.urlButton.textContent = 'Generate URL'
+    elements.urlButton.onclick = generateURL
+  elements.program.addEventListener 'input', hideUrl, { +passive }
+  elements.includeInput.addEventListener 'change', hideUrl, { +passive }
+  elements.stdin.addEventListener 'change', => hideUrl() if elements.includeInput.checked, { +passive }
+
+  // Allow the header itself, or noninteractable children (e.g. the select icon)
+  isHeader := (target: EventTarget | null): boolean =>
+    target? and
+      (target is elements.debugHeader or
+        ((target as Element).tagName isnt 'BUTTON' and elements.debugHeader.contains(target as Node))
+      )
+
+  // Adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
+  pos3 .= 0
+  pos4 .= 0
+  elements.debugHeader.addEventListener 'mousedown', (e): void =>
+    return unless isHeader e.target
+    e.preventDefault()
+    pos3 = e.clientX
+    pos4 = e.clientY
+    document.onmousemove = (e): void =>
+      e.preventDefault()
+      pos1 := pos3 - e.clientX
+      pos2 := pos4 - e.clientY
+      pos3 = e.clientX
+      pos4 = e.clientY
+      elements.debugInfo.style.top = `${elements.debugInfo.offsetTop - pos2}px`
+      elements.debugInfo.style.left = `${elements.debugInfo.offsetLeft - pos1}px`
+    document.onmouseup = :void ->
+      @onmousemove = null
+      @onmouseup = null
+  elements.debugHeader.addEventListener 'touchstart', (e): void =>
+    return unless isHeader e.target
+    e.preventDefault()
+    pos3 = e.touches.0.clientX
+    pos4 = e.touches.0.clientY
+    document.ontouchmove = (e): void =>
+      e.preventDefault()
+      pos1 := pos3 - e.touches.0.clientX
+      pos2 := pos4 - e.touches.0.clientY
+      pos3 = e.touches.0.clientX
+      pos4 = e.touches.0.clientY
+      elements.debugInfo.style.top = `${elements.debugInfo.offsetTop - pos2}px`
+      elements.debugInfo.style.left = `${elements.debugInfo.offsetLeft - pos1}px`
+    document.ontouchend = document.ontouchcancel = :void ->
+      @ontouchmove = null
+      @ontouchcancel = null
+      @ontouchend = null
+
+  width := elements.runStop.offsetWidth
+  remSize := parseFloat getComputedStyle(document.body).fontSize
+  elements.runStop.textContent = 'Run!'
+  setTimeout :void =>
+    elements.runStop.style.width = `${(0.49 + Math.max width, elements.runStop.offsetWidth) / remSize}rem`
+  elements.runStop.onclick = interpretProgram
+  elements.urlButton.onclick = generateURL
+
+  if location.hash.# > 1
+    elements.program.value = decodeURIComponent location.hash[1...]
+
+  params := new URLSearchParams location.search
+  inputParam := params.get 'i'
+  if inputParam?
+    elements.stdin.value = inputParam
+    elements.includeInput.checked = true
