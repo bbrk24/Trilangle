@@ -139,10 +139,16 @@ static inline int32_t rand24() {
 #else
 #define RAND32() rand()
 #endif
-    static xorwow_state state = {
-        { RAND32(), RAND32(), RAND32() | 0x00008000, RAND32(), RAND32() },
-        0
-    };
+    static int initialized_state = 0;
+    static xorwow_state state;
+
+    if (!initialized_state) {
+        state = (xorwow_state){
+            { RAND32(), RAND32(), RAND32() | 0x00008000, RAND32(), RAND32() },
+            0
+        };
+        initialized_state = 1;
+    }
 #undef RAND32
 
     /* Algorithm "xorwow" from p. 5 of Marsaglia, "Xorshift RNGs" */
