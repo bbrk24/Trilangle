@@ -20,7 +20,7 @@
         "build": "./build_wasm.sh"
     },
     "engines": {
-        "node": "^18.18.0 || >=19"
+        "node": "^18.18.0 || >=20"
     },
     "engineStrict": true
 }
