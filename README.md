@@ -335,7 +335,7 @@ As such, it is recommended to use C++20 or later if performance is a concern. (I
 
 ### Compiling for the web
 
-The wasm directory contains most of the wrapper/glue code necessary to run the interpreter in a browser. Emscripten 3.1.42 or later and Node 18.16 or later are required.
+The wasm directory contains most of the wrapper/glue code necessary to run the interpreter in a browser. Emscripten 3.1.42 or later and Node 18.18 or later are required.
 
 Run `npm run build` to compile the project to webassembly and to generate the JS glue code. Then, you can run `npm start` to host it locally (at http://localhost:3000).
 
