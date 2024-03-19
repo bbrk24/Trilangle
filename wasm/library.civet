@@ -5,7 +5,7 @@
 // be lost, and the closure compiler will complain about undeclared variables (even if the JS runtime is okay with it).
 // Therefore, global variables are instead properties on globalThis. To avoid potential name conflicts with anything
 // emscripten might do (I have no idea what, if any, properties on globalThis it uses), I'm naming them to start with
-// "__trilangle_". Things that are also accessed in worker.coffee are represented in quotes in case the minifier mangles
+// "__trilangle_". Things that are also accessed in worker.civet are represented in quotes in case the minifier mangles
 // them separately.
 mergeInto LibraryManager.library,
   send_thread_count: (thread_count) -> { postMessage [3, thread_count] },
