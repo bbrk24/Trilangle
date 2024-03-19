@@ -11,8 +11,8 @@
         "engine-check": "git@github.com:bbrk24/engine-check.git#6b7fa214f0d5c20508cdad796bd52db4fdcf182f",
         "eslint": "^8.56.0",
         "express": "^4.18.0",
-        "stylelint": "^15.11.0",
-        "stylelint-config-standard-scss": "^11.0.0"
+        "stylelint": "^16.2.1",
+        "stylelint-config-standard-scss": "^13.0.0"
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
