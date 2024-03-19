@@ -7,6 +7,10 @@ updates:
     labels:
       - 'domain:dependencies'
     versioning-strategy: increase-if-necessary
+    groups:
+      typescript-eslint:
+        patterns:
+          - '@typescript-eslint/*'
   - package-ecosystem: gitsubmodule
     directory: /
     schedule:
