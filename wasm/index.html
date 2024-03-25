@@ -40,7 +40,7 @@
     <script>
       window.WORKER_URL = new URL('worker.js', location);
       window.PLAY_TEXT = '▶︎';
-      window.PAUSE_TEXT = '\ufe0e⏸';
+      window.PAUSE_TEXT = '⏸\ufe0e';
 
       let localState = localStorage.getItem('dark-mode');
       const dark = localState === null ? matchMedia('(prefers-color-scheme: dark)').matches : localState === 'true';
