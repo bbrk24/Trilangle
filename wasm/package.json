@@ -1,7 +1,7 @@
 {
     "dependencies": {
         "@danielx/civet": "~0.6.83",
-        "sass": "^1.64.1",
+        "sass": ">=1.64.1 <1.74.0",
         "terser": "^5.27.2"
     },
     "devDependencies": {
