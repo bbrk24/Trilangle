@@ -1,4 +1,4 @@
-declare class ExitStatus < Error
+declare class ExitStatus
 declare var Module:
   preInit: =>
   onRuntimeInitialized: =>
@@ -22,7 +22,7 @@ declare var FS:
     stdin: => (number | null),
     stdout: (char: number | null) =>,
     stderr: (char: number | null) =>
-  ): ???
+  ): void
 
 let inputIndex: number
 ready .= false
@@ -37,19 +37,19 @@ halfReady := (arg?: string): void =>
   unless ready
     ready = true
     return
-  if signal := signals.get funcName
+  if signal? := signals.get funcName
     signal()
   else
     console.error `Unrecognized signal ${funcName}`
     postMessage [0, null]
 
-Module['preInit'] = :void =>
-  stdin := => if inputIndex >= stdinBuffer.# then null else stdinBuffer.at(inputIndex++)!
+Module.'preInit' = =>
+  stdin := => if inputIndex >= stdinBuffer# then null else stdinBuffer.at(inputIndex++)!
   stdout := (char: number | null) => postMessage [1, char]
   stderr := (char: number | null) => postMessage [2, char]
   FS.init stdin, stdout, stderr
-Module['onRuntimeInitialized'] = halfReady
-Module['noExitRuntime'] = true
+Module.'onRuntimeInitialized' = halfReady
+Module.'noExitRuntime' = true
 
 callInterpreter := (warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1) => =>
   inputIndex = 0
@@ -70,10 +70,10 @@ signals.set 'disassembleProgram', callInterpreter 1, 0, 0
 signals.set 'expandInput', callInterpreter 0, 1, 0
 signals.set 'debugProgram', callInterpreter 0, 0, 1
 // @ts-expect-error __trilangle_resolve is set in library.civet
-signals.set 'step', => @['__trilangle_resolve']()
+signals.set 'step', => @.'__trilangle_resolve'()
 
 @onmessage = (event: MessageEvent<[string] | [string, string, string]>) =>
-  if event.data.# is 3
+  if event.data# is 3
     stdinBuffer = encoder.encode event.data.2
     programText = event.data.1
   halfReady event.data.0

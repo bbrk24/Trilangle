@@ -84,7 +84,7 @@ class Colors
     entry.div?.style.setProperty '--highlight-color', color
     entry.threadNumber
 
-  count() #entries.#
+  get #() #entries#
 
   [Symbol.toStringTag] = 'Colors'
 

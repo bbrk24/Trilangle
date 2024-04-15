@@ -50,7 +50,7 @@ clearOutput := :void =>
 generateContracted := :string =>
   programText .= (elements.program as! HTMLTextAreaElement).value.replace /\n| /gu, ''
   // programText.length is wrong when there's high Unicode characters
-  programLength := [programText...].#
+  programLength := [programText...]#
   // Calculate the largest triangular number less than the length.
   // minLength is 1 more than that
   temp := Math.ceil Math.sqrt(2 * programLength) - 1.5
@@ -65,7 +65,7 @@ contractInput := :void =>
 
 copyURL := :void =>
   url := elements.urlOut.textContent!
-  (elements.urlOut.setSelectionRange as HTMLInputElement.'setSelectionRange'?)? 0, url.#
+  (elements.urlOut.setSelectionRange as HTMLInputElement.'setSelectionRange'?)? 0, url#
   navigator.clipboard.writeText url
   elements.copyAlert.className = ''
   setTimeout :void => elements.copyAlert.className = 'hide-slow'
@@ -92,9 +92,9 @@ wasmCancel := :void =>
 
 isBufferFull := (buf: ArrayLike<number>): boolean =>
   (or)
-    buf.# is 4
-    ((buf.0 + 256) & 0xf0) is 0xe0 and buf.# is 3
-    ((buf.0 + 256) & 0xe0) is 0xc0 and buf.# is 2
+    buf# is 4
+    ((buf.0 + 256) & 0xf0) is 0xe0 and buf# is 3
+    ((buf.0 + 256) & 0xe0) is 0xc0 and buf# is 2
 
 stdout := (char: number | null): void =>
   return unless char?
@@ -246,7 +246,7 @@ debugProgram := =>
     .forEach (textRow, i): void =>
       el := document.createElement 'div'
       el.id = `row-${i}`
-      matchLength := (/^ */u.exec textRow)?.0.# ?? 0
+      matchLength := (/^ */u.exec textRow)?.0# ?? 0
       el.dataset.offset = String matchLength
       el.style.paddingLeft = `${matchLength}ch`
       for char of textRow.trimStart().split ' '
@@ -366,7 +366,7 @@ updateColorPicker := :void =>
           { R, G, B } := colors.randomColor()
           color = `rgb(${R}, ${G}, ${B})`
           break if colors.addColor color
-        elements.colorPicker.insertBefore createColorDiv(color, colors.count() - 1), @
+        elements.colorPicker.insertBefore createColorDiv(color, colors# - 1), @
       { +passive }
   elements.colorPicker.appendChild elements.addColorButton
 
@@ -438,7 +438,7 @@ do
   elements.runStop.onclick = interpretProgram
   elements.urlButton.onclick = generateURL
 
-  if location.hash.# > 1
+  if location.hash# > 1
     elements.program.value = decodeURIComponent location.hash[1...]
 
   params := new URLSearchParams location.search
