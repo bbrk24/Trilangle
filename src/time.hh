@@ -8,7 +8,7 @@
 
 template<class Clock>
 int24_t get_time() {
-    constexpr auto ONE_DAY = std::chrono::duration_cast<typename Clock::duration>(std::chrono::seconds(24 * 60 * 60));
+    constexpr auto ONE_DAY = std::chrono::duration_cast<typename Clock::duration>(std::chrono::hours(24));
 
 #define TOO_SMALL(type) \
     (static_cast<unsigned long long>(INT24_MAX) + 1ULL >= (1ULL << std::numeric_limits<type>::digits) \
