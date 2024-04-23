@@ -39,7 +39,7 @@ colors := new Colors
 elements := new Proxy<Record<string, HTMLElement & Record<string, ???>>> {}, get: (target, p) =>
   if p <? 'string' and p !in target
     // @ts-expect-error Yes I know there's a type mismatch. It's the best I can come up with.
-    target[p] = document.getElementById p.replace /[A-Z]/g, (s) => '-' + s.toLowerCase()
+    target[p] = document.getElementById p.replace /[A-Z]/g, '-' + &.toLowerCase()
   // @ts-expect-error If it's a symbol then so what.
   target[p]
 
@@ -71,16 +71,12 @@ copyURL := :void =>
   setTimeout :void => elements.copyAlert.className = 'hide-slow'
 
 generateURL := :void =>
-  baseURL := location.href.split(/[?#]/u).0
-  fragment := '#' + encodeURIComponent generateContracted()
-  query :=
-    if elements.includeInput.checked
-      `?i=${encodeURIComponent (elements.stdin as! HTMLTextAreaElement).value}`
-    else
-      ''
-  newURL := `${baseURL}${query}${fragment}`
-  history.pushState {}, '', newURL
-  elements.urlOut.textContent = newURL
+  url := new URL location.href
+  url.hash = '#' + encodeURIComponent generateContracted()
+  if elements.includeInput.checked
+    url.searchParams.set 'i', (elements.stdin as! HTMLTextAreaElement).value
+  history.pushState {}, '', url
+  elements.urlOut.textContent = url.href
   elements.urlOutBox.className = ''
   elements.urlButton.textContent = 'Copy URL'
   elements.urlButton.onclick = copyURL
@@ -90,11 +86,11 @@ wasmCancel := :void =>
   worker = undefined
   resolve()
 
-isBufferFull := (buf: ArrayLike<number>): boolean =>
+isBufferFull: (buf: ArrayLike<number>) => boolean :=
   (or)
-    buf# is 4
-    ((buf.0 + 256) & 0xf0) is 0xe0 and buf# is 3
-    ((buf.0 + 256) & 0xe0) is 0xc0 and buf# is 2
+    &# is 4
+    ((&.0 + 256) & 0xf0) is 0xe0 and &# is 3
+    ((&.0 + 256) & 0xe0) is 0xc0 and &# is 2
 
 stdout := (char: number | null): void =>
   return unless char?
@@ -141,7 +137,7 @@ createWorker := (name: string) => :Promise<void> =>
     worker = new Worker window.WORKER_URL
     step = worker@postMessage ['step']
 
-  promise := new Promise<void> (r): void => resolve = r
+  promise := new Promise<void> (resolve=)
     .then :void =>
       elements.stdin.oninput = :void ->
         worker = undefined
@@ -242,13 +238,13 @@ debugProgram := =>
   elements.program.hidden = true
   elements.colorPicker.hidden = true
 
-  elements.stdout.innerText.trimEnd().split '\n'
-    .forEach (textRow, i): void =>
+  lines := elements.stdout.innerText.trimEnd().split '\n'
+  for each textRow, i of lines
       el := document.createElement 'div'
       el.id = `row-${i}`
-      matchLength := (/^ */u.exec textRow)?.0# ?? 0
-      el.dataset.offset = String matchLength
-      el.style.paddingLeft = `${matchLength}ch`
+      matchLength := String /^ */u.exec(textRow)?.0# ?? 0
+      el.dataset.offset = matchLength
+      el.style.paddingLeft = matchLength + 'ch'
       for char of textRow.trimStart().split ' '
         document.createElement 'span'
           ||> .textContent = char
@@ -301,8 +297,7 @@ changeHighlightColor := (before: string | number, after: string): boolean =>
     null,
     XPathResult.ANY_TYPE,
     null
-  node := iter.iterateNext() as HTMLElement | null
-  if node?
+  if node? := iter.iterateNext() as HTMLElement | null
     node.style.backgroundColor = after
   true
 
@@ -409,9 +404,10 @@ do
       pos4 = e.clientY
       elements.debugInfo.style.top = `${elements.debugInfo.offsetTop - pos2}px`
       elements.debugInfo.style.left = `${elements.debugInfo.offsetLeft - pos1}px`
-    document.onmouseup = :void ->
-      @onmousemove = null
-      @onmouseup = null
+    document.addEventListener
+      'mouseup'
+      :void -> @onmousemove = null
+      { +once, +passive }
   elements.debugHeader.addEventListener 'touchstart', (e): void =>
     return unless isHeader e.target
     e.preventDefault()
@@ -442,7 +438,6 @@ do
     elements.program.value = decodeURIComponent location.hash[1...]
 
   params := new URLSearchParams location.search
-  inputParam := params.get 'i'
-  if inputParam?
+  if inputParam? := params.get 'i'
     elements.stdin.value = inputParam
     elements.includeInput.checked = true

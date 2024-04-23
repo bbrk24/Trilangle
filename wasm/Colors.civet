@@ -23,7 +23,7 @@ class Colors
       entry.threadNumber = undefined
 
   getHighlightDiv(threadNumber: number)
-    entry := (#entries.find &.threadNumber is threadNumber) ?? #entries.find not &.threadNumber?
+    entry := (#entries.find .threadNumber is threadNumber) ?? #entries.find not .threadNumber?
     if entry?
       entry.threadNumber = threadNumber
       entry.div ?=
@@ -37,14 +37,14 @@ class Colors
     #dummy ?= document.createElement 'div'
     #dummy.style.backgroundColor = color
     color = #dummy.style.backgroundColor
-    return false if #entries.some &.color is color
+    return false if #entries.some .color is color
     #entries.push { color }
     true
 
   removeColor(color: string | number)
     let idx: number
     if color <? 'string'
-      idx = #entries.findIndex &.color is color
+      idx = #entries.findIndex .color is color
       return false if idx < 0
     else if color in #entries
       idx = color
@@ -52,7 +52,7 @@ class Colors
       return false
     entry := #entries[idx]
     if entry.threadNumber?
-      replacement := #entries.find not &.threadNumber?
+      replacement := #entries.find not .threadNumber?
       return false unless replacement?
       entry.div?.style.setProperty '--highlight-color', replacement.color
       replacement{div,threadNumber} = entry
@@ -69,7 +69,7 @@ class Colors
   replaceColor(before: string | number, after: string)
     let entry
     if before <? 'string'
-      entry = #entries.find &.color is before
+      entry = #entries.find .color is before
       return -1 unless entry?
     else if before in #entries
       entry = #entries[before]
@@ -79,7 +79,7 @@ class Colors
     #dummy ?= document.createElement 'div'
     #dummy.style.backgroundColor = after
     color := #dummy.style.backgroundColor
-    return -1 if #entries.some &.color is color
+    return -1 if #entries.some .color is color
     entry.color = color
     entry.div?.style.setProperty '--highlight-color', color
     entry.threadNumber
