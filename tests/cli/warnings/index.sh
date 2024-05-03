@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ux
+set -uxo pipefail
 
 folder=$(dirname "$0")
 
