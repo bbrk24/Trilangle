@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.8.0] - 2024-05-03
+
 ### Added
 
 - The language version is now displayed on the online interpreter.
@@ -224,3 +226,4 @@ First versioned release.
 [1.6.1]: https://github.com/bbrk24/Trilangle/tree/1.6.1
 [1.6.2]: https://github.com/bbrk24/Trilangle/tree/1.6.2
 [1.7.0]: https://github.com/bbrk24/Trilangle/tree/1.7.0
+[1.8.0]: https://github.com/bbrk24/Trilangle/tree/1.8.0
