@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.8.2] - 2024-05-03
+
 ### Changed
 
 - Modified a test so it passes on macOS 14.
@@ -239,3 +241,4 @@ First versioned release.
 [1.7.0]: https://github.com/bbrk24/Trilangle/tree/1.7.0
 [1.8.0]: https://github.com/bbrk24/Trilangle/tree/1.8.0
 [1.8.1]: https://github.com/bbrk24/Trilangle/tree/1.8.1
+[1.8.2]: https://github.com/bbrk24/Trilangle/tree/1.8.2
