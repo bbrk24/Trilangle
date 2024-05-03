@@ -15,6 +15,8 @@ jobs:
     name: Lint with JS Tools
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
       - name: npm lint
         shell: bash
         run: |
@@ -26,6 +28,8 @@ jobs:
     name: Verify wasm build
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
       - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
       - uses: actions/setup-node@v4
         with:
