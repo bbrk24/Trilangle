@@ -3,15 +3,12 @@ name: Build & Deploy Pages
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
-  workflow_dispatch: ~
 jobs:
   build-wasm:
     name: Build wasm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
       - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb # there is no v1 tag/branch
       - name: Get emscripten version
         id: em-version
