@@ -1,11 +1,11 @@
 #!/bin/bash
 
-set -uxo pipefail
+set -ux
 
 folder=$(dirname "$0")
 
 # Without the braces, the &> doesn't silence the floating-point exception
-{ errors=$($TRILANGLE -w "${folder}/worse.trg" 2>&1 1<&-); } &>/dev/null
+errors=$($TRILANGLE -w "${folder}/worse.trg" 2>&1 1<&-)
 result=$?
 set -e
 test 0 -ne $result
