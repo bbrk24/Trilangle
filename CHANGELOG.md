@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Changed
+
+- Removed some more `constexpr` annotations I missed last time.
+
 ## [1.8.1] - 2024-05-03
 
 ### Changed

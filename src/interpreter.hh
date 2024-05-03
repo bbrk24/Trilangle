@@ -5,7 +5,7 @@
 
 class interpreter {
 public:
-    CONSTEXPR_VECTOR interpreter(NONNULL_PTR(const program) p, flags f) noexcept : m_threads{ thread(p, f) } {}
+    inline interpreter(NONNULL_PTR(const program) p, flags f) noexcept : m_threads{ thread(p, f) } {}
 
     void run();
 private:
