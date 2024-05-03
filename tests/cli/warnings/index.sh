@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -u
+set -ux
 
 folder=$(dirname "$0")
 
