@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Added
 
+- The language version is now displayed on the online interpreter.
 - RND (`$`) now works in compiled programs, though backed by a different source of randomness.
 
 ### Changed

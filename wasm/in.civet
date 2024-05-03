@@ -22,6 +22,7 @@ declare global
     WORKER_URL: string
     get isPaused(): boolean
     playPause: =>
+    version: string
 
 let worker: Worker?
 stdoutBuffer: number[] .= []
@@ -69,6 +70,10 @@ copyURL := :void =>
   navigator.clipboard.writeText url
   elements.copyAlert.className = ''
   setTimeout :void => elements.copyAlert.className = 'hide-slow'
+
+window.version = comptime
+  // @ts-ignore 'require' is provided by the Civet compiler
+  require('child_process').execSync('git describe --tags').toString().trimEnd()
 
 generateURL := :void =>
   url := new URL location.href

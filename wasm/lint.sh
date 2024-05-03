@@ -6,7 +6,7 @@ set -e
 engine-check
 stylelint ./*.scss
 
-civet -c ./*.civet -o .ts
+civet --comptime -c ./*.civet -o .ts
 eslint ./*.ts
 
 cd ..

@@ -71,6 +71,9 @@
         ppButton.addEventListener('click', function() {
           this.title = this.textContent === window.PLAY_TEXT ? 'play' : 'pause';
         }, { passive: true });
+
+        document.querySelector('footer .center')
+          .prepend('Version ', window.version, document.createElement('br'));
       }, { once: true });
     </script>
     <main class="grid">
