@@ -94,17 +94,29 @@ class Colors
       u: number
       v: number
 
-    // #ff0000, #00ff00, and #0000ff in CIELUV space
-    RED := { L: 53.2328818, u: 172.93531, v: 42.8274281 } as const satisfies Luv
-    GREEN := { L: 87.7370335, u: -86.5701309, v: 115.769016 } as const satisfies Luv
-    BLUE := { L: 32.3025867, u: -10.6849381, v: -127.277647 } as const satisfies Luv
+    [
+      RED,
+      GREEN,
+      BLUE,
+      INV_GAMMA,
+      RED_ANGLE,
+      GREEN_ANGLE,
+      BLUE_ANGLE,
+    ] := comptime
+      // #ff0000, #00ff00, and #0000ff in CIELUV space
+      RED := { L: 53.2328818, u: 172.93531, v: 42.8274281 } as const satisfies Luv
+      GREEN := { L: 87.7370335, u: -86.5701309, v: 115.769016 } as const satisfies Luv
+      BLUE := { L: 32.3025867, u: -10.6849381, v: -127.277647 } as const satisfies Luv
 
-    // Gamma correction constant
-    INV_GAMMA := 0.416666667 as const
-
-    RED_ANGLE := Math.atan2 RED.v, RED.u
-    GREEN_ANGLE := Math.atan2 GREEN.v, GREEN.u
-    BLUE_ANGLE := Math.atan2 BLUE.v, BLUE.u
+      [
+        RED, GREEN, BLUE
+        // Gamma correction constant
+        1/2.4
+        // Hue angles
+        Math.atan2 RED.v, RED.u
+        Math.atan2 GREEN.v, GREEN.u
+        Math.atan2 BLUE.v, BLUE.u
+      ]
 
     // Select a random hue and saturation
     hueAngle := 2 * Math.PI * (Math.random() - 0.5)
