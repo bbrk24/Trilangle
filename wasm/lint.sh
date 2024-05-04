@@ -5,9 +5,7 @@ set -e
 
 engine-check
 stylelint ./*.scss
-
-civet --comptime -c ./*.civet -o .ts
-eslint ./*.ts
+eslint ./*.civet
 
 cd ..
 clang-format --Werror --dry-run src/*.cpp src/**/*.hh tests/unit/*.cpp tests/unit/*.hh
