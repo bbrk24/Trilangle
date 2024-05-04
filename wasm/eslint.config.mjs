@@ -1,8 +1,4 @@
-import { civet } from 'eslint-plugin-civet/ts';
-
-const civetPlugin = civet({ parseOptions: {
-    // comptime: true,
-}});
+import civetPlugin from 'eslint-plugin-civet/ts';
 
 export default [
     ...civetPlugin.configs.jsRecommended,
@@ -18,7 +14,6 @@ export default [
             '@typescript-eslint/default-param-last': 'error',
             '@typescript-eslint/no-non-null-assertion': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
-            'no-constant-condition': ['error', { checkLoops: false }],
             // https://github.com/eslint/eslint/issues/15896
             'no-var': 'off',
             'no-restricted-syntax': ['error', {

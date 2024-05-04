@@ -375,8 +375,9 @@ toggleColorPicker := :void =>
 
 do
   window.version = comptime
-    // @ts-ignore 'require' is provided by the Civet compiler
-    require('child_process').execSync 'git describe --tags'
+    // @ts-expect-error 'require' is provided by the Civet compiler
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('node:child_process').execSync 'git describe --tags'
       .toString()
       .trimEnd()
 
