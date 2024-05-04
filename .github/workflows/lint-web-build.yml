@@ -24,7 +24,7 @@ jobs:
         shell: bash
         run: |
           cd wasm
-          npm ci -f --no-fund
+          npm ci --no-fund
           npm run lint
   verify-wasm-build:
     runs-on: ubuntu-latest
@@ -41,5 +41,5 @@ jobs:
         shell: bash
         run: |
           cd wasm
-          npm ci --omit dev -f --no-fund
+          npm ci --omit dev --no-fund
           npm run build lint

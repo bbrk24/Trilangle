@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           cd wasm
-          npm ci --omit dev -f --no-fund
+          npm ci --omit dev --no-fund
           npm run build
           mkdir ../Release
           mv *.css index.js worker.js ldworker.js Colors.js *.wasm ../Release/
