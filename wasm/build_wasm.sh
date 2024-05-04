@@ -20,7 +20,7 @@ case "$1" in
         } &
         # emcc is so much slower than the civet and sass compilers that parallelizing them doesn't matter much
         civet --js --inline-map --comptime -c in.civet -o index.js
-        civet --js --inline-map -c Colors.civet -o Colors.js
+        civet --js --inline-map --comptime -c Colors.civet -o Colors.js
         sass in.scss:index.css lowdata.scss:lowdata.css --embed-source-map
         ;;
     lint)
@@ -40,7 +40,7 @@ case "$1" in
 
         civet --js --comptime -c in.civet -o - | terser -c unsafe=true,unsafe_arrows=true -mo index.js --ecma 13 \
             -f wrap_func_args=false
-        civet --js -c Colors.civet -o - | terser -cmf wrap_func_args=false -o Colors.js --ecma 13
+        civet --js --comptime -c Colors.civet -o - | terser -cmf wrap_func_args=false -o Colors.js --ecma 13
         sass in.scss:index.css lowdata.scss:lowdata.css --no-source-map -s compressed
 
         wait -n
