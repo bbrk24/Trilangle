@@ -1,11 +1,12 @@
 {
     "dependencies": {
-        "@danielx/civet": "~0.7.5",
+        "@danielx/civet": "~0.7.7",
         "sass": "^1.72.0",
         "terser": "^5.27.2"
     },
     "devDependencies": {
         "@eslint/js": "^8.57.0",
+        "@types/node": "^20.10.0",
         "@typescript-eslint/eslint-plugin": "^7.8.0",
         "@typescript-eslint/parser": "^7.8.0",
         "clang-format": "^1.8.0",

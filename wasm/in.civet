@@ -374,12 +374,14 @@ toggleColorPicker := :void =>
     elements.colorPicker.hidden = true
 
 do
-  window.version = comptime
-    // @ts-expect-error 'require' is provided by the Civet compiler
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('node:child_process').execSync 'git describe --tags'
-      .toString()
-      .trimEnd()
+  window.version =
+    comptime
+      { execSync } from 'node:child_process'
+      execSync 'git describe --tags'
+        .toString()
+        .trimEnd()
+    else
+      '0.0.0'
 
   hideUrl := :void =>
     elements.urlOutBox.className = 'content-hidden'
