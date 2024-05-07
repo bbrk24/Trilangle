@@ -1,15 +1,17 @@
 {
     "dependencies": {
-        "@danielx/civet": "~0.7.5",
+        "@danielx/civet": "~0.7.7",
         "sass": "^1.72.0",
         "terser": "^5.27.2"
     },
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^7.3.1",
-        "@typescript-eslint/parser": "^7.3.1",
+        "@eslint/js": "^8.57.0",
+        "@typescript-eslint/eslint-plugin": "^7.8.0",
+        "@typescript-eslint/parser": "^7.8.0",
         "clang-format": "^1.8.0",
         "engine-check": "git@github.com:bbrk24/engine-check.git#6b7fa214f0d5c20508cdad796bd52db4fdcf182f",
-        "eslint": "^8.56.0",
+        "eslint": "^8.57.0",
+        "eslint-plugin-civet": "0.0.3",
         "express": "^4.18.0",
         "stylelint": "^16.2.1",
         "stylelint-config-standard-scss": "^13.0.0"
@@ -20,7 +22,7 @@
         "build": "./build_wasm.sh"
     },
     "engines": {
-        "node": "^18.18.0 || >=20"
+        "node": ">=20.10.0"
     },
     "engineStrict": true
 }

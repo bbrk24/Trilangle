@@ -71,10 +71,6 @@ copyURL := :void =>
   elements.copyAlert.className = ''
   setTimeout :void => elements.copyAlert.className = 'hide-slow'
 
-window.version = comptime
-  // @ts-ignore 'require' is provided by the Civet compiler
-  require('child_process').execSync('git describe --tags').toString().trimEnd()
-
 generateURL := :void =>
   url := new URL location.href
   url.hash = '#' + encodeURIComponent generateContracted()
@@ -378,6 +374,15 @@ toggleColorPicker := :void =>
     elements.colorPicker.hidden = true
 
 do
+  window.version =
+    comptime
+      { execSync } from 'node:child_process'
+      execSync 'git describe --tags'
+        .toString()
+        .trimEnd()
+    else
+      '0.0.0'
+
   hideUrl := :void =>
     elements.urlOutBox.className = 'content-hidden'
     elements.urlButton.textContent = 'Generate URL'
