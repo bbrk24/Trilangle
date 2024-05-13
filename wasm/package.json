@@ -11,7 +11,7 @@
         "clang-format": "^1.8.0",
         "engine-check": "git@github.com:bbrk24/engine-check.git#6b7fa214f0d5c20508cdad796bd52db4fdcf182f",
         "eslint": "^8.57.0",
-        "eslint-plugin-civet": "0.0.3",
+        "eslint-plugin-civet": "0.0.4",
         "express": "^4.18.0",
         "stylelint": "^16.2.1",
         "stylelint-config-standard-scss": "^13.0.0"
