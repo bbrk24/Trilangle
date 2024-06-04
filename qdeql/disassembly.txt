@@ -22,7 +22,7 @@
 ; Split into a "code thread" and a "memory thread"
 ; The code thread will handle I/O and most logic, while the memory thread holds the queue.
 	TSP memory_thread_setup
-    JMP read_program
+	JMP read_program
 ; Push a 0 to the memory thread to indicate initial queue size
 memory_thread_setup:
 	PSI #0
@@ -217,15 +217,17 @@ ct_decode_uop:
 ; +======+----+-----+-----+
 ; | uops | PC | acc | uop |
 ; +======+----+-----+-----+
-	DEC ; TOS = uop-1
-	BNG ct_create_signal
-	DEC ; TOS = uop-2
+	DEC
+	BNG ct_create_signal ; enq or deq
+	DEC
 	BNG ct_decrement
-	DEC ; TOS = uop-3
+	DEC
 	BNG ct_getchar
-	DEC ; TOS = uop-4
+	DEC
 	BNG ct_putchar
-	;; TODO: bgn/end
+	DEC
+	BNG ct_begin
+	JMP ct_end
 
 ct_decrement:
 	POP
@@ -241,7 +243,7 @@ ct_getchar:
 	BNG ct_gtc_eof
 	JMP ct_advance_pc
 ct_gtc_eof:
-	INC
+	INC ; or NOT
 	JMP ct_advance_pc
 
 ct_putchar:
@@ -250,6 +252,86 @@ ct_putchar:
 	DUP
 	XOR
 	JMP ct_advance_pc
+
+ct_begin:
+	POP
+	DEC
+	BNG ct_find_end
+	INC
+	JMP ct_advance_pc
+ct_find_end:
+	INC ; or NOT
+	SWP
+; Stack layout:
+; +======+---------+----+
+; | uops | nBegins | PC |
+; +======+---------+----+
+; The accumulator is always zero, so it can be discarded.
+; nBegins is incremented at every bgn and decremented at every end. When it hits -1, exit the loop.
+ct_find_end_loop:
+	DUP
+	IDX
+	; end is the largest uop, so it's easy to detect
+	PSI #5
+	SUB
+	BNG ct_not_end
+	POP
+	SWP
+	DEC
+	BNG ct_found_end
+	SWP
+	DEC	; Advance the PC
+	JMP ct_find_end_loop
+ct_not_end:
+	INC
+	BNG ct_not_end_cleanup
+	; increment nBegins
+	POP
+	SWP
+	INC
+	SWP
+	DEC	; Advance the PC
+	JMP ct_find_end_loop
+ct_not_end_cleanup:
+	POP	; Remove the uop from the stack
+	DEC	; Advance the PC
+	JMP ct_find_end_loop
+ct_found_end:
+; If PC is pointing at the end uop, the stack layout is this:
+; +======+------+----+
+; | uops | PC+1 | -1 |
+; +======+------+----+
+; We want the PC to be pointing past the end uop, and we need a 0 on the stack above it.
+	ADD ; PC+1 + -1 = PC
+	DEC
+	PSI #0
+	JMP ct_fetch_loop
+
+ct_end:
+; Stack layout on entering this branch:
+; +======+----+-----+---+
+; | uops | PC | acc | 0 |
+; +======+----+-----+---+
+; We have some shuffling to do:
+; - The accumulator is not needed for this process, but must be preserved
+; - The PC must be easily accessible (top two values)
+; - The other slot in the top two will be used to track how many levels of nesting there are
+	POP
+	SWP
+	PSI #0
+	SWP
+ct_find_begin_loop:
+; New stack layout:
+; +======+-----+-------+----+
+; | uops | acc | nEnds | PC |
+; +======+-----+-------+----+
+; Because the PC is further from the uops array than it is during standard instruction fetch,
+; we must add 3 before indexing.
+	DUP
+	PSI #3
+	ADD
+	IDX ; TOS is now { ..., acc, nEnds, PC, uop }
+	;; TODO
 
 ct_create_signal:
 	INC
