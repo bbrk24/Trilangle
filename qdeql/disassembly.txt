@@ -1,4 +1,4 @@
-; This file is an annotated disassembly of [TODO: create .trg version when this is done].
+; This file is an annotated disassembly of [TODO: create .trg version].
 ; It interprets Qdeql code.
 
 ;;;;; SYNTAX NOTES ;;;;;
@@ -158,6 +158,7 @@ read_backslash:
 	SWP
 	; Finally, increase the starting PC by the number of uops.
 	PSI #5
+	ADD
 	JMP read_loop
 
 ;;;;; INTER-THREAD SIGNALS ;;;;;
@@ -259,7 +260,7 @@ ct_begin:
 	BNG ct_find_end
 	INC
 	JMP ct_advance_pc
-ct_find_end:
+ct_bgn_find_end:
 	INC ; or NOT
 	SWP
 ; Stack layout:
@@ -268,35 +269,34 @@ ct_find_end:
 ; +======+---------+----+
 ; The accumulator is always zero, so it can be discarded.
 ; nBegins is incremented at every bgn and decremented at every end. When it hits -1, exit the loop.
-ct_find_end_loop:
+ct_bgn_find_end_loop:
 	DUP
 	IDX
 	; end is the largest uop, so it's easy to detect
 	PSI #5
 	SUB
-	BNG ct_not_end
+	BNG ct_bgn_not_end
 	POP
 	SWP
 	DEC
-	BNG ct_found_end
+	BNG ct_bgn_found_end
 	SWP
 	DEC	; Advance the PC
-	JMP ct_find_end_loop
-ct_not_end:
+	JMP ct_bgn_find_end_loop
+ct_bgn_not_end:
 	INC
 	BNG ct_not_end_cleanup
-	; increment nBegins
 	POP
 	SWP
-	INC
+	INC ; increment nBegins
 	SWP
 	DEC	; Advance the PC
-	JMP ct_find_end_loop
-ct_not_end_cleanup:
+	JMP ct_bgn_find_end_loop
+ct_bgn_not_end_cleanup:
 	POP	; Remove the uop from the stack
 	DEC	; Advance the PC
 	JMP ct_find_end_loop
-ct_found_end:
+ct_bgn_found_end:
 ; If PC is pointing at the end uop, the stack layout is this:
 ; +======+------+----+
 ; | uops | PC+1 | -1 |
@@ -320,7 +320,7 @@ ct_end:
 	SWP
 	PSI #0
 	SWP
-ct_find_begin_loop:
+ct_end_find_begin_loop:
 ; New stack layout:
 ; +======+-----+-------+----+
 ; | uops | acc | nEnds | PC |
@@ -330,8 +330,38 @@ ct_find_begin_loop:
 	DUP
 	PSI #3
 	ADD
-	IDX ; TOS is now { ..., acc, nEnds, PC, uop }
-	;; TODO
+	IDX
+	PSI #5
+	SUB
+	BNG ct_end_not_end
+; current uop is a nested end
+	POP
+	SWP
+	INC ; increment nEnds
+	SWP
+	INC ; move PC backwards
+	JMP ct_end_find_begin_loop
+ct_end_not_end:
+; TOS is uop-5 and uop is not end
+	INC
+	BNG ct_end_not_end_cleanup
+	POP
+; uop is bgn, but may be nested
+	SWP
+	DEC
+	BNG ct_end_found_begin
+	SWP
+	INC ; move PC
+	JMP ct_end_find_begin_loop
+ct_end_not_end_cleanup:
+	POP
+	INC
+	JMP ct_end_find_begin_loop
+ct_end_found_begin:
+	POP
+	SWP
+	; PC is pointing at bgn, so don't advance it
+	JMP ct_fetch_loop
 
 ct_create_signal:
 	INC
