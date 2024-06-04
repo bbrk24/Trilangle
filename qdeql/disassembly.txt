@@ -1,0 +1,187 @@
+; This file is an annotated disassembly of [TODO: create .trg version when this is done].
+
+;;;;; SETUP ;;;;;
+; Split into a "code thread" and a "memory thread"
+; The code thread will handle I/O and most logic, while the memory thread holds the queue.
+	TSP memory_thread_setup
+    JMP read_program
+; Push a 0 to the memory thread to indicate initial queue size
+memory_thread_setup:
+	PSI #0
+	JMP memory_thread
+
+read_program:
+	PSI #0 ; set uop counter to 0
+read_loop:
+	GTC
+	DEC ; allow NUL to separate program from input
+	BNG end_program
+	;; TODO: convert input to uops
+; =  0 -1
+; -  0 1 -1
+; \  0 4 -1 -1 -1
+; /  0 5
+; &  2 -1
+; *  0 3
+; anything else is ignored
+	JMP read_loop
+end_program:
+	POP ; remove EOF character
+	PSI #0 ; set the accumulator to 0 (see code thread layout below)
+	JMP code_thread
+
+;;;;; INTER-THREAD SIGNALS ;;;;;
+
+; Send an 'enqueue' signal
+enqueue_signal_send:
+	PSI #2
+	JMP memory_thread_receiver
+
+; Send a 'dequeue' signal
+dequeue_signal_send:
+	PSI #1
+	JMP memory_thread_receiver
+
+; Create a response to a 'dequeue' signal
+dequeue_response_send:
+	PSI #1
+	JMP code_thread_deq_receive
+
+; Create a response to an 'enqueue' signal
+enqueue_ack_send:
+	PSI #0
+	JMP code_thread_enq_receive
+
+;;;;; CODE THREAD ;;;;;
+code_thread:
+; The layout of the code thread looks like this:
+; +======+----+-----+
+; | uops | PC | acc |
+; +======+----+-----+
+; 'PC' is an index into the uops array. As such, it counts in the opposite direction of a traditional IP.
+; 'acc' is the most recently dequeued value, or 0 if no value is available.
+
+; Fetch the next uop
+ct_fetch_loop:
+	DP2
+	POP
+	INC
+	INC
+	IDX
+
+; There are seven uops:
+; - enq (-1): Send an 'enqueue' instruction to the memory thread, and clear the accumulator.
+; - deq (0): Send a 'dequeue' instruction to the memory thread, and update the accumulator.
+; - sub (1): Decrement the accumulator mod 256.
+; - get (2): Get a character from stdin, setting EOF to 0 instead of -1, and store it in the accumulator.
+; - put (3): Print a character to stdout, and clear the accumulator.
+; - bgn (4): If the accumulator is 0, jump forwards (decrement PC) to the matching end.
+; - end (5): Jump backwards (increment PC) to the matching bgn.
+ct_decode_uop:
+; +======+----+-----+-----+
+; | uops | PC | acc | uop |
+; +======+----+-----+-----+
+	DEC ; TOS = uop-1
+	BNG ct_create_signal
+	DEC ; TOS = uop-2
+	BNG ct_decrement
+	DEC ; TOS = uop-3
+	BNG ct_getchar
+	DEC ; TOS = uop-4
+	BNG ct_putchar
+	;; TODO: bgn/end
+
+ct_decrement:
+	POP
+	DEC
+	PSC 0xFF ; or, failing that: PSI #8, EXP, DEC
+	AND
+	JMP ct_advance_pc
+
+ct_getchar:
+	POP
+	POP
+	GTC
+	BNG ct_gtc_eof
+	JMP ct_advance_pc
+ct_gtc_eof:
+	INC
+	JMP ct_advance_pc
+
+ct_putchar:
+	POP
+	PTC
+	DUP
+	XOR
+	JMP ct_advance_pc
+
+ct_create_signal:
+	INC
+	BNG ct_create_enq
+; create deq
+	TSP dequeue_signal_send
+; discard old acc
+	SWP
+	POP
+; convert deq 0 into -1 to indicate to keep everything
+	DEC
+code_thread_deq_receive:
+	TJN
+	JMP ct_advance_pc
+ct_create_enq:
+	TSP enqueue_signal_send
+; use the enq -1 to also indicate to keep everything
+code_thread_enq_receive:
+	TJN
+	POP ; discard old acc
+	PSI #0
+	JMP ct_advance_pc
+
+ct_advance_pc:
+	SWP
+	DEC
+	SWP
+	JMP ct_fetch_loop
+
+;;;;; MEMORY THREAD ;;;;;
+memory_thread:
+; The layout of the memory thread looks like this:
+; +=======+--------+
+; | queue | length |
+; +=======+--------+
+; This thread will receive a series of "enqueue" and "dequeue" commands from the code thread.
+; An enqueue command will be of the form:
+; +-------+----+
+; | value | -1 |
+; +-------+----+
+; A dequeue command will be a single 0.
+
+; Use the length to determine how much to keep
+	DUP
+	INC
+memory_thread_receiver:
+	TJN
+	BNG mt_enqueue
+
+; If it was positive, this is a dequeue
+	POP
+	DUP
+	DEC
+	BNG mt_create_zero
+	INC
+	IDX
+	JMP mt_deq_response
+mt_create_zero:
+	INC
+mt_deq_response:
+	TSP dequeue_response_send
+	POP
+	DEC
+	JMP memory_thread_receiver
+
+mt_enqueue:
+	POP ; remove the '-1' that indicates enqueue
+	SWP ; put the value into the queue
+	INC ; increment the length
+	TSP enqueue_ack_send
+	JMP memory_thread
