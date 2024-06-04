@@ -313,7 +313,7 @@ o . .
 
 ## Proof of Turing-completeness
 
-See [turing_completeness.md].
+Trilangle is Turing-complete because it can interpret [Qdeql], a TC queue-based language. See [the qdeql folder][qimpl] for the implementation.
 
 ## Compiling the interpreter
 
@@ -340,6 +340,7 @@ The wasm directory contains most of the wrapper/glue code necessary to run the i
 Run `npm run build` to compile the project to webassembly and to generate the JS glue code. Then, you can run `npm start` to host it locally (at http://localhost:3000).
 
 [Hexagony]: https://github.com/m-ender/hexagony
-[turing_completeness.md]: turing_completeness.md
+[Qdeql]: https://esolangs.org/wiki/Qdeql
+[qimpl]: ./qdeql/
 [issues]: https://github.com/bbrk24/Trilangle/issues
 [Clock]: https://en.cppreference.com/w/cpp/named_req/Clock
