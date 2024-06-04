@@ -1,4 +1,22 @@
 ; This file is an annotated disassembly of [TODO: create .trg version when this is done].
+; It interprets Qdeql code.
+
+;;;;; SYNTAX NOTES ;;;;;
+; Any text after an unquoted semicolon is a comment.
+; Instructions are indented and in all-caps.
+; Decimal literals are prefixed with "#"; hex literals are prefixed with "0x";
+; and ASCII character literals are wrapped in single quotes.
+; Any snake_case text identifies a label. Labels identifying a section of code are unindented and followed by a colon,
+; while labels used as arguments to instructions do not have the colon.
+; Multiple labels may identify the same instruction.
+
+; When comments mention stack layout, it will be in a box diagram like this:
+; +===+---+---+
+; | a | b | c |
+; +===+---+---+
+; The left side of the diagram is the bottom of the stack, and the right side is the top of the stack.
+; The === indicate that 'a' is an "array" of potentially multiple values filling multiple stack slots,
+; while the --- indicate that 'b' and 'c' are each only a single number.
 
 ;;;;; SETUP ;;;;;
 ; Split into a "code thread" and a "memory thread"
@@ -11,24 +29,136 @@ memory_thread_setup:
 	JMP memory_thread
 
 read_program:
-	PSI #0 ; set uop counter to 0
+; set program counter to -1
+	PSI #0
+	DEC ; or NOT
 read_loop:
 	GTC
 	DEC ; allow NUL to separate program from input
 	BNG end_program
-	;; TODO: convert input to uops
-; =  0 -1
-; -  0 1 -1
-; \  0 4 -1 -1 -1
-; /  0 5
 ; &  2 -1
 ; *  0 3
+; -  0 1 -1
+; /  0 5
+; =  0 -1
+; \  0 4 -1 -1 -1
 ; anything else is ignored
-	JMP read_loop
+	PSC '%' ; '&' - 1
+	SUB
+	BNG non_program_character
+	DEC
+	BNG read_ampersand
+	PSI #3 ; '*' - '&' - 1
+	SUB
+	BNG non_program_character
+	DEC
+	BNG read_star
+	DEC ; '-' - '*' - 1 == 2
+	DEC ; DEC twice is shorter than PSI #2; SUB
+	BNG non_program_character
+	DEC
+	BNG read_minus
+	DEC ; '/' - '-' - 1 == 1
+	BNG non_program_character
+	DEC
+	BNG read_fwd_slash
+	; '=' - '/' - 1 == 13, which is \r. This poses some problems for encoding it directly.
+	; Most control characters are fine, but Trilangle ignores newlines, and \r's behavior is OS-dependent.
+	; This is one of several ways to achieve it.
+	PSC 'w' ;   0b0100'1101
+	PSC '?' ; & 0b0011'1111
+	AND     ; = 0b0000'1101 = 13
+	SUB ; Now, TOS == input - '=' + 1
+	BNG non_program_character
+	DEC
+	BNG read_equals
+	PSC 0x1E ; '\' - '=' - 1
+	SUB
+	BNG non_program_character
+	DEC
+	BNG read_backslash
+
+	JMP non_program_character
+
 end_program:
 	POP ; remove EOF character
 	PSI #0 ; set the accumulator to 0 (see code thread layout below)
 	JMP code_thread
+
+non_program_character:
+	POP
+	JMP read_loop
+read_ampersand:
+	POP
+	PSI #2
+	SWP
+	INC
+	PSI #0
+	DEC ; or NOT
+	SWP
+	INC
+	JMP read_loop
+read_star:
+	; TOS should be -1
+	INC ; or NOT
+	SWP
+	INC
+	PSI #3
+	SWP
+	INC
+	JMP read_loop
+read_minus:
+	; TOS should be -1
+	INC ; or NOT
+	SWP
+	; for 3+ uops, it's faster to add to length once at the end than to INC repeatedly
+	PSI #1
+	SWP
+	PSI #0
+	DEC ; or NOT
+	SWP
+	PSI #3
+	ADD
+	JMP read_loop
+read_fwd_slash:
+	; TOS should be -1
+	INC ; or NOT
+	SWP
+	INC
+	PSI #5
+	SWP
+	INC
+	JMP read_loop
+read_equals:
+	; TOS should be -1
+	INC ; or NOT
+	SWP
+	INC
+	PSI #0
+	DEC ; or NOT
+	SWP
+	INC
+	JMP read_loop
+read_backslash:
+	; TOS should be -1
+	INC ; or NOT
+	SWP
+	PSI #4
+	SWP
+	PSI #0
+	DEC ; or NOT
+	SWP
+	; DP2-POP-SWP duplicates the item immediately below TOS while preserving the value above it.
+	; Since negative numbers cannot be pushed directly, this is an efficient way to append multiple -1's.
+	DP2
+	POP
+	SWP
+	DP2
+	POP
+	SWP
+	; Finally, increase the starting PC by the number of uops.
+	PSI #5
+	JMP read_loop
 
 ;;;;; INTER-THREAD SIGNALS ;;;;;
 
@@ -59,15 +189,21 @@ code_thread:
 ; | uops | PC | acc |
 ; +======+----+-----+
 ; 'PC' is an index into the uops array. As such, it counts in the opposite direction of a traditional IP.
+; When the PC is -1, there are no instructions left, and execution terminates.
 ; 'acc' is the most recently dequeued value, or 0 if no value is available.
+; Always having something there even if no value is available means the PC is always at the same stack depth.
 
 ; Fetch the next uop
 ct_fetch_loop:
 	DP2
 	POP
+	BNG end ; if PC is negative, the end of the program has been reached
 	INC
 	INC
 	IDX
+	JMP ct_decode_uop
+end:
+	EXT
 
 ; There are seven uops:
 ; - enq (-1): Send an 'enqueue' instruction to the memory thread, and clear the accumulator.
