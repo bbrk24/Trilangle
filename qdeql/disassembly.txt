@@ -177,7 +177,7 @@ mt_deq_response:
 	TSP dequeue_response_send
 	POP
 	DEC
-	JMP memory_thread_receiver
+	JMP memory_thread
 
 mt_enqueue:
 	POP ; remove the '-1' that indicates enqueue
