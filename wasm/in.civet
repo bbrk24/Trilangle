@@ -83,7 +83,7 @@ generateURL := :void =>
   elements.urlButton.onclick = copyURL
 
 wasmCancel := :void =>
-  worker?.terminate()
+  worker?terminate()
   worker = undefined
   resolve()
 
@@ -243,7 +243,7 @@ debugProgram := =>
   for each textRow, i of lines
       el := document.createElement 'div'
       el.id = `row-${i}`
-      matchLength := String /^ */u.exec(textRow)?.0# ?? 0
+      matchLength := String /^ */u.exec(textRow)?0# ?? 0
       el.dataset.offset = matchLength
       el.style.paddingLeft = matchLength + 'ch'
       for char of textRow.trimStart().split ' '
@@ -254,7 +254,7 @@ debugProgram := =>
   elements.stdout.innerText = ''
 
   elements.debugInfo.hidden = false
-  if not elements.playPause.style?.width
+  if not elements.playPause.style?width
     elements.playPause.textContent = window.PAUSE_TEXT
     setTimeout =>
       elements.playPause.style.width = `${elements.playPause.offsetWidth}px`

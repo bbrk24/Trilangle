@@ -13,12 +13,12 @@ class Colors
 
   hideHighlights(): void
     for entry of #entries
-      entry.div?.remove()
+      entry.div?remove()
       entry.threadNumber = undefined
 
   destroyHighlights(): void
     for entry of #entries
-      entry.div?.remove()
+      entry.div?remove()
       entry.div = undefined
       entry.threadNumber = undefined
 
@@ -54,7 +54,7 @@ class Colors
     if entry.threadNumber?
       replacement := #entries.find not .threadNumber?
       return false unless replacement?
-      entry.div?.style.setProperty '--highlight-color', replacement.color
+      entry.div?style.setProperty '--highlight-color', replacement.color
       replacement{div,threadNumber} = entry
     #entries.splice idx, 1
     true
@@ -81,7 +81,7 @@ class Colors
     color := #dummy.style.backgroundColor
     return -1 if #entries.some .color is color
     entry.color = color
-    entry.div?.style.setProperty '--highlight-color', color
+    entry.div?style.setProperty '--highlight-color', color
     entry.threadNumber
 
   get #() #entries#
