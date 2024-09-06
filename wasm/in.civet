@@ -444,10 +444,14 @@ do
   elements.runStop.onclick = interpretProgram
   elements.urlButton.onclick = generateURL
 
-  if location.hash# > 1
-    elements.program.value = decodeURIComponent location.hash[1...]
+  try
+    if location.hash# > 1
+      elements.program.value = decodeURIComponent location.hash[1...]
 
-  params := new URLSearchParams location.search
-  if inputParam? := params.get 'i'
-    elements.stdin.value = inputParam
-    elements.includeInput.checked = true
+    params := new URLSearchParams location.search
+    if inputParam? := params.get 'i'
+      elements.stdin.value = inputParam
+      elements.includeInput.checked = true
+  catch e
+    console.error e
+    elements.stderr.innerText = 'Error while loading program from URL.'
