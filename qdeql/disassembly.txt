@@ -1,4 +1,5 @@
-; This file is an annotated disassembly of [TODO: create .trg version].
+; This file is an annotated disassembly of interpreter.trg.
+; (Actually, that file was created from this one).
 ; It interprets Qdeql code.
 
 ;;;;; SYNTAX NOTES ;;;;;
@@ -65,7 +66,7 @@ read_loop:
 	; '=' - '/' - 1 == 13, which is \r. This poses some problems for encoding it directly.
 	; Most control characters are fine, but Trilangle ignores newlines, and \r's behavior is OS-dependent.
 	; This is one of several ways to achieve it.
-	PSC 'w' ;   0b0100'1101
+	PSC 'M' ;   0b0100'1101
 	PSC '?' ; & 0b0011'1111
 	AND     ; = 0b0000'1101 = 13
 	SUB ; Now, TOS == input - '=' + 1
@@ -257,7 +258,7 @@ ct_putchar:
 ct_begin:
 	POP
 	DEC
-	BNG ct_find_end
+	BNG ct_bgn_find_end
 	INC
 	JMP ct_advance_pc
 ct_bgn_find_end:
@@ -285,7 +286,7 @@ ct_bgn_find_end_loop:
 	JMP ct_bgn_find_end_loop
 ct_bgn_not_end:
 	INC
-	BNG ct_not_end_cleanup
+	BNG ct_bgn_not_end_cleanup
 	POP
 	SWP
 	INC ; increment nBegins
@@ -301,11 +302,10 @@ ct_bgn_found_end:
 ; +======+------+----+
 ; | uops | PC+1 | -1 |
 ; +======+------+----+
-; We want the PC to be pointing past the end uop, and we need a 0 on the stack above it.
+; We want the PC to be pointing at the end uop, and we need a 0 on the stack above it.
 	ADD ; PC+1 + -1 = PC
-	DEC
 	PSI #0
-	JMP ct_fetch_loop
+	JMP ct_advance_pc
 
 ct_end:
 ; Stack layout on entering this branch:
@@ -359,9 +359,10 @@ ct_end_not_end_cleanup:
 	JMP ct_end_find_begin_loop
 ct_end_found_begin:
 	POP
+	; PC is pointing at bgn, so counteract the advancement
+	INC
 	SWP
-	; PC is pointing at bgn, so don't advance it
-	JMP ct_fetch_loop
+	JMP ct_advance_pc
 
 ct_create_signal:
 	INC
@@ -420,7 +421,10 @@ memory_thread_receiver:
 	IDX
 	JMP mt_deq_response
 mt_create_zero:
+	INC ; or NOT
+	SWP
 	INC
+	SWP
 mt_deq_response:
 	TSP dequeue_response_send
 	POP
