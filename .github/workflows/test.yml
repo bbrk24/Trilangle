@@ -8,6 +8,7 @@ name: Run Tests
       - tests/**
       - .github/workflows/test.yml
       - .gitmodules
+      - qdeql/interpreter.trg
   workflow_dispatch: ~
 jobs:
   unit-tests:
