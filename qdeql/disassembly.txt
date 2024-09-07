@@ -302,8 +302,9 @@ ct_bgn_found_end:
 ; +======+------+----+
 ; | uops | PC+1 | -1 |
 ; +======+------+----+
-; We want the PC to be pointing at the end uop, and we need a 0 on the stack above it.
+; We want the PC to be pointing past the end uop, and we need a 0 on the stack above it.
 	ADD ; PC+1 + -1 = PC
+	DEC
 	PSI #0
 	JMP ct_advance_pc
 
@@ -320,6 +321,7 @@ ct_end:
 	SWP
 	PSI #0
 	SWP
+	INC
 ct_end_find_begin_loop:
 ; New stack layout:
 ; +======+-----+-------+----+
