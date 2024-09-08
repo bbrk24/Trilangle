@@ -46,7 +46,7 @@ jobs:
       - name: Compile C++ sources
         shell: pwsh
         run: |
-          cl .\src\*.cpp /Od /EHs /std:c++20 /MTd /link /out:trilangle
+          cl .\src\*.cpp /Od /EHs /std:c++20 /MTd /DNO_BUFFER /link /out:trilangle
       - name: Run test scripts
         # Screw it, I'm not figuring out how to make this work in PowerShell.
         shell: bash
