@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- The macro `NO_BUFFER` can be defined to prevent buffering of output.
+
 ### Changed
 
 - The web interface now indicates when the URL is invalid.

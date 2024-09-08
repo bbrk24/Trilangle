@@ -2,7 +2,9 @@
 
 set -ex
 
-g++ -Og -std=gnu++17 src/*.cpp -o trilangle
+# Some of the examples (particularly the Qdeql truth machine) run very slowly
+# if I/O buffering is enabled.
+g++ -Og -DNO_BUFFER -std=gnu++17 src/*.cpp -o trilangle
 
 for script in tests/cli/*/index.sh
 do

@@ -325,6 +325,8 @@ To enable the `--version` flag, the version must be set at compile time. For exa
 
 Optionally, you can control the behavior of the date/time instructions with `TRILANGLE_CLOCK`. It may be the name of an existing clock in the chrono header (e.g. `-DTRILANGLE_CLOCK=std::chrono::utc_clock`) or C++ code for a class definition (i.e. `-DTRILANGLE_CLOCK='class trilangle_clock { ... };'`). The class must satisfy *[Clock]*. If not specified, defaults to `std::chrono::system_clock`.
 
+If the macro `NO_BUFFER` is defined, output to stdout will not be buffered.
+
 C++14 (`201304L`) or later is required to compile this project. Certain features from newer versions will be used if they are available, which may affect the performance of the compiled binary. These features include, but are not limited to:
 
 - `noexcept` in function types (C++17, `201510L`)

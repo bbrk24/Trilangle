@@ -5,8 +5,12 @@
 #include "interpreter.hh"
 
 inline void execute(const std::string& prg, flags f) {
+#ifdef NO_BUFFER
+    setvbuf(stdout, nullptr, _IONBF, 0);
+#else
     // The only thing cstdio and iostream need to be synced for is the ferror check when pipekill is set.
     std::ios::sync_with_stdio(f.pipekill);
+#endif
 
     program p(prg);
 
