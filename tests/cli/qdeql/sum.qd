@@ -1,0 +1,20 @@
+- put a 255 in the queue
+& get first input
+= make the input earlier than the 255
+
+Here's a neat loop to subtract two values
+\ loop until input is zero:
+  -- decrement both values
+  \/\/ remove the 0s added by the loop
+  = put the input back at the front of the queue
+/ end loop
+
+& get second input
+= swap them around
+\--\/\/=/ Same as above
+
+queue has one value: 255 minus i1 minus i2
+255 minus that is the sum of the inputs
+\=/- enqueue 255
+\--\/\/=/ you get the drill
+* print the result

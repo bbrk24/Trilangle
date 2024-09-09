@@ -31,3 +31,9 @@ test "$text" = "${output//$'\r'/}"
 # truth machine
 test 0 = "$(run_qdeql "${folder}/tm.qd" 0)"
 test 1111111111 = "$(run_qdeql "${folder}/tm.qd" 1 | head -c 10)"
+
+# adder
+test $'\x05' = "$(run_qdeql "${folder}/sum.qd" $'\x02\x03')"
+# bash complains if I pass a null byte in one of the arguments to run_qdeql
+test $'\x03' = "$(printf '%s\0\0\x03' "$(cat "${folder}/sum.qd")" | $TRILANGLE -a "${root}/qdeql/interpreter.trg")"
+test $'\x02' = "$(printf '%s\0\x02\0' "$(cat "${folder}/sum.qd")" | $TRILANGLE -a "${root}/qdeql/interpreter.trg")"
