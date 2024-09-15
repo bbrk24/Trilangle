@@ -69,6 +69,12 @@ public:
         return instruction(operation::BNG, arg);
     }
 
+    static CONSTEXPR_UNION instruction spawn_to(pair<pair<size_t>> choice) noexcept {
+        argument arg;
+        arg.choice = choice;
+        return instruction(operation::TSP, arg);
+    }
+
     constexpr bool is_exit() const noexcept { return m_op == operation::EXT || m_op == operation::TKL; }
     constexpr bool is_join() const noexcept { return m_op == operation::TJN; }
     constexpr bool is_nop() const noexcept { return m_op == operation::NOP; }

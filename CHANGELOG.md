@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ### Changed
 
+- `TSP` is now correctly identified by the disassembler, rather than becoming `BNG`.
 - The web interface now indicates when the URL is invalid.
 
 ## [1.8.2] - 2024-05-03

@@ -134,7 +134,11 @@ void instruction_scanner::build_state() {
                     second_dest = loc->second;
                 }
 
-                fragment->push_back(instruction::branch_to({ first_dest, second_dest }));
+                if (op == static_cast<int24_t>(THR_E) || op == static_cast<int24_t>(THR_W)) {
+                    fragment->push_back(instruction::spawn_to({ first_dest, second_dest }));
+                } else {
+                    fragment->push_back(instruction::branch_to({ first_dest, second_dest }));
+                }
             } else {
                 fragment->push_back(instruction::jump_to(loc->second));
             }
