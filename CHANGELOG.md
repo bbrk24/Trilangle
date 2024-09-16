@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+## [1.8.3] - 2024-09-16
+
 ### Added
 
 - The macro `NO_BUFFER` can be defined to prevent buffering of output.
@@ -251,3 +253,4 @@ First versioned release.
 [1.8.0]: https://github.com/bbrk24/Trilangle/tree/1.8.0
 [1.8.1]: https://github.com/bbrk24/Trilangle/tree/1.8.1
 [1.8.2]: https://github.com/bbrk24/Trilangle/tree/1.8.2
+[1.8.3]: https://github.com/bbrk24/Trilangle/tree/1.8.3
