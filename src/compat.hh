@@ -81,16 +81,6 @@ typedef float small_float;
 #endif
 
 
-// There's no macro explicitly for checking if constexpr destructors are allowed, but constexpr allocation requires it
-#ifdef __cpp_constexpr_dynamic_alloc
-// constexpr if destructors are allowed to be
-#define CONSTEXPR_DESTRUCT constexpr
-#else
-// constexpr if destructors are allowed to be
-#define CONSTEXPR_DESTRUCT inline
-#endif
-
-
 #ifdef __cpp_lib_constexpr_vector
 // constexpr if std::vector is constexpr
 #define CONSTEXPR_VECTOR constexpr

@@ -35,7 +35,7 @@ int24_t get_time() {
 
 template<class Clock>
 int24_t get_date() {
-    constexpr auto ONE_DAY = std::chrono::duration_cast<typename Clock::duration>(std::chrono::seconds(24 * 60 * 60));
+    constexpr auto ONE_DAY = std::chrono::duration_cast<typename Clock::duration>(std::chrono::hours(24));
 
     auto day = Clock::now().time_since_epoch() / ONE_DAY;
     return static_cast<int24_t>(day);

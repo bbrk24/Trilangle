@@ -404,7 +404,7 @@ void thread::tick() {
                 break;
             }
 
-            size_t index = static_cast<size_t>(m_stack.back()) & 0x00ff'ffffU;
+            size_t index = static_cast<size_t>(m_stack.back()) & SIZE_C(0x00ff'ffff);
             m_stack.pop_back();
 
             if (m_flags.warnings && m_stack.size() < index + 1) UNLIKELY {
