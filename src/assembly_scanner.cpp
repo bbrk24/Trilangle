@@ -16,10 +16,11 @@ using std::string;
     exit(EXIT_FAILURE);
 }
 
+// Disable warnings relating to shifting by too much
 #ifdef __clang__
-// ...
+#pragma clang diagnostic ignored "-Wshift-count-overflow"
 #elif REALLY_MSVC
-// ...
+#pragma warning(disable: 4293)
 #else
 #pragma GCC diagnostic ignored "-Wshift-count-overflow"
 #endif
