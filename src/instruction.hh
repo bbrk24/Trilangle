@@ -27,6 +27,7 @@ constexpr bool is_branch(int24_t op, direction dir) noexcept {
 class instruction {
     friend class disassembler;
     friend class compiler;
+    friend class assembly_scanner;
 
     using instruction_pointer = program_walker::instruction_pointer;
 
@@ -89,8 +90,8 @@ public:
         }
     }
 protected:
+    CONSTEXPR_UNION instruction(operation op, argument arg) noexcept : m_arg(arg), m_op(op) {}
+
     argument m_arg;
     operation m_op;
-private:
-    CONSTEXPR_UNION instruction(operation op, argument arg) noexcept : m_arg(arg), m_op(op) {}
 };
