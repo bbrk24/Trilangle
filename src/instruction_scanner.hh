@@ -1,8 +1,7 @@
 #pragma once
 
-#include <iosfwd>
 #include "input.hh"
-#include "instruction.hh"
+#include "program_walker.hh"
 
 class instruction_scanner : public program_walker {
 public:

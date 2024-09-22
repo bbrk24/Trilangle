@@ -1,5 +1,4 @@
-#include "instruction.hh"
-#include "output.hh"
+#include "program_walker.hh"
 
 instruction::instruction(instruction_pointer ip, const program& program) noexcept : m_arg(), m_op(operation::NOP) {
     int24_t op = program.at(ip.coords.first, ip.coords.second);

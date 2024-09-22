@@ -1,5 +1,6 @@
-#include <cstdlib>
-#include <iostream>
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#include "assembly_scanner.hh"
 #include "compiler.hh"
 #include "disassembler.hh"
 #include "interpreter.hh"
@@ -11,6 +12,14 @@ inline void execute(const std::string& prg, flags f) {
     // The only thing cstdio and iostream need to be synced for is the ferror check when pipekill is set.
     std::ios::sync_with_stdio(f.pipekill);
 #endif
+
+    if (f.assembly) {
+        std::istringstream iss(prg);
+        assembly_scanner as(&iss);
+        interpreter<assembly_scanner> i(as, f);
+        i.run();
+        return;
+    }
 
     program p(prg);
 
@@ -28,7 +37,8 @@ inline void execute(const std::string& prg, flags f) {
         compiler c(&p, f);
         c.write_state(std::cout);
     } else {
-        interpreter i(&p, f);
+        program_walker pw(&p);
+        interpreter<program_walker> i(pw, f);
         i.run();
     }
 }

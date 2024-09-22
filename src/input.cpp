@@ -46,7 +46,9 @@ static constexpr const char* FLAGS_HELP =
     "\t                 \t--disassemble.\n"
     "\t--compile, -c    \tOutput C code for the program. Doesn't support all\n"
     "\t                 \toperations. Incompatible with all other flags except\n"
-    "\t                 \t--null.\n\n"
+    "\t                 \t--null.\n"
+    "\t--assembly, -A   \tTake the input in the pseudo-assembly format.\n"
+    "\t                 \tIncompatible with --disassemble.\n\n"
     "\t--expand, -e     \tSpace the program out to fit the triangle.\n"
     "\t                 \tIncompatible with all other flags except --null.\n"
     "\t--null, -z       \tRead the program until null terminator instead of EOF.";
@@ -60,6 +62,7 @@ static CONSTINIT_LAMBDA std::tuple<NONNULL_PTR(const char), char, void (*)(flags
     { "compile", 'c', [](flags& f) NOEXCEPT_T { f.compile = true; } },
     { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
     { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
+    { "assembly", 'A', [](flags& f) NOEXCEPT_T { f.assembly = true; } },
     { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
     { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
     { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "program.hh"
+#include <sstream>
+#include "any_program_holder.hh"
+#include "output.hh"
 
 enum class direction : char {
     // Bitfield representation: { north, !(north || south), east }. This is designed so the default direction
@@ -14,18 +16,91 @@ enum class direction : char {
     southeast = 0b001,
 };
 
-class program_walker {
+constexpr bool is_branch(int24_t op, direction dir) noexcept {
+    switch (op) {
+        case BNG_E:
+        case THR_E:
+            return dir == direction::west;
+        case BNG_W:
+        case THR_W:
+            return dir == direction::east;
+        case BNG_NE:
+            return dir == direction::southwest;
+        case BNG_NW:
+            return dir == direction::southeast;
+        case BNG_SE:
+            return dir == direction::northwest;
+        case BNG_SW:
+            return dir == direction::northeast;
+        default:
+            return false;
+    }
+}
+
+struct instruction_pointer {
+    std::pair<size_t, size_t> coords;
+    direction dir;
+
+    constexpr bool operator==(const instruction_pointer& rhs) const noexcept {
+        return this->coords == rhs.coords && this->dir == rhs.dir;
+    }
+};
+
+class program_walker : public any_program_holder<instruction_pointer> {
 public:
+    using IP = instruction_pointer;
+
     constexpr program_walker(NONNULL_PTR(const program) p) noexcept : m_program(p) {}
 
-    struct instruction_pointer {
-        std::pair<size_t, size_t> coords;
-        direction dir;
-
-        constexpr bool operator==(const instruction_pointer& rhs) const noexcept {
-            return this->coords == rhs.coords && this->dir == rhs.dir;
+    inline void advance(IP& ip, std::function<bool()> go_left) const {
+        int24_t op = m_program->at(ip.coords.first, ip.coords.second);
+        switch (op) {
+            case MIR_EW:
+            case MIR_NESW:
+            case MIR_NS:
+            case MIR_NWSE:
+                program_walker::reflect(ip.dir, op);
+                break;
+            case BNG_E:
+            case BNG_NE:
+            case BNG_NW:
+            case BNG_SE:
+            case BNG_SW:
+            case BNG_W:
+            case THR_E:
+            case THR_W:
+                program_walker::branch(ip.dir, op, go_left);
+                break;
+            case SKP:
+            case PSC:
+            case PSI:
+                program_walker::advance(ip, m_program->side_length());
+                break;
         }
-    };
+        program_walker::advance(ip, m_program->side_length());
+    }
+
+    inline instruction at(const IP& ip) const noexcept {
+        int24_t op = m_program->at(ip.coords.first, ip.coords.second);
+        if (is_branch(op, ip.dir)) {
+            if (op == static_cast<int24_t>(THR_E) || op == static_cast<int24_t>(THR_W)) {
+                return instruction::spawn_to({ { SIZE_C(0), SIZE_C(0) }, { SIZE_C(0), SIZE_C(0) } });
+            } else {
+                return instruction::branch_to({ { SIZE_C(0), SIZE_C(0) }, { SIZE_C(0), SIZE_C(0) } });
+            }
+        } else {
+            return instruction(ip, *m_program);
+        }
+    }
+
+
+    inline std::pair<size_t, size_t> get_coords(const IP& ip) const { return ip.coords; }
+
+    inline std::string raw_at(const IP& ip) const {
+        std::ostringstream oss;
+        print_unichar(m_program->at(ip.coords.first, ip.coords.second), oss);
+        return oss.str();
+    }
 
     // Advance the IP one step.
     static constexpr void advance(instruction_pointer& ip, size_t program_size) noexcept {
@@ -383,8 +458,8 @@ protected:
 
 namespace std {
 template<>
-struct hash<program_walker::instruction_pointer> {
-    inline size_t operator()(const program_walker::instruction_pointer& key) const noexcept {
+struct hash<instruction_pointer> {
+    inline size_t operator()(const instruction_pointer& key) const noexcept {
         return key.coords.first ^ (key.coords.second << 3) ^ (static_cast<size_t>(key.dir) << 7);
     }
 };

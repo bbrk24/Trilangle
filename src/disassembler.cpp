@@ -1,10 +1,6 @@
 #include "disassembler.hh"
 #include <cinttypes>
-#include <cstdio>
 #include <cstdlib>
-#include <ostream>
-#include <sstream>
-#include "output.hh"
 
 using std::cerr;
 using std::ostringstream;
@@ -18,7 +14,7 @@ using std::pair;
 void disassembler::to_str(const instruction& i, std::ostream& os) {
     using operation = instruction::operation;
 
-    switch (i.m_op) {
+    switch (i.get_op()) {
         STRING_NAME(NOP);
         STRING_NAME(ADD);
         STRING_NAME(SUB);
@@ -50,13 +46,13 @@ void disassembler::to_str(const instruction& i, std::ostream& os) {
         STRING_NAME(TKL);
         STRING_NAME(TJN);
         case operation::PSI: {
-            int24_t value = i.m_arg.number;
+            int24_t value = i.get_arg().number;
             os << "PSI #";
             print_unichar(value, os);
             return;
         }
         case operation::PSC: {
-            int24_t value = i.m_arg.number;
+            int24_t value = i.get_arg().number;
             os << "PSC '";
             print_unichar(value, os);
             os << "' ; 0x";
@@ -66,23 +62,23 @@ void disassembler::to_str(const instruction& i, std::ostream& os) {
             return;
         }
         case operation::JMP: {
-            pair<size_t, size_t> target = i.m_arg.next;
+            pair<size_t, size_t> target = i.get_arg().next;
             os << "JMP " << target.first << "." << target.second;
             return;
         }
         case operation::BNG: {
-            pair<size_t, size_t> target = i.m_arg.choice.second;
+            pair<size_t, size_t> target = i.get_arg().choice.second;
             os << "BNG " << target.first << "." << target.second;
             return;
         }
         case operation::TSP: {
-            pair<size_t, size_t> target = i.m_arg.choice.second;
+            pair<size_t, size_t> target = i.get_arg().choice.second;
             os << "TSP " << target.first << "." << target.second;
             return;
         }
         default:
             cerr << "Unrecognized opcode '";
-            print_unichar(static_cast<int24_t>(i.m_op), cerr);
+            print_unichar(static_cast<int24_t>(i.get_op()), cerr);
             cerr << '\'' << std::endl;
             exit(EXIT_FAILURE);
     }

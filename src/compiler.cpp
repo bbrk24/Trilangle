@@ -2,7 +2,6 @@
 // files.
 #include "compiler.hh"
 #include <cstdlib>
-#include <iostream>
 #include "compiler/strings.hh"
 
 using std::cerr;
@@ -17,7 +16,7 @@ void compiler::write_state(std::ostream& os) {
 
     if (std::any_of(m_fragments->cbegin(), m_fragments->cend(), [](const auto& v) {
             return std::any_of(v->begin(), v->end(), [](const auto& i) {
-                return i.m_op == instruction::operation::RND;
+                return i.get_op() == instruction::operation::RND;
             });
         })) {
         os << "srand(time(NULL));";
@@ -37,17 +36,17 @@ void compiler::write_state(std::ostream& os) {
 void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_ascii) {
     using op = instruction::operation;
 
-    switch (i.m_op) {
+    switch (i.get_op()) {
         case op::BNG: {
             os << "if (lws_top(stack) < 0) goto lbl";
-            const auto& choice = i.m_arg.choice;
+            const auto& choice = i.get_arg().choice;
             const auto &dest1 = choice.first, &dest2 = choice.second;
             os << dest2.first << '_' << dest2.second << "; goto lbl" << dest1.first << '_' << dest1.second << ';';
             return;
         }
         case op::JMP: {
             os << "goto lbl";
-            const auto& dest = i.m_arg.next;
+            const auto& dest = i.get_arg().next;
             os << dest.first << '_' << dest.second << ';';
             return;
         }
@@ -87,13 +86,13 @@ void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_as
             return;
         case op::PSC: {
             os << "lws_push(stack,";
-            const auto value = i.m_arg.number;
+            const auto value = i.get_arg().number;
             os << static_cast<int32_t>(value) << ");";
             return;
         }
         case op::PSI: {
             os << "lws_push(stack,";
-            const auto value = i.m_arg.number;
+            const auto value = i.get_arg().number;
             os << static_cast<int32_t>(value - (int24_t)'0') << ");";
             return;
         }

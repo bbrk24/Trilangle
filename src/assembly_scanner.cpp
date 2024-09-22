@@ -2,11 +2,9 @@
 #include <cinttypes>
 #include <iostream>
 #include <set>
-#include <unordered_map>
 
 using std::cerr;
 using std::endl;
-using std::pair;
 using std::string;
 
 #define WHITESPACE " \n\r\t"
@@ -16,21 +14,12 @@ using std::string;
     exit(EXIT_FAILURE);
 }
 
-// Disable warnings relating to shifting by too much
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wshift-count-overflow"
-#elif REALLY_MSVC
-#pragma warning(disable: 4293)
-#else
-#pragma GCC diagnostic ignored "-Wshift-count-overflow"
-#endif
-
-NONNULL_PTR(const std::vector<std::vector<instruction>*>) assembly_scanner::get_fragments() {
+NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_scanner::get_fragments() {
     if (m_fragments != nullptr) {
         return m_fragments;
     }
 
-    m_fragments = new std::vector<std::vector<instruction>*>();
+    m_fragments = new std::vector<NONNULL_PTR(std::vector<instruction>)>();
 
     // We need to do two passes: one to resolve labels, and one to assign targets to jumps. During the first pass, the
     // fragments are actually constructed. However, jumps may not have valid targets yet, so we need some way to store
@@ -41,7 +30,7 @@ NONNULL_PTR(const std::vector<std::vector<instruction>*>) assembly_scanner::get_
     // Using an ordered set over any other container so that references are not invalidated after insertion
     std::set<string> label_names;
 
-    auto label_to_fake_location = [&](const string& name) -> pair<size_t, size_t> {
+    auto label_to_fake_location = [&](const string& name) -> IP {
         auto iter = label_names.find(name);
         if (iter == label_names.end()) {
             auto p = label_names.insert(name);
@@ -49,12 +38,18 @@ NONNULL_PTR(const std::vector<std::vector<instruction>*>) assembly_scanner::get_
         }
         NONNULL_PTR(const string) ptr = &*iter;
         size_t bottom_half = reinterpret_cast<uintptr_t>(ptr) & SIZE_MAX;
-        size_t top_half = reinterpret_cast<uintptr_t>(ptr) >> (8 * sizeof(size_t));
+        size_t top_half =
+#if UINTPTR_MAX > SIZE_MAX
+            reinterpret_cast<uintptr_t>(ptr) >> (8 * sizeof(size_t))
+#else
+            SIZE_C(0)
+#endif
+            ;
         return { top_half, bottom_half };
     };
 
     // First pass
-    for (string curr_line; std::getline(m_program, curr_line);) {
+    for (string curr_line; std::getline(*m_program, curr_line);) {
         // Unquoted semicolons are comments. Remove them.
         size_t i;
         for (i = 0; i < curr_line.size(); ++i) {
@@ -201,17 +196,39 @@ NONNULL_PTR(const std::vector<std::vector<instruction>*>) assembly_scanner::get_
     return m_fragments;
 }
 
-pair<size_t, size_t> assembly_scanner::get_current_location() const {
+void assembly_scanner::advance(IP& ip, std::function<bool()> go_left) const {
+    assert(m_fragments != nullptr);
+
+    const IP* to_left = at(ip).first_if_branch();
+    if (to_left != nullptr && go_left()) {
+        ip = *to_left;
+        return;
+    }
+
+    ip.second++;
+    if (ip.second > m_fragments->at(ip.first)->size()) {
+        ip.first++;
+        ip.second = 0;
+    }
+    if (ip.first > m_fragments->size()) {
+        ip.first = 0;
+    }
+}
+
+string assembly_scanner::raw_at(const IP& ip) const {
+    // TODO: call disassembler::to_str (move it to somewhere common?)
+    return "";
+}
+
+assembly_scanner::IP assembly_scanner::get_current_location() const {
     size_t first = this->m_fragments->size();
     size_t second = 0;
     if (first > 0) {
         --first;
         const auto* ptr = this->m_fragments->at(first);
-        if (ptr == nullptr) {
-            second = ptr->size();
-            if (second > 0) {
-                --second;
-            }
+        second = ptr->size();
+        if (second > 0) {
+            --second;
         }
     }
     return { first, second };
@@ -223,23 +240,21 @@ void assembly_scanner::add_instruction(instruction&& i) {
         m_fragments->push_back(new std::vector<instruction>{ std::move(i) });
     } else {
         auto last = m_fragments->back();
-        if (last == nullptr) {
-            size_t idx = m_fragments->size() - 1;
-            m_fragments->at(idx) = new std::vector<instruction>{ std::move(i) };
+        if (last->back().is_exit() || last->back().first_if_branch()
+            || last->back().get_op() == instruction::operation::JMP) {
+            m_fragments->push_back(new std::vector<instruction>{ std::move(i) });
         } else {
-            if (last->back().is_exit() || last->back().first_if_branch()
-                || last->back().m_op == instruction::operation::JMP) {
-                m_fragments->push_back(new std::vector<instruction>{ std::move(i) });
-            } else {
-                last->push_back(std::forward<instruction&&>(i));
-            }
+            last->push_back(std::forward<instruction&&>(i));
         }
     }
 }
 
-void assembly_scanner::fake_location_to_real(pair<size_t, size_t>& p) const {
+void assembly_scanner::fake_location_to_real(IP& p) const {
     uintptr_t reconstructed =
-        (static_cast<uintptr_t>(p.first) << (8 * sizeof(size_t))) | static_cast<uintptr_t>(p.second);
+#if UINTPTR_MAX > SIZE_MAX
+        (static_cast<uintptr_t>(p.first) << (8 * sizeof(size_t))) |
+#endif
+        static_cast<uintptr_t>(p.second);
     auto ptr = reinterpret_cast<NONNULL_PTR(const string)>(reconstructed);
     p = label_locations.find(*ptr)->second;
 }

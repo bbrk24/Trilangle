@@ -1,39 +1,16 @@
 #pragma once
 
-#include "program_walker.hh"
+#include "program.hh"
 
-constexpr bool is_branch(int24_t op, direction dir) noexcept {
-    switch (op) {
-        case BNG_E:
-        case THR_E:
-            return dir == direction::west;
-        case BNG_W:
-        case THR_W:
-            return dir == direction::east;
-        case BNG_NE:
-            return dir == direction::southwest;
-        case BNG_NW:
-            return dir == direction::southeast;
-        case BNG_SE:
-            return dir == direction::northwest;
-        case BNG_SW:
-            return dir == direction::northeast;
-        default:
-            return false;
-    }
-}
+struct instruction_pointer;
 
 // A variant-like type.
 class instruction {
-    friend class disassembler;
-    friend class compiler;
     friend class assembly_scanner;
-
-    using instruction_pointer = program_walker::instruction_pointer;
 
     template<typename T>
     using pair = std::pair<T, T>;
-
+public:
     // The underlying operation performed.
     enum class operation : int32_t {
         // direction-sensitive ones must be negative to ensure they never appear in source.
@@ -55,7 +32,7 @@ class instruction {
 
         CONSTEXPR_UNION argument() noexcept { none = {}; }
     };
-public:
+
     instruction(instruction_pointer ip, const program& program) noexcept;
 
     static CONSTEXPR_UNION instruction jump_to(pair<size_t> next) noexcept {
@@ -89,6 +66,9 @@ public:
                 return nullptr;
         }
     }
+
+    constexpr operation get_op() const noexcept { return m_op; }
+    CONSTEXPR_UNION const argument& get_arg() const noexcept { return m_arg; }
 protected:
     CONSTEXPR_UNION instruction(operation op, argument arg) noexcept : m_arg(arg), m_op(op) {}
 
