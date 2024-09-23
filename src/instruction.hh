@@ -67,6 +67,16 @@ public:
         }
     }
 
+    CONSTEXPR_UNION const pair<size_t>* second_if_branch() const noexcept {
+        switch (m_op) {
+            case operation::BNG:
+            case operation::TSP:
+                return &this->m_arg.choice.second;
+            default:
+                return nullptr;
+        }
+    }
+
     constexpr operation get_op() const noexcept { return m_op; }
     CONSTEXPR_UNION const argument& get_arg() const noexcept { return m_arg; }
 protected:

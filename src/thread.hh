@@ -82,20 +82,20 @@ public:
         static std::uniform_int_distribution<int32_t> distr(INT24_MIN, INT24_MAX);
 
         // The operation currently being executed
-        instruction instr = m_program_holder.at(m_ip);
+        instruction instr = m_program_holder->at(m_ip);
         operation op = instr.get_op();
 
         // The web interface needs every thread to send debug info. The CLI expects only active threads to do so.
 #ifdef __EMSCRIPTEN__
         if (m_flags.debug) {
-            pair<size_t, size_t> coords = m_program_holder.get_coords(m_ip);
+            pair<size_t, size_t> coords = m_program_holder->get_coords(m_ip);
             send_debug_info(
                 m_number,
                 m_flags.show_stack ? m_stack.data() : nullptr,
                 m_stack.size(),
                 coords.first,
                 coords.second,
-                m_program_holder.raw_at(m_ip).c_str()
+                m_program_holder->raw_at(m_ip).c_str()
             );
         }
 #endif
@@ -117,14 +117,14 @@ public:
 #ifndef __EMSCRIPTEN__
         // Print the requisite information in debug mode.
         if (m_flags.debug) {
-            pair<size_t, size_t> coords = m_program_holder.get_coords(m_ip);
+            pair<size_t, size_t> coords = m_program_holder->get_coords(m_ip);
             send_debug_info(
                 m_number,
                 m_flags.show_stack ? m_stack.data() : nullptr,
                 m_stack.size(),
                 coords.first,
                 coords.second,
-                m_program_holder.raw_at(m_ip).c_str()
+                m_program_holder->raw_at(m_ip).c_str()
             );
         }
 #endif
@@ -133,6 +133,7 @@ public:
         switch (op) {
             case operation::BNG:
             case operation::NOP:
+            case operation::JMP:
                 break;
             case operation::ADD: {
                 SIZE_CHECK("add from", 2);
@@ -464,7 +465,7 @@ public:
             default: {
                 cerr << "Unrecognized opcode '";
                 print_unichar(static_cast<int24_t>(op), cerr);
-                pair<size_t, size_t> coords = m_program_holder.get_coords(m_ip);
+                pair<size_t, size_t> coords = m_program_holder->get_coords(m_ip);
                 cerr << "' (at (" << coords.first << ", " << coords.second << "))\n";
                 thread<ProgramHolder>::flush_and_exit(EXIT_FAILURE);
             }
@@ -478,19 +479,18 @@ public:
 
 #undef SIZE_CHECK
 protected:
-    inline thread(const ProgramHolder& ph, flags f) noexcept :
+    inline thread(ProgramHolder* ph, flags f) noexcept :
         m_program_holder(ph), m_stack(), m_ip(), m_status(status::active), m_flags(f), m_number(thread_count++) {}
 
     constexpr void advance() noexcept {
-        // FIXME: Segfaults when spawning a new thread with an empty stack
-        m_program_holder.advance(m_ip, [&]() NOEXCEPT_T {
+        m_program_holder->advance(m_ip, [&]() NOEXCEPT_T {
             EMPTY_PROTECT("branch on") {}
             return m_stack.back() < INT24_C(0);
         });
     }
 #undef EMPTY_PROTECT
 
-    ProgramHolder m_program_holder;
+    ProgramHolder* m_program_holder;
     std::vector<int24_t> m_stack;
     NO_UNIQUE_ADDRESS typename ProgramHolder::IP m_ip;
     status m_status;

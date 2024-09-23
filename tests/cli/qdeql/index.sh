@@ -14,8 +14,18 @@ run_qdeql () {
     fi
 }
 
+run_qdeql_asm () {
+    if [ "$#" -gt 1 ]
+    then
+        printf '%s\0%s' "$(cat "$1")" "$2" | $TRILANGLE -Aaf "${root}/qdeql/disassembly.txt"
+    else
+        $TRILANGLE -A "${root}/qdeql/disassembly.txt" <"$1"
+    fi
+}
+
 # hello world
 test 'hello world' = "$(run_qdeql "${folder}/hello.qd")"
+# test 'hello world' = "$(run_qdeql_asm "${folder}/hello.qd")"
 
 # cat
 # Qdeql is limited to bytes, so this cat can't be the same Unicode cat
@@ -27,6 +37,9 @@ text='
 
 output=$(run_qdeql "${folder}/cat.qd" "$text")
 test "$text" = "${output//$'\r'/}"
+
+# output=$(run_qdeql_asm "${folder}/cat.qd" "$text")
+# test "$text" = "${output//$'\r'/}"
 
 # truth machine
 test 0 = "$(run_qdeql "${folder}/tm.qd" 0)"

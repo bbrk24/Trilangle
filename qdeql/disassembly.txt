@@ -296,7 +296,7 @@ ct_bgn_not_end:
 ct_bgn_not_end_cleanup:
 	POP	; Remove the uop from the stack
 	DEC	; Advance the PC
-	JMP ct_find_end_loop
+	JMP ct_bgn_find_end_loop
 ct_bgn_found_end:
 ; If PC is pointing at the end uop, the stack layout is this:
 ; +======+------+----+

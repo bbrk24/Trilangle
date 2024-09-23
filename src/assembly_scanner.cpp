@@ -87,7 +87,9 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
             string label = curr_line.substr(0, i);
 
             DISCARD label_names.insert(label);
-            auto p = label_locations.insert({ label, get_current_location() });
+            // Add a NOP for the label to point to
+            add_instruction({ instruction::operation::NOP, instruction::argument() });
+            auto p = m_label_locations.insert({ label, get_current_location() });
 
             if (!p.second) {
                 cerr << "Label '" << label << "' appears twice" << endl;
@@ -182,6 +184,10 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
         }
     }
 
+    // for (const auto& el : m_label_locations) {
+    //     std::cout << "{ " << el.second.first << ", " << el.second.second << " }: " << el.first << std::endl;
+    // }
+
     // Second pass
     for (auto* fragment : *m_fragments) {
         for (auto& instr : *fragment) {
@@ -196,35 +202,41 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
     return m_fragments;
 }
 
-void assembly_scanner::advance(IP& ip, std::function<bool()> go_left) const {
-    assert(m_fragments != nullptr);
+void assembly_scanner::advance(IP& ip, std::function<bool()> go_left) {
+    instruction i = at(ip);
 
-    const IP* to_left = at(ip).first_if_branch();
-    if (to_left != nullptr && go_left()) {
-        ip = *to_left;
+    if (i.get_op() == instruction::operation::JMP) {
+        ip = i.get_arg().next;
         return;
     }
 
+    const IP* to_left = i.second_if_branch();
+    if (to_left != nullptr && go_left()) {
+        ip = *to_left;
+    }
+
     ip.second++;
-    if (ip.second > m_fragments->at(ip.first)->size()) {
+    if (ip.second >= m_fragments->at(ip.first)->size()) {
         ip.first++;
         ip.second = 0;
     }
-    if (ip.first > m_fragments->size()) {
+    if (ip.first >= m_fragments->size()) {
         ip.first = 0;
     }
 }
 
-string assembly_scanner::raw_at(const IP& ip) const {
+string assembly_scanner::raw_at(const IP& ip) {
     // TODO: call disassembler::to_str (move it to somewhere common?)
-    return "";
+    char buf[12];
+    snprintf(buf, sizeof buf, "%" PRId32, static_cast<int32_t>(at(ip).get_op()));
+    return string(buf);
 }
 
 assembly_scanner::IP assembly_scanner::get_current_location() const {
     size_t first = this->m_fragments->size();
     size_t second = 0;
-    if (first > 0) {
-        --first;
+    --first;
+    if (first != SIZE_MAX) {
         const auto* ptr = this->m_fragments->at(first);
         second = ptr->size();
         if (second > 0) {
@@ -256,7 +268,13 @@ void assembly_scanner::fake_location_to_real(IP& p) const {
 #endif
         static_cast<uintptr_t>(p.second);
     auto ptr = reinterpret_cast<NONNULL_PTR(const string)>(reconstructed);
-    p = label_locations.find(*ptr)->second;
+    const string& str = *ptr;
+    auto loc = m_label_locations.find(str);
+    if (loc == m_label_locations.end()) {
+        cerr << "Undeclared label '" << str << "'" << endl;
+        exit(EXIT_FAILURE);
+    }
+    p = loc->second;
 }
 
 #define DESTRINGIFY_NAME(op) \

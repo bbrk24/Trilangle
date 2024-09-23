@@ -14,8 +14,8 @@ extern "C" void send_thread_count(size_t tc);
 template<class ProgramHolder>
 class interpreter {
 public:
-    inline interpreter(const ProgramHolder& p, flags f) noexcept :
-        m_program_holder(p), m_threads{ thread<ProgramHolder>(p, f) } {}
+    inline interpreter(ProgramHolder& p, flags f) noexcept :
+        m_program_holder(p), m_threads{ thread<ProgramHolder>(&p, f) } {}
 
     inline void run() {
         using status = typename thread<ProgramHolder>::status;
@@ -152,11 +152,18 @@ private:
 
     inline void split_thread(std::vector<thread<ProgramHolder>>& new_threads, const thread<ProgramHolder>& old_thread)
         const {
-        new_threads.push_back(old_thread);
-        new_threads.push_back(old_thread);
+        thread<ProgramHolder> new_thread_1 = old_thread;
+        new_thread_1.m_status = thread<ProgramHolder>::status::active;
+        thread<ProgramHolder> new_thread_2 = new_thread_1;
+
+        m_program_holder.advance(new_thread_1.m_ip, []() { return true; });
+        m_program_holder.advance(new_thread_2.m_ip, []() { return false; });
+
+        new_threads.push_back(new_thread_1);
+        new_threads.push_back(new_thread_2);
     }
 
-    const ProgramHolder& m_program_holder;
+    ProgramHolder& m_program_holder;
     std::vector<thread<ProgramHolder>> m_threads;
 };
 

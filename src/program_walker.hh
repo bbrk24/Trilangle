@@ -52,7 +52,7 @@ public:
 
     constexpr program_walker(NONNULL_PTR(const program) p) noexcept : m_program(p) {}
 
-    inline void advance(IP& ip, std::function<bool()> go_left) const {
+    inline void advance(IP& ip, std::function<bool()> go_left) {
         int24_t op = m_program->at(ip.coords.first, ip.coords.second);
         switch (op) {
             case MIR_EW:
@@ -80,7 +80,7 @@ public:
         program_walker::advance(ip, m_program->side_length());
     }
 
-    inline instruction at(const IP& ip) const noexcept {
+    inline instruction at(const IP& ip) noexcept {
         int24_t op = m_program->at(ip.coords.first, ip.coords.second);
         if (is_branch(op, ip.dir)) {
             if (op == static_cast<int24_t>(THR_E) || op == static_cast<int24_t>(THR_W)) {
@@ -96,7 +96,7 @@ public:
 
     inline std::pair<size_t, size_t> get_coords(const IP& ip) const { return ip.coords; }
 
-    inline std::string raw_at(const IP& ip) const {
+    inline std::string raw_at(const IP& ip) {
         std::ostringstream oss;
         print_unichar(m_program->at(ip.coords.first, ip.coords.second), oss);
         return oss.str();
