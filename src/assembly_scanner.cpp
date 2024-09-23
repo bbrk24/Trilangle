@@ -165,7 +165,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
                     }
                     arg_value = static_cast<int24_t>(ul);
                 } else if (argument[0] == '#' && argument.size() == 2) {
-                    arg_value = static_cast<int24_t>(argument[1] - '0');
+                    arg_value = argument[1];
                     if (arg_value < INT24_C(0) || arg_value > INT24_C(9)) {
                         invalid_literal(argument);
                     }
