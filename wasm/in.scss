@@ -128,7 +128,7 @@ fieldset {
 }
 
 button {
-    background-color: color.change($button-color, $alpha: calc($button-opacity / 100%));
+    background-color: color.change($button-color, $alpha: $button-opacity);
     border: 0.125em solid transparent;
     color: var(--text-color);
     border-radius: 0.375em;
