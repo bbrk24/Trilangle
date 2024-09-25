@@ -22,7 +22,7 @@ jobs:
         shell: bash
         run: |
           shopt -s globstar extglob
-          g++ -Og -Isrc tests/unit/**/*.cpp src/!(main).cpp
+          g++ -std=gnu++23 -Og -Isrc tests/unit/**/*.cpp src/!(main).cpp
           ./a.out
   cli-tests-unix:
     strategy:

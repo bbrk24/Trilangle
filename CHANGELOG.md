@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Changed
+
+- Fixed C++23 support
+
 ## [1.8.3] - 2024-09-16
 
 ### Added
