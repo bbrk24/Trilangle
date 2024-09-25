@@ -16,7 +16,7 @@ jobs:
 
           tag=${{ github.ref_name }}
 
-          g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++17 -o "Release/trilangle-${tag}-ubuntu"
+          g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++23 -o "Release/trilangle-${tag}-ubuntu"
           src/*.cpp
       - uses: actions/upload-artifact@v4
         with:
@@ -39,7 +39,7 @@ jobs:
 
           tag=${{ github.ref_name }}
 
-          clang++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++20 -target "$(clang -dumpmachine | sed -E
+          clang++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++23 -target "$(clang -dumpmachine | sed -E
           's/^\w+-/${{ matrix.arch }}-/')" -o "Release/trilangle-${tag}-macos-${{ matrix.arch }}" src/*.cpp
       - uses: actions/upload-artifact@v4
         with:

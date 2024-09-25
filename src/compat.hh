@@ -15,6 +15,7 @@
 
 #if __has_include(<stdfloat>)
 #include <stdfloat>
+#define _INCLUDED_STDFLOAT
 #endif
 
 #if __has_include(<version>)
@@ -44,16 +45,18 @@ constexpr int EX_NOINPUT = 66;
 #endif
 
 
-#ifdef __STDCPP_FLOAT16_T__
+#if defined(_INCLUDED_STDFLOAT) && defined(__STDCPP_FLOAT16_T__)
 // The smallest supported float type.
 typedef std::float16_t small_float;
-#elif defined(__STDCPP_BFLOAT16_T__)
+#elif defined(_INCLUDED_STDFLOAT) && defined(__STDCPP_BFLOAT16_T__)
 // The smallest supported float type.
 typedef std::bfloat16_t small_float;
 #else
 // The smallest supported float type.
 typedef float small_float;
 #endif
+
+#undef _INCLUDED_STDFLOAT
 
 
 #if !defined(__GNUC__) && defined(_MSC_VER)
