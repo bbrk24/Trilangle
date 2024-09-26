@@ -7,10 +7,11 @@
 namespace {
 using std::pair;
 
-// Thank you clang-format very cool
 #define TEST_ITEM(dir, prog) \
     { \
-#dir, { direction::dir, program(prog) } \
+        #dir, { \
+            direction::dir, program(prog) \
+        } \
     }
 
 // Each test program consists of every digit 0-9 exactly once, in the order they are hit if the IP is traveling in the
@@ -28,7 +29,9 @@ std::initializer_list<pair<const char*, pair<direction, program>>> test_programs
 
 #define LR_PAIR(left, left_branch, right, right_branch) \
     { #right "_left", { direction::right, right_branch, true, direction::left } }, { \
-#left "_right", { direction::left, left_branch, false, direction::right } \
+        #left "_right", { \
+            direction::left, left_branch, false, direction::right \
+        } \
     }
 
 // Each item is a 4-tuple of starting direction, instruction, should go left, ending direction.
@@ -45,7 +48,9 @@ std::initializer_list<pair<const char*, std::tuple<direction, int24_t, bool, dir
         { "southeast_to_" #se, { direction::southeast, mirror, direction::se } }, \
         { "southwest_to_" #sw, { direction::southwest, mirror, direction::sw } }, \
         { "west_to_" #w, { direction::west, mirror, direction::w } }, { \
-        "northwest_to_" #nw, { direction::northwest, mirror, direction::nw } \
+        "northwest_to_" #nw, { \
+            direction::northwest, mirror, direction::nw \
+        } \
     }
 
 // Tuple: before, mirror, after

@@ -70,8 +70,10 @@ struct int24_t {
     constexpr int24_t operator<<(int24_t rhs) const noexcept { return int24_t{ this->value << rhs.value }; }
 };
 
-constexpr int24_t INT24_MIN{ -0x800000 };
-constexpr int24_t INT24_MAX{ 0x7fffff };
+constexpr int24_t INT24_MIN{ -0x80'0000 };
+constexpr int24_t INT24_MAX{ 0x7f'ffff };
 
 #define INT24_C(x) \
-    int24_t { INT32_C(x) }
+    int24_t { \
+        INT32_C(x) \
+    }

@@ -23,7 +23,7 @@ void print_unichar(int24_t c, std::ostream& os) {
             0,
         };
         os << buffer;
-    } else if (c.value <= 0x1fffff) {
+    } else if (c.value <= 0x1f'ffff) {
         char buffer[] = {
             static_cast<char>(0xf0 | (c.value >> 18)),
             static_cast<char>(0x80 | ((c.value >> 12) & 0x3f)),

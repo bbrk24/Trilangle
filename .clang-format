@@ -17,9 +17,19 @@ ForEachMacros: # It doesn't particularly matter if these are ForEachMacros or If
   - testcase
   - testgroup
 IndentWidth: 4
-InsertTrailingCommas: Wrapped
 InsertBraces: true
+InsertNewlineAtEOF: true
+InsertTrailingCommas: Wrapped
+IntegerLiteralSeparator:
+  Binary: 4
+  Decimal: 3
+  # So that it doesn't insert it into the wrong place in __cpp numbers in compat.hh
+  DecimalMinDigits: 7
+  Hex: 4
+  HexMinDigits: 6
+LineEnding: LF
 MaxEmptyLinesToKeep: 2
+RemoveParentheses: ReturnStatement
 SpaceAfterTemplateKeyword: false
 WhitespaceSensitiveMacros:
   - STRING_NAME

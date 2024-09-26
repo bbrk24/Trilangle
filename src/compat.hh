@@ -72,7 +72,7 @@ typedef float small_float;
 // constinit, constexpr, or just const, depending on where lambdas are allowed
 #define CONSTINIT_LAMBDA constinit const
 #elif defined(__cpp_constexpr)
-#if __cpp_constexpr >= 201603
+#if __cpp_constexpr >= 201603L
 // constinit, constexpr, or just const, depending on where lambdas are allowed
 #define CONSTINIT_LAMBDA constexpr
 #endif

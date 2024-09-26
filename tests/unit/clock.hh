@@ -17,7 +17,7 @@ public:
 
     static inline time_point now() noexcept {
         // Unix time (ms) for 2000-03-15T01:23:45.680Z
-        return time_point(duration(953083425680));
+        return time_point(duration(953'083'425'680));
     }
 };
 
@@ -32,7 +32,7 @@ public:
 
     static inline time_point now() noexcept {
         // One time unit before midnight, rounded up
-        rep x = static_cast<rep>(ceil(86'400'000'000'000.0 * 0x7fffff / 0x800000));
+        rep x = static_cast<rep>(ceil(86'400'000'000'000.0 * 0x7f'ffff / 0x80'0000));
         return time_point(duration(x));
     }
 };

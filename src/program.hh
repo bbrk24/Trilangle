@@ -46,9 +46,7 @@ public:
         return m_code[idx];
     }
 
-    constexpr size_t side_length() const noexcept {
-        return m_side_length;
-    }
+    constexpr size_t side_length() const noexcept { return m_side_length; }
 private:
     std::vector<int24_t> m_code;
     size_t m_side_length;
