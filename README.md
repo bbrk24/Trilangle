@@ -190,6 +190,20 @@ If the `-w` flag is set, warnings will be printed to STDERR for undefined behavi
 
 If the `-f` flag is set, programs terminate once STDOUT cannot be written to. This allows, for example, piping the output of the program into `head` to terminate early.
 
+## Exit codes
+
+The interpreter consistently uses these exit codes for different meanings:
+
+| C constant name | Value if `sysexits.h` is absent | Meaning |
+|--|:--:|:--|
+| `EXIT_SUCCESS` | N/A | Program executed successfully            |
+| `EXIT_FAILURE` | N/A | Program error (e.g. unrecognized opcode) |
+| `EX_USAGE`     | 64  | Invalid command-line arguments           |
+| `EX_DATAERR`   | 65  | Program is empty                         |
+| `EX_NOINPUT`   | 66  | Program could not be read                |
+
+If your system does not have `sysexits.h` and you would like to customize the exit codes, you may do so at compile time with compiler flags such as `-DEX_USAGE=2`.
+
 ## The disassembler
 
 As you may have noticed above, every instruction has a three-letter name. When the interpreter is given the flag `-D`, rather than interpreting code, it converts it to a pseudo-assembly program.
