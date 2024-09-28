@@ -76,6 +76,8 @@ public:
             case PSI:
                 program_walker::advance(ip, m_program->side_length());
                 break;
+            default:
+                break;
         }
         program_walker::advance(ip, m_program->side_length());
     }

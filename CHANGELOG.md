@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [Keep a
 
 ## Unreleased
 
+### Added
+
+- The interpreter can now handle assembly syntax, with the `-A` flag in the command line and a checkbox in the online interpreter. Currently, interactive debugging of assembly is not supported in the web interpreter.
+
 ### Changed
 
 - Fixed C++23 support

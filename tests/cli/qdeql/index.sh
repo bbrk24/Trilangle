@@ -25,7 +25,7 @@ run_qdeql_asm () {
 
 # hello world
 test 'hello world' = "$(run_qdeql "${folder}/hello.qd")"
-# test 'hello world' = "$(run_qdeql_asm "${folder}/hello.qd")"
+test 'hello world' = "$(run_qdeql_asm "${folder}/hello.qd")"
 
 # cat
 # Qdeql is limited to bytes, so this cat can't be the same Unicode cat
@@ -38,15 +38,20 @@ text='
 output=$(run_qdeql "${folder}/cat.qd" "$text")
 test "$text" = "${output//$'\r'/}"
 
-# output=$(run_qdeql_asm "${folder}/cat.qd" "$text")
-# test "$text" = "${output//$'\r'/}"
+output=$(run_qdeql_asm "${folder}/cat.qd" "$text")
+test "$text" = "${output//$'\r'/}"
 
 # truth machine
 test 0 = "$(run_qdeql "${folder}/tm.qd" 0)"
 test 1111111111 = "$(run_qdeql "${folder}/tm.qd" 1 | head -c 10)"
+test 0 = "$(run_qdeql_asm "${folder}/tm.qd" 0)"
+test 1111111111 = "$(run_qdeql_asm "${folder}/tm.qd" 1 | head -c 10)"
 
 # adder
 test $'\x05' = "$(run_qdeql "${folder}/sum.qd" $'\x02\x03')"
+test $'\x05' = "$(run_qdeql_asm "${folder}/sum.qd" $'\x02\x03')"
 # bash complains if I pass a null byte in one of the arguments to run_qdeql
 test $'\x03' = "$(printf '%s\0\0\x03' "$(cat "${folder}/sum.qd")" | $TRILANGLE -a "${root}/qdeql/interpreter.trg")"
 test $'\x02' = "$(printf '%s\0\x02\0' "$(cat "${folder}/sum.qd")" | $TRILANGLE -a "${root}/qdeql/interpreter.trg")"
+test $'\x03' = "$(printf '%s\0\0\x03' "$(cat "${folder}/sum.qd")" | $TRILANGLE -Aa "${root}/qdeql/disassembly.txt")"
+test $'\x02' = "$(printf '%s\0\x02\0' "$(cat "${folder}/sum.qd")" | $TRILANGLE -Aa "${root}/qdeql/disassembly.txt")"

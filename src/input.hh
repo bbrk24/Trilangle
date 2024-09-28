@@ -32,7 +32,7 @@ struct flags {
     constexpr bool is_valid() const noexcept {
         return !(
             (show_stack && !debug) || ((debug || warnings || pipekill || assembly) && disassemble)
-            || (hide_nops && !disassemble) || (expand && (debug || warnings || pipekill || disassemble))
+            || (hide_nops && !disassemble) || (expand && (debug || warnings || pipekill || disassemble || assembly))
             || (compile && (debug || warnings || pipekill || disassemble || expand))
             || (assume_ascii && (expand || disassemble))
         );

@@ -153,7 +153,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
                         invalid_literal(argument);
                     }
                     i = 1;
-                    arg_value = parse_unichar([&]() { return curr_line[i++]; });
+                    arg_value = parse_unichar([&]() { return argument[i++]; });
                     if (arg_value < INT24_C(0) || i != argument.size() - 1) {
                         invalid_literal(argument);
                     }
@@ -165,12 +165,19 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
                     }
                     arg_value = static_cast<int24_t>(ul);
                 } else if (argument[0] == '#' && argument.size() == 2) {
-                    arg_value = argument[1];
+                    arg_value = static_cast<int24_t>(argument[1] - '0');
                     if (arg_value < INT24_C(0) || arg_value > INT24_C(9)) {
                         invalid_literal(argument);
                     }
                 } else {
                     invalid_literal(argument);
+                }
+
+                if (opcode == instruction::operation::PSI) {
+                    // PSI expects to be given the digit, not the actual value
+                    auto p = arg_value.add_with_overflow('0');
+                    assert(!p.first);
+                    arg_value = p.second;
                 }
 
                 instruction::argument arg;

@@ -17,6 +17,7 @@ Trilangle is a 2-D, stack-based programming language inspired by [Hexagony].
 > - [Interpreter flags](#interpreter-flags)
 > - [Exit codes](#exit-codes)
 > - [The disassembler](#the-disassembler)
+>   - [Assembly syntax](#assembly-syntax)
 > - [C compiler](#c-compiler)
 > - [Sample programs](#sample-programs)
 >   - [cat](#cat)
@@ -223,6 +224,36 @@ For example, when passing [the cat program below](#cat) with the flags `-Dn`, th
 1.5:	JMP 0.1
 2.0:	POP
 2.2:	EXT
+```
+
+### Assembly syntax
+
+In addition to producing this syntax, Trilangle is capable of interpreting this syntax. Currently, the output with `--hide-nops` is not guaranteed to be interpretable, as it may be missing jump targets. Each line can maximally consist of a label, an instruction, and a comment. The syntax can be described with the following extended Backus-Naur form:
+
+```
+program = line, {newline, line};
+line = [label, [":"]], [multiple_whitespace, instruction], {whitespace}, [comment];
+
+newline = ? U+000A END OF LINE ?;
+tab = ? U+0009 CHARACTER TABULATION ?;
+whitespace = " " | ? U+000D CARRIAGE RETURN ? | tab;
+non_whitespace = ? Any single unicode character not in 'newline' or 'whitespace' ?;
+multiple_whitespace = whitespace, {whitespace};
+
+label = non_whitespace, {non_whitespace};
+comment = ";", {non_whitespace | whitespace};
+
+instruction = instruction_with_target | instruction_with_argument | plain_instruction;
+instruction_with_target = ("BNG" | "TSP" | "JMP"), multiple_whitespace, label;
+instruction_with_argument = ("PSI" | "PSC"), multiple_whitespace, number_literal;
+plain_instruction = ? Any three-character instruction besides the five already covered ?;
+
+number_literal = character_literal | decimal_literal | hex_literal;
+character_literal = "'", (non_whitespace | tab), "'";
+decimal_literal = "#", decimal_digit;
+hex_literal = "0x", hex_digit, {hex_digit};
+decimal_digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+hex_digit = "a" | "b" | "c" | "d" | "e" | "f" | "A" | "B" | "C" | "D" | "E" | "F" | decimal_digit;
 ```
 
 ## C compiler

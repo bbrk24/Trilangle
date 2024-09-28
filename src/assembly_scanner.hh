@@ -8,7 +8,7 @@ class assembly_scanner : public any_program_holder<std::pair<size_t, size_t> > {
 public:
     using IP = std::pair<size_t, size_t>;
 
-    inline assembly_scanner(std::istream* program) : m_program(program), m_fragments(nullptr) {}
+    inline assembly_scanner(NONNULL_PTR(std::istream) program) : m_program(program), m_fragments(nullptr) {}
 
     inline ~assembly_scanner() noexcept {
         if (m_fragments == nullptr) {
@@ -36,6 +36,6 @@ private:
     IP get_current_location() const;
     void add_instruction(instruction&& i);
 
-    std::istream* m_program;
+    NONNULL_PTR(std::istream) m_program;
     std::vector<NONNULL_PTR(std::vector<instruction>)>* m_fragments;
 };
