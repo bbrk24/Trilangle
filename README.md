@@ -15,6 +15,7 @@ Trilangle is a 2-D, stack-based programming language inspired by [Hexagony].
 >   - [I/O instructions](#io-instructions)
 >   - [Threading](#threading)
 > - [Interpreter flags](#interpreter-flags)
+> - [Exit codes](#exit-codes)
 > - [The disassembler](#the-disassembler)
 > - [C compiler](#c-compiler)
 > - [Sample programs](#sample-programs)
