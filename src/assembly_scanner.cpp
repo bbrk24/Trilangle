@@ -1,5 +1,6 @@
 #include "assembly_scanner.hh"
 #include <cinttypes>
+#include <cstring>
 #include <iostream>
 #include <set>
 
@@ -110,6 +111,10 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
         // Line should only be the opcode and, if there is one, the argument
         if (curr_line.size() < 3) {
             cerr << "Instruction too short: " << curr_line << endl;
+            exit(EXIT_FAILURE);
+        }
+        if (curr_line.size() > 3 && !strchr(WHITESPACE, curr_line[3])) {
+            cerr << "Instruction too long: " << curr_line << endl;
             exit(EXIT_FAILURE);
         }
 
