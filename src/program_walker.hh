@@ -85,6 +85,10 @@ public:
     inline instruction at(const IP& ip) noexcept {
         int24_t op = m_program->at(ip.coords.first, ip.coords.second);
         if (is_branch(op, ip.dir)) {
+            // The arguments here aren't used. This needs to return `instruction` rather than `operation` in order to
+            // convey the argument for PSI/PSC, but the arguments for branches aren't used by the threads. While I could
+            // determine the locations that they would branch to, pair<size_t> is smaller than IP, so that wouldn't even
+            // fit in the arguments. Instead, the arguments have to be hardcoded with some value, like 0.
             if (op == static_cast<int24_t>(THR_E) || op == static_cast<int24_t>(THR_W)) {
                 return instruction::spawn_to({ { SIZE_C(0), SIZE_C(0) }, { SIZE_C(0), SIZE_C(0) } });
             } else {
