@@ -19,8 +19,7 @@ inline void execute(const std::string& prg, flags f) {
 #endif
 
     if (f.assembly) {
-        std::istringstream iss(prg);
-        assembly_scanner as(&iss);
+        assembly_scanner as(prg);
         if (as.get_fragments()->size() == 0) {
             empty_program();
         }
