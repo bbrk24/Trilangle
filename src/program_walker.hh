@@ -94,6 +94,8 @@ public:
             } else {
                 return instruction::branch_to({ { SIZE_C(0), SIZE_C(0) }, { SIZE_C(0), SIZE_C(0) } });
             }
+        } else if (op == static_cast<int24_t>(SKP)) {
+            return instruction{ static_cast<instruction::operation>(SKP), instruction::argument() };
         } else {
             return instruction(ip, *m_program);
         }

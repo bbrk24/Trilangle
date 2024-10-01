@@ -7,6 +7,7 @@ struct instruction_pointer;
 // A variant-like type.
 class instruction {
     friend class assembly_scanner;
+    friend class program_walker;
 
     template<typename T>
     using pair = std::pair<T, T>;
