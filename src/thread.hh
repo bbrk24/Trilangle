@@ -21,7 +21,7 @@ extern "C" void send_debug_info(
     size_t stack_depth,
     size_t y,
     size_t x,
-    const char* instruction
+    CONST_C_STR instruction
 );
 
 template<class ProgramHolder>

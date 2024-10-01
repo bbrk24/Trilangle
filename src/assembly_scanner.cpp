@@ -181,7 +181,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
                 } else if (argument[0] == '0' && argument[1] == 'x') {
                     char* last = nullptr;
                     unsigned long ul = strtoul(argument.c_str(), &last, 16);
-                    if (*last != '\0') {
+                    if (*last != '\0' || ul > 0x1f'ffffUL) {
                         invalid_literal(argument);
                     }
                     arg_value = static_cast<int24_t>(ul);
@@ -211,10 +211,6 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
                 break;
         }
     }
-
-    // for (const auto& el : m_label_locations) {
-    //     std::cout << "{ " << el.second.first << ", " << el.second.second << " }: " << el.first << std::endl;
-    // }
 
     // Second pass
     for (auto* fragment : *m_fragments) {
@@ -247,9 +243,6 @@ void assembly_scanner::advance(IP& ip, std::function<bool()> go_left) {
     if (ip.second >= m_fragments->at(ip.first)->size()) {
         ip.first++;
         ip.second = 0;
-    }
-    if (ip.first >= m_fragments->size()) {
-        ip.first = 0;
     }
 }
 
