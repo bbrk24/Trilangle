@@ -49,7 +49,7 @@ void interpreter::run() {
                         default:
                             unreachable("Only west- and east-moving threads can split");
                     }
-                    FALLTHROUGH
+                    [[fallthrough]];
                 case status::terminated:
                     removal_indices.push_back(i);
                     break;

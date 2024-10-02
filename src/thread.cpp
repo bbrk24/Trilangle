@@ -58,7 +58,7 @@ extern "C" void send_debug_info(
     print_unichar(static_cast<int24_t>(instruction));
     cout << std::endl;
 
-    DISCARD getchar();
+    [[maybe_unused]] int _ = getchar();
 }
 #endif
 
@@ -69,7 +69,7 @@ extern "C" void send_debug_info(
 #ifdef __EMSCRIPTEN__
     // https://github.com/bbrk24/Trilangle/issues/4
     while (!feof(stdin)) {
-        DISCARD getchar();
+        [[maybe_unused]] int _ = getchar();
     }
 #endif
     exit(code);
@@ -239,7 +239,7 @@ void thread::tick() {
         case BNG_SE:
         case BNG_SW:
         case BNG_W:
-            program_walker::branch(m_ip.dir, op, [&]() NOEXCEPT_T {
+            program_walker::branch(m_ip.dir, op, [&]() noexcept {
                 EMPTY_PROTECT("branch on") {}
                 return m_stack.back() < INT24_C(0);
             });
@@ -368,7 +368,7 @@ void thread::tick() {
             int32_t i = -1;
 
             while (!(feof(stdin) || scanf("%" SCNi32, &i))) {
-                DISCARD getchar();
+                [[maybe_unused]] int _ = getchar();
             }
 
             m_stack.emplace_back(i);

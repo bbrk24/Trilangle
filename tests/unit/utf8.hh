@@ -12,7 +12,7 @@ using std::vector;
 
 testgroup (utf8_parsing) {
     testcase (eof_immediately) {
-        int24_t parsed = parse_unichar([]() NOEXCEPT_T { return EOF; });
+        int24_t parsed = parse_unichar([]() noexcept { return EOF; });
         test_assert(parsed == INT24_C(-1), "EOF should be -1");
     }
     , testcase (ascii_string) {

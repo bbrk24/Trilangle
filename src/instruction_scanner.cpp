@@ -72,7 +72,7 @@ void instruction_scanner::build_state() {
                     case BNG_SW:
                     case THR_E:
                     case THR_W:
-                        program_walker::branch(ip.dir, op, []() NOEXCEPT_T -> bool {
+                        program_walker::branch(ip.dir, op, []() noexcept -> bool {
                             unreachable("is_branch should've returned true");
                         });
                         break;
@@ -103,11 +103,11 @@ void instruction_scanner::build_state() {
 
                 // BNG requires that its first target go right and its second go left. TSP doesn't really care.
                 instruction_pointer first_ip = ip;
-                program_walker::branch(first_ip.dir, op, []() NOEXCEPT_T { return false; });
+                program_walker::branch(first_ip.dir, op, []() noexcept { return false; });
                 program_walker::advance(first_ip, m_program->side_length());
 
                 instruction_pointer second_ip = ip;
-                program_walker::branch(second_ip.dir, op, []() NOEXCEPT_T { return true; });
+                program_walker::branch(second_ip.dir, op, []() noexcept { return true; });
                 program_walker::advance(second_ip, m_program->side_length());
 
                 pair<size_t, size_t> first_dest, second_dest;
