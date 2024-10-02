@@ -22,7 +22,7 @@ jobs:
       - name: Invoke clang
         shell: bash
         run: >+
-          clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wimplicit-fallthrough -Werror -std=c++14 -o /dev/null
+          clang++ -DVERSION=0.0.0 -DNDEBUG -WCL4 -Wnon-gcc -Wimplicit-fallthrough -Werror -std=c++17 -o /dev/null
           -target "$(clang -dumpmachine | sed -E 's/^\w+-/${{ matrix.arch }}-/')" src/*.cpp
   build-native-windows:
     runs-on: windows-latest

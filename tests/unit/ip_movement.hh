@@ -86,7 +86,7 @@ test_iter(ip_advance, test_programs, input) {
 
 test_iter(ip_branch, branch_tests, input) {
     direction dir = std::get<0>(input);
-    program_walker::branch(dir, std::get<1>(input), [&]() NOEXCEPT_T { return std::get<2>(input); });
+    program_walker::branch(dir, std::get<1>(input), [&]() noexcept { return std::get<2>(input); });
     test_assert(dir == std::get<3>(input));
 };
 

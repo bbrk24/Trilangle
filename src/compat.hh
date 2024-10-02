@@ -3,7 +3,6 @@
 #include <cassert>
 #include <utility>
 
-#ifdef __has_include
 #if __has_include(<sal.h>) && !defined(__clang__)
 #include <sal.h>
 #define _INCLUDED_SAL
@@ -13,24 +12,13 @@
 #include <sysexits.h>
 #endif
 
-#if __has_include(<stdfloat>)
-#include <stdfloat>
-#define _INCLUDED_STDFLOAT
-#endif
-
 #if __has_include(<version>)
 #include <version>
-#define _INCLUDED_VERSION
-#endif
-#endif
-
-#ifndef _INCLUDED_VERSION
+#else
 #include <algorithm>
 #include <string>
 #include <vector>
 #endif
-
-#undef _INCLUDED_VERSION
 
 #ifndef EX_USAGE
 constexpr int EX_USAGE = 64;
@@ -44,6 +32,8 @@ constexpr int EX_DATAERR = 65;
 constexpr int EX_NOINPUT = 66;
 #endif
 
+#if __has_include(<stdfloat>)
+#include <stdfloat>
 
 #if defined(_INCLUDED_STDFLOAT) && defined(__STDCPP_FLOAT16_T__)
 // The smallest supported float type.
@@ -55,8 +45,7 @@ typedef std::bfloat16_t small_float;
 // The smallest supported float type.
 typedef float small_float;
 #endif
-
-#undef _INCLUDED_STDFLOAT
+#endif
 
 
 #if !defined(__GNUC__) && defined(_MSC_VER)
@@ -65,22 +54,6 @@ typedef float small_float;
 #else
 // 1 if the compiler is really MSVC, and not clang pretending to be MSVC. 0 for clang and GCC.
 #define REALLY_MSVC 0
-#endif
-
-
-#ifdef __cpp_constinit
-// constinit, constexpr, or just const, depending on where lambdas are allowed
-#define CONSTINIT_LAMBDA constinit const
-#elif defined(__cpp_constexpr)
-#if __cpp_constexpr >= 201603L
-// constinit, constexpr, or just const, depending on where lambdas are allowed
-#define CONSTINIT_LAMBDA constexpr
-#endif
-#endif
-
-#ifndef CONSTINIT_LAMBDA
-// constinit, constexpr, or just const, depending on where lambdas are allowed
-#define CONSTINIT_LAMBDA const
 #endif
 
 
@@ -124,42 +97,23 @@ typedef float small_float;
 #define CONSTEXPR_UNION inline
 #endif
 
-
-#ifdef __has_cpp_attribute
-#if __has_cpp_attribute(maybe_unused)
-// mark that it's okay if a function is never called
-#define MAYBE_UNUSED [[maybe_unused]]
-
-// explicitly throw out the result of a [[nodiscard]] function
-#define DISCARD [[maybe_unused]] auto _ =
-#endif
-
-#if __has_cpp_attribute(unlikely)
-// mark an execution branch as being very unlikely, and that it's acceptable for it to be slow
-#define UNLIKELY [[unlikely]]
-#endif
-
-#if __has_cpp_attribute(fallthrough)
-// mark an intentional lack of a break statement in a switch block
-#define FALLTHROUGH [[fallthrough]];
-#endif
-
 #if REALLY_MSVC
 #if _MSC_VER >= 1929
 // mark that the padding of this member can be used for other members
 #define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
 #endif
-#elif __has_cpp_attribute(no_unique_address)
+#endif
+
+#ifdef __has_cpp_attribute
+#if __has_cpp_attribute(unlikely)
+// mark an execution branch as being very unlikely, and that it's acceptable for it to be slow
+#define UNLIKELY [[unlikely]]
+#endif
+
+#if !defined(NO_UNIQUE_ADDRESS) && __has_cpp_attribute(no_unique_address)
 // mark that the padding of this member can be used for other members
 #define NO_UNIQUE_ADDRESS [[no_unique_address]]
 #endif
-#endif
-
-#ifndef MAYBE_UNUSED
-// mark that it's okay if a function is never called
-#define MAYBE_UNUSED
-// explicitly throw out the result of a [[nodiscard]] function
-#define DISCARD (void)
 #endif
 
 #ifndef UNLIKELY
@@ -167,23 +121,9 @@ typedef float small_float;
 #define UNLIKELY
 #endif
 
-#ifndef FALLTHROUGH
-// mark an intentional lack of a break statement in a switch block
-#define FALLTHROUGH
-#endif
-
 #ifndef NO_UNIQUE_ADDRESS
 // mark that the padding of this member can be used for other members
 #define NO_UNIQUE_ADDRESS
-#endif
-
-
-#ifdef __cpp_noexcept_function_type
-// noexcept if it's part of the type
-#define NOEXCEPT_T noexcept
-#else
-// noexcept if it's part of the type
-#define NOEXCEPT_T
 #endif
 
 

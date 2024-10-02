@@ -37,7 +37,7 @@ struct flags {
 };
 
 // Read input file or STDIN, and return its contents. Parse other flags as appropriate.
-MAYBE_UNUSED std::string parse_args(int argc, _In_reads_z_(argc) const char** argv, flags& f);
+[[maybe_unused]] std::string parse_args(int argc, _In_reads_z_(argc) const char** argv, flags& f);
 
 // Gets a single unicode character from STDIN. Returns -1 for EOF.
 inline int24_t get_unichar() noexcept {
