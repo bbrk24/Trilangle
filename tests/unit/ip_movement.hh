@@ -16,7 +16,7 @@ using std::pair;
 
 // Each test program consists of every digit 0-9 exactly once, in the order they are hit if the IP is traveling in the
 // given direction from the top corner.
-std::initializer_list<pair<const char*, pair<direction, program>>> test_programs = {
+CONSTEXPR_ALG std::initializer_list<pair<const char*, pair<direction, program>>> test_programs = {
     TEST_ITEM(southwest, "0142573689"),
     TEST_ITEM(west, "0215439876"),
     TEST_ITEM(northwest, "0395286417"),
@@ -35,7 +35,7 @@ std::initializer_list<pair<const char*, pair<direction, program>>> test_programs
     }
 
 // Each item is a 4-tuple of starting direction, instruction, should go left, ending direction.
-std::initializer_list<pair<const char*, std::tuple<direction, int24_t, bool, direction>>> branch_tests = {
+constexpr std::initializer_list<pair<const char*, std::tuple<direction, int24_t, bool, direction>>> branch_tests = {
     LR_PAIR(southwest, '7', west, '>'), LR_PAIR(west, '>', northwest, 'v'), LR_PAIR(northwest, 'v', northeast, 'L'),
     LR_PAIR(northeast, 'L', east, '<'), LR_PAIR(east, '<', southeast, '^'), LR_PAIR(southeast, '^', southwest, '7'),
 };
@@ -54,7 +54,7 @@ std::initializer_list<pair<const char*, std::tuple<direction, int24_t, bool, dir
     }
 
 // Tuple: before, mirror, after
-std::initializer_list<pair<const char*, std::tuple<direction, int24_t, direction>>> mirror_tests = {
+constexpr std::initializer_list<pair<const char*, std::tuple<direction, int24_t, direction>>> mirror_tests = {
     MIRROR('|', northwest, west, southwest, southeast, east, northeast),
     MIRROR('_', southeast, east, northeast, northwest, west, southwest),
     MIRROR('/', northeast, northwest, west, southwest, southeast, east),
@@ -86,7 +86,7 @@ test_iter(ip_advance, test_programs, input) {
 
 test_iter(ip_branch, branch_tests, input) {
     direction dir = std::get<0>(input);
-    program_walker::branch(dir, std::get<1>(input), [&]() NOEXCEPT_T { return std::get<2>(input); });
+    program_walker::branch(dir, std::get<1>(input), [&]() noexcept { return std::get<2>(input); });
     test_assert(dir == std::get<3>(input));
 };
 

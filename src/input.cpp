@@ -54,18 +54,18 @@ static constexpr const char* FLAGS_HELP =
     "\t--null, -z       \tRead the program until null terminator instead of EOF.";
 
 namespace flag_container {
-static CONSTINIT_LAMBDA std::tuple<NONNULL_PTR(const char), char, void (*)(flags&) NOEXCEPT_T> FLAGS[] = {
-    { "null", 'z', [](flags& f) NOEXCEPT_T { f.null_terminated = true; } },
-    { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
-    { "ascii", 'a', [](flags& f) NOEXCEPT_T { f.assume_ascii = true; } },
-    { "expand", 'e', [](flags& f) NOEXCEPT_T { f.expand = true; } },
-    { "compile", 'c', [](flags& f) NOEXCEPT_T { f.compile = true; } },
-    { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
-    { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
-    { "assembly", 'A', [](flags& f) NOEXCEPT_T { f.assembly = true; } },
-    { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
-    { "show-stack", 's', [](flags& f) NOEXCEPT_T { f.show_stack = true; } },
-    { "disassemble", 'D', [](flags& f) NOEXCEPT_T { f.disassemble = true; } },
+static constexpr std::tuple<NONNULL_PTR(const char), char, void (*)(flags&) noexcept> FLAGS[] = {
+    { "null", 'z', [](flags& f) noexcept { f.null_terminated = true; } },
+    { "debug", 'd', [](flags& f) noexcept { f.debug = true; } },
+    { "ascii", 'a', [](flags& f) noexcept { f.assume_ascii = true; } },
+    { "expand", 'e', [](flags& f) noexcept { f.expand = true; } },
+    { "compile", 'c', [](flags& f) noexcept { f.compile = true; } },
+    { "warnings", 'w', [](flags& f) noexcept { f.warnings = true; } },
+    { "pipekill", 'f', [](flags& f) noexcept { f.pipekill = true; } },
+    { "assembly", 'A', [](flags& f) noexcept { f.assembly = true; } },
+    { "hide-nops", 'n', [](flags& f) noexcept { f.hide_nops = true; } },
+    { "show-stack", 's', [](flags& f) noexcept { f.show_stack = true; } },
+    { "disassemble", 'D', [](flags& f) noexcept { f.disassemble = true; } },
 };
 
 [[noreturn]] static inline void invalid_flags() {

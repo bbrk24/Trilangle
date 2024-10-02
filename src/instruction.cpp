@@ -53,7 +53,7 @@ instruction::instruction(instruction_pointer ip, const program& program) noexcep
         case PSC:
             program_walker::advance(ip, program.side_length());
             m_arg.number = program.at(ip.coords.first, ip.coords.second);
-            FALLTHROUGH
+            [[fallthrough]];
         // Most things are direction-insensitive and take no arguments
         default:
             m_op = static_cast<operation>(op);

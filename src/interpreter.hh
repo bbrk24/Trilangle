@@ -38,7 +38,7 @@ public:
                 switch (curr_thread.m_status) {
                     case status::splitting:
                         split_thread(pending_threads, curr_thread);
-                        FALLTHROUGH
+                        [[fallthrough]];
                     case status::terminated:
                         removal_indices.push_back(i);
                         break;

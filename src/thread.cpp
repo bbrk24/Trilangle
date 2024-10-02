@@ -29,6 +29,6 @@ extern "C" void send_debug_info(
 
     cout << "Coords: (" << x << ", " << y << ")\nInstruction: " << instruction << std::endl;
 
-    DISCARD getchar();
+    [[maybe_unused]] int _ = getchar();
 }
 #endif

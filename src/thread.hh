@@ -356,7 +356,7 @@ public:
                 int32_t i = -1;
 
                 while (!(feof(stdin) || scanf("%" SCNi32, &i))) {
-                    DISCARD getchar();
+                    [[maybe_unused]] int _ = getchar();
                 }
 
                 m_stack.emplace_back(i);
@@ -483,7 +483,7 @@ protected:
         m_program_holder(ph), m_stack(), m_ip(), m_status(status::active), m_flags(f), m_number(thread_count++) {}
 
     constexpr void advance() noexcept {
-        m_program_holder->advance(m_ip, [&]() NOEXCEPT_T {
+        m_program_holder->advance(m_ip, [&]() noexcept {
             EMPTY_PROTECT("branch on") {}
             return m_stack.back() < INT24_C(0);
         });
@@ -502,7 +502,7 @@ private:
 #ifdef __EMSCRIPTEN__
         // https://github.com/bbrk24/Trilangle/issues/4
         while (!feof(stdin)) {
-            DISCARD getchar();
+            [[maybe_unused]] int _ = getchar();
         }
 #endif
         exit(code);

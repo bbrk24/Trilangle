@@ -365,7 +365,7 @@ Trilangle is Turing-complete because it can interpret [Qdeql], a TC queue-based 
 
 ### Compiling natively
 
-The specific compiler used shouldn't matter. It should be compatible with clang and GCC, as well as MSVC from Visual Studio 2017 or later. Incompatibility with these compilers is considered a bug, and any issues should be reported on [the issues page][issues].
+The specific compiler used shouldn't matter. It should be compatible with clang and GCC, as well as MSVC from Visual Studio 2017 v15.8 or later. Incompatibility with these compilers is considered a bug, and any issues should be reported on [the issues page][issues].
 
 To enable the `--version` flag, the version must be set at compile time. For example, if invoking GCC directly from bash, this could be done with `-DVERSION="$(git describe --always)"`.
 
@@ -373,13 +373,7 @@ Optionally, you can control the behavior of the date/time instructions with `TRI
 
 If the macro `NO_BUFFER` is defined, output to stdout will not be buffered.
 
-C++14 (`201304L`) or later is required to compile this project. Certain features from newer versions will be used if they are available, which may affect the performance of the compiled binary. These features include, but are not limited to:
-
-- `noexcept` in function types (C++17, `201510L`)
-- `constexpr` lambdas (C++17, `201603L`)
-- the `[[unlikely]]` attribute (C++20, `201803L`)
-
-As such, it is recommended to use C++20 or later if performance is a concern. (If it is, why? How are you possibly using this language in a performance-sensitive environment?)
+C++17 or later is required to compile this project. Certain features from C++20 and C++23 will be used if available, such as the `[[unlikely]]` atribute. As such, it is recommended to use C++20 or later if performance is a concern. (If it is, why? How are you possibly using this language in a performance-sensitive environment?)
 
 ### Compiling for the web
 

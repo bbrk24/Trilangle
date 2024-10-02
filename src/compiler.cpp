@@ -8,7 +8,7 @@ using std::cerr;
 using std::endl;
 
 void compiler::write_state(std::ostream& os) {
-    if (m_fragments == nullptr) {
+    if (!m_fragments.has_value()) {
         build_state();
     }
 
@@ -39,8 +39,7 @@ void compiler::get_c_code(const instruction& i, std::ostream& os, bool assume_as
     switch (i.get_op()) {
         case op::BNG: {
             os << "if (lws_top(stack) < 0) goto lbl";
-            const auto& choice = i.get_arg().choice;
-            const auto &dest1 = choice.first, &dest2 = choice.second;
+            const auto& [dest1, dest2] = i.get_arg().choice;
             os << dest2.first << '_' << dest2.second << "; goto lbl" << dest1.first << '_' << dest1.second << ';';
             return;
         }
