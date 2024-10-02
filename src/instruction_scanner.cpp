@@ -8,7 +8,7 @@ using std::vector;
 void instruction_scanner::build_state() {
     // https://langdev.stackexchange.com/a/659/15
 
-    m_fragments = new vector<vector<instruction>*>{ nullptr };
+    m_fragments.emplace({ std::optional<vector<instruction>>() });
     // A map of IP -> location in fragments
     std::unordered_map<instruction_pointer, pair<size_t, size_t>> location_map;
 
@@ -20,12 +20,10 @@ void instruction_scanner::build_state() {
 
     // !empty-back-pop reflects the while let loop in the Rust code in the answer linked above
     while (!unvisited_fragments.empty()) {
-        pair<size_t, instruction_pointer> p = unvisited_fragments.back();
+        auto [index, ip] = unvisited_fragments.back();
         unvisited_fragments.pop_back();
-        size_t& index = p.first;
-        instruction_pointer& ip = p.second;
 
-        auto* fragment = new vector<instruction>();
+        vector<instruction> fragment;
 
         int24_t op = m_program->at(ip.coords.first, ip.coords.second);
         while (!is_branch(op, ip.dir)) {
@@ -42,15 +40,15 @@ void instruction_scanner::build_state() {
                         location_map.insert({ ip, loc->second });
 
                         // jump to the other one
-                        fragment->push_back(instruction::jump_to(loc->second));
+                        fragment.push_back(instruction::jump_to(loc->second));
                         // Yeah, yeah, goto is bad practice. You look at this loop and tell me you'd rather do it
                         // another way.
                         goto continue_outer;
                     }
                 }
 
-                location_map.insert({ ip, { index, fragment->size() } });
-                fragment->push_back(i);
+                location_map.insert({ ip, { index, fragment.size() } });
+                fragment.push_back(i);
 
                 if (i.is_exit()) {
                     // doesn't end in a jump nor a branch
@@ -87,7 +85,7 @@ void instruction_scanner::build_state() {
 
                 program_walker::advance(ip, m_program->side_length());
             } else {
-                fragment->push_back(instruction::jump_to(loc->second));
+                fragment.push_back(instruction::jump_to(loc->second));
                 goto continue_outer;
             }
 
@@ -99,7 +97,7 @@ void instruction_scanner::build_state() {
             // Determine whether to emit a jump or branch. If it's a branch, determine what the targets are.
             auto loc = location_map.find(ip);
             if (loc == location_map.end()) {
-                location_map.insert({ ip, { index, fragment->size() } });
+                location_map.insert({ ip, { index, fragment.size() } });
 
                 // BNG requires that its first target go right and its second go left. TSP doesn't really care.
                 instruction_pointer first_ip = ip;
@@ -120,7 +118,7 @@ void instruction_scanner::build_state() {
                 if (loc == location_map.end()) {
                     first_dest = { m_fragments->size(), SIZE_C(0) };
                     unvisited_fragments.push_back({ m_fragments->size(), first_ip });
-                    m_fragments->push_back(nullptr);
+                    m_fragments->push_back(std::nullopt);
                 } else {
                     first_dest = loc->second;
                 }
@@ -129,22 +127,22 @@ void instruction_scanner::build_state() {
                 if (loc == location_map.end()) {
                     second_dest = { m_fragments->size(), SIZE_C(0) };
                     unvisited_fragments.push_front({ m_fragments->size(), second_ip });
-                    m_fragments->push_back(nullptr);
+                    m_fragments->push_back(std::nullopt);
                 } else {
                     second_dest = loc->second;
                 }
 
                 if (op == static_cast<int24_t>(THR_E) || op == static_cast<int24_t>(THR_W)) {
-                    fragment->push_back(instruction::spawn_to({ first_dest, second_dest }));
+                    fragment.push_back(instruction::spawn_to({ first_dest, second_dest }));
                 } else {
-                    fragment->push_back(instruction::branch_to({ first_dest, second_dest }));
+                    fragment.push_back(instruction::branch_to({ first_dest, second_dest }));
                 }
             } else {
-                fragment->push_back(instruction::jump_to(loc->second));
+                fragment.push_back(instruction::jump_to(loc->second));
             }
         }
 
     continue_outer:
-        m_fragments->at(index) = fragment;
+        m_fragments->at(index).emplace(std::move(fragment));
     }
 }

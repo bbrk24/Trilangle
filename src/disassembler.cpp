@@ -89,7 +89,7 @@ void disassembler::to_str(const instruction& i, std::ostream& os) {
 }
 
 void disassembler::write_state(std::ostream& os) {
-    if (m_fragments == nullptr) {
+    if (!m_fragments.has_value()) {
         build_state();
     }
 
