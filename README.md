@@ -342,7 +342,7 @@ Optionally, you can control the behavior of the date/time instructions with `TRI
 
 If the macro `NO_BUFFER` is defined, output to stdout will not be buffered.
 
-C++17 (`201304L`) or later is required to compile this project. Certain features from C++20 and C++23 will be used if available, such as the `[[unlikely]]` atribute. As such, it is recommended to use C++20 or later if performance is a concern. (If it is, why? How are you possibly using this language in a performance-sensitive environment?)
+C++17 or later is required to compile this project. Certain features from C++20 and C++23 will be used if available, such as the `[[unlikely]]` atribute. As such, it is recommended to use C++20 or later if performance is a concern. (If it is, why? How are you possibly using this language in a performance-sensitive environment?)
 
 ### Compiling for the web
 
