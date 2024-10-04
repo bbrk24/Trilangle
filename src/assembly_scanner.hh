@@ -9,8 +9,8 @@ class assembly_scanner : public any_program_holder<std::pair<size_t, size_t>> {
 public:
     using IP = std::pair<size_t, size_t>;
 
-    CONSTEXPR_ALLOC assembly_scanner(const std::string& program) :
-        m_program(program), m_fragments(std::nullopt), m_slices{} {}
+    inline assembly_scanner(const std::string& program) :
+        m_label_locations(), m_program(program), m_fragments(std::nullopt), m_slices{} {}
 
     const std::vector<std::optional<std::vector<instruction>>>& get_fragments();
 
