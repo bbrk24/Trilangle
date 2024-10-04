@@ -140,13 +140,13 @@ public:
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
 
-                pair<bool, int24_t> result = m_stack.back().add_with_overflow(top);
+                auto [overflow, value] = m_stack.back().add_with_overflow(top);
 
-                if (m_flags.warnings && result.first) UNLIKELY {
+                if (m_flags.warnings && overflow) UNLIKELY {
                     cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
                 }
 
-                m_stack.back() = result.second;
+                m_stack.back() = value;
 
                 break;
             }
@@ -155,13 +155,13 @@ public:
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
 
-                pair<bool, int24_t> result = m_stack.back().subtract_with_overflow(top);
+                auto [overflow, value] = m_stack.back().subtract_with_overflow(top);
 
-                if (m_flags.warnings && result.first) UNLIKELY {
+                if (m_flags.warnings && overflow) UNLIKELY {
                     cerr << "Warning: Overflow on addition/subtraction is undefined behavior.\n";
                 }
 
-                m_stack.back() = result.second;
+                m_stack.back() = value;
 
                 break;
             }
@@ -170,13 +170,13 @@ public:
                 int24_t top = m_stack.back();
                 m_stack.pop_back();
 
-                pair<bool, int24_t> result = m_stack.back().multiply_with_overflow(top);
+                auto [overflow, value] = m_stack.back().multiply_with_overflow(top);
 
-                if (result.first) UNLIKELY {
+                if (m_flags.warnings && overflow) UNLIKELY {
                     cerr << "Warning: Overflow on multiplication is undefined behavior.\n";
                 }
 
-                m_stack.back() = result.second;
+                m_stack.back() = value;
 
                 break;
             }

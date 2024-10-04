@@ -8,6 +8,8 @@
 using std::cerr;
 using std::endl;
 using std::string;
+using std::string_view;
+using std::string_view_literals::operator""sv;
 
 #define WHITESPACE " \n\r\t"
 
@@ -16,14 +18,12 @@ using std::string;
     exit(EXIT_FAILURE);
 }
 
-NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_scanner::get_fragments() {
-    if (m_fragments != nullptr) {
-        return m_fragments;
+const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::get_fragments() {
+    if (m_fragments.has_value()) {
+        return *m_fragments;
     }
-    assert(m_slices == nullptr);
 
-    m_fragments = new std::vector<NONNULL_PTR(std::vector<instruction>)>();
-    m_slices = new std::vector<std::vector<program_slice>>();
+    m_fragments.emplace(std::vector<std::optional<std::vector<instruction>>>());
 
     // We need to do two passes: one to resolve labels, and one to assign targets to jumps. During the first pass, the
     // fragments are actually constructed. However, jumps may not have valid targets yet, so we need some way to store
@@ -61,7 +61,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
         }
         line_end = m_program.find_first_of('\n', line_start);
         string curr_line = m_program.substr(line_start, line_end - line_start);
-        program_slice curr_slice{ line_start, line_end };
+        string_view curr_slice = curr_line;
 
         // Unquoted semicolons are comments. Remove them.
         size_t i;
@@ -75,7 +75,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
         }
         if (i < curr_line.size()) {
             curr_line.erase(i);
-            curr_slice.end = curr_slice.start + i;
+            curr_slice = curr_line;
         }
         // If the line is only a comment, move on
         if (curr_line.empty()) {
@@ -87,7 +87,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
             continue;
         } else {
             curr_line.erase(i + 1);
-            curr_slice.end = curr_slice.start + i + 1;
+            curr_slice = curr_line;
         }
 
         // Look for labels (non-whitespace in the first column)
@@ -101,13 +101,14 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
             }
             string label = curr_line.substr(0, i);
 
-            DISCARD label_names.insert(label);
+            [[maybe_unused]] auto _0 = label_names.insert(label);
             // Add a NOP for the label to point to
             // FIXME: This is a hack
-            add_instruction({ instruction::operation::NOP, instruction::argument() }, { curr_slice.start, i + 1 });
-            auto p = m_label_locations.insert({ label, get_current_location() });
+            string_view slice = curr_slice.substr(0, i + 1);
+            add_instruction({ instruction::operation::NOP, instruction::argument() }, slice);
+            auto [_, inserted] = m_label_locations.insert({ label, get_current_location() });
 
-            if (!p.second) {
+            if (!inserted) {
                 cerr << "Label '" << label << "' appears twice" << endl;
                 exit(EXIT_FAILURE);
             }
@@ -122,7 +123,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
 
         // Remove leading whitespace, and label if there is one
         curr_line.erase(0, i);
-        curr_slice.start += i;
+        curr_slice.remove_prefix(i);
 
         // Line should only be the opcode and, if there is one, the argument
         if (curr_line.size() < 3) {
@@ -134,7 +135,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
             exit(EXIT_FAILURE);
         }
 
-        string instruction_name = curr_line.substr(0, 3);
+        string_view instruction_name(curr_line.data(), 3);
         instruction::operation opcode = assembly_scanner::opcode_for_name(instruction_name);
         switch (opcode) {
             case instruction::operation::JMP: {
@@ -213,7 +214,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
     }
 
     // Second pass
-    for (auto* fragment : *m_fragments) {
+    for (auto& fragment : *m_fragments) {
         for (auto& instr : *fragment) {
             if (instr.m_op == instruction::operation::JMP) {
                 fake_location_to_real(instr.m_arg.next);
@@ -223,7 +224,7 @@ NONNULL_PTR(const std::vector<NONNULL_PTR(std::vector<instruction>)>) assembly_s
         }
     }
 
-    return m_fragments;
+    return *m_fragments;
 }
 
 void assembly_scanner::advance(IP& ip, std::function<bool()> go_left) {
@@ -251,8 +252,8 @@ assembly_scanner::IP assembly_scanner::get_current_location() const {
     size_t second = 0;
     --first;
     if (first != SIZE_MAX) {
-        const auto* ptr = this->m_fragments->at(first);
-        second = ptr->size();
+        const auto& fragment = this->m_fragments->at(first);
+        second = fragment->size();
         if (second > 0) {
             --second;
         }
@@ -260,24 +261,24 @@ assembly_scanner::IP assembly_scanner::get_current_location() const {
     return { first, second };
 }
 
-void assembly_scanner::add_instruction(instruction&& i, const program_slice& s) {
-    assert(m_fragments != nullptr && m_slices != nullptr);
+void assembly_scanner::add_instruction(instruction&& i, const string_view& s) {
+    assert(m_fragments.has_value());
     if (m_fragments->empty()) {
-        assert(m_slices->empty());
+        assert(m_slices.empty());
 
-        m_fragments->push_back(new std::vector<instruction>{ std::move(i) });
-        m_slices->push_back({ s });
+        m_fragments->push_back(std::vector<instruction>{ std::move(i) });
+        m_slices.push_back({ s });
     } else {
-        assert(!m_slices->empty());
-        auto last = m_fragments->back();
+        assert(!m_slices.empty());
+        auto& last = m_fragments->back();
         assert(!last->empty());
         if (last->back().is_exit() || last->back().first_if_branch()
             || last->back().get_op() == instruction::operation::JMP) {
-            m_fragments->push_back(new std::vector<instruction>{ std::move(i) });
-            m_slices->push_back({ s });
+            m_fragments->push_back(std::vector<instruction>{ std::move(i) });
+            m_slices.push_back({ s });
         } else {
             last->push_back(std::forward<instruction&&>(i));
-            m_slices->back().push_back(s);
+            m_slices.back().push_back(s);
         }
     }
 }
@@ -299,10 +300,10 @@ void assembly_scanner::fake_location_to_real(IP& p) const {
 }
 
 #define DESTRINGIFY_NAME(op) \
-    if (name == #op) \
+    if (name == #op##sv) \
     return instruction::operation::op
 
-instruction::operation assembly_scanner::opcode_for_name(const std::string& name) noexcept {
+instruction::operation assembly_scanner::opcode_for_name(const string_view& name) noexcept {
     DESTRINGIFY_NAME(BNG);
     DESTRINGIFY_NAME(JMP);
     DESTRINGIFY_NAME(TKL);

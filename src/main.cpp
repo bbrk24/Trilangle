@@ -20,10 +20,10 @@ inline void execute(const std::string& prg, flags f) {
 
     if (f.assembly) {
         assembly_scanner as(prg);
-        if (as.get_fragments()->size() == 0) {
+        if (as.get_fragments().size() == 0) {
             empty_program();
         }
-        interpreter<assembly_scanner> i(as, f);
+        interpreter i(as, f);
         i.run();
         return;
     }
@@ -43,7 +43,7 @@ inline void execute(const std::string& prg, flags f) {
         c.write_state(std::cout);
     } else {
         program_walker pw(&p);
-        interpreter<program_walker> i(pw, f);
+        interpreter i(pw, f);
         i.run();
     }
 }
