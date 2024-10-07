@@ -20,7 +20,7 @@ public:
         [[maybe_unused]] auto _ = get_fragments();
         return std::string(m_slices[ip]);
     }
-    inline std::pair<size_t, size_t> get_coords(const IP& ip) const { return {SIZE_C(0), ip}; }
+    inline std::pair<size_t, size_t> get_coords(const IP& ip) const { return { SIZE_C(0), ip }; }
     inline instruction at(const IP& ip) { return get_fragments()[ip]; }
 private:
     void fake_location_to_real(std::pair<size_t, size_t>& p) const;

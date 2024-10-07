@@ -28,9 +28,7 @@ const std::vector<instruction>& assembly_scanner::get_fragments() {
     // We need to do two passes: one to resolve labels, and one to assign targets to jumps. During the first pass, the
     // fragments are actually constructed. However, jumps may not have valid targets yet, so we need some way to store
     // the label's name inside an IP. This code relies on the following assumption:
-    static_assert(
-        sizeof(NONNULL_PTR(const string)) <= sizeof(IP), "Cannot fit string pointer inside IP"
-    );
+    static_assert(sizeof(NONNULL_PTR(const string)) <= sizeof(IP), "Cannot fit string pointer inside IP");
     // Using an ordered set over any other container so that references are not invalidated after insertion
     std::set<string> label_names;
 
@@ -41,7 +39,7 @@ const std::vector<instruction>& assembly_scanner::get_fragments() {
             iter = p.first;
         }
         NONNULL_PTR(const string) ptr = &*iter;
-        return reinterpret_cast<uintptr_t>(ptr) ;
+        return reinterpret_cast<uintptr_t>(ptr);
     };
 
     // First pass

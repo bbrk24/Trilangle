@@ -62,17 +62,17 @@ void disassembler::to_str(const instruction& i, std::ostream& os) {
             return;
         }
         case operation::JMP: {
-            pair<size_t, size_t> target = i.get_arg().next;
+            const pair<size_t, size_t>& target = i.get_arg().next;
             os << "JMP " << target.first << "." << target.second;
             return;
         }
         case operation::BNG: {
-            pair<size_t, size_t> target = i.get_arg().choice.second;
+            const pair<size_t, size_t>& target = i.get_arg().choice.second;
             os << "BNG " << target.first << "." << target.second;
             return;
         }
         case operation::TSP: {
-            pair<size_t, size_t> target = i.get_arg().choice.second;
+            const pair<size_t, size_t>& target = i.get_arg().choice.second;
             os << "TSP " << target.first << "." << target.second;
             return;
         }
@@ -104,7 +104,7 @@ void disassembler::write_state(std::ostream& os) {
             to_str(ins, os);
 
             // if it's a branch followed by a jump, write that
-            const std::pair<size_t, size_t>* next = ins.first_if_branch();
+            const pair<size_t, size_t>* next = ins.first_if_branch();
             if (next != nullptr && (next->first != i + 1 || next->second != 0)) {
                 os << "\n\tJMP " << next->first << '.' << next->second;
             }
