@@ -75,7 +75,7 @@ public:
 
 test_iter(ip_advance, test_programs, input) {
     const program& p = input.second;
-    program_walker::instruction_pointer ip{ { SIZE_C(0), SIZE_C(0) }, input.first };
+    instruction_pointer ip{ { SIZE_C(0), SIZE_C(0) }, input.first };
 
     for (int24_t i = '0'; i <= '9'; ++i) {
         test_assert(p.at(ip.coords.first, ip.coords.second) == i);

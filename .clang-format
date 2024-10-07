@@ -37,3 +37,4 @@ WhitespaceSensitiveMacros:
   - testcase
   - testgroup
   - TEST_ITEM
+  - DESTRINGIFY_NAME

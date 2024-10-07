@@ -34,6 +34,7 @@ interval .= -1
 let step: =>
 decoder := new TextDecoder
 colors := new Colors
+isAssembly .= false
 
 // This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 // first access, but then saves it for fast access later.
@@ -49,7 +50,9 @@ clearOutput := :void =>
   elements.stderr.innerHTML = ''
 
 generateContracted := :string =>
-  programText .= (elements.program as! HTMLTextAreaElement).value.replace /\n| /gu, ''
+  programText .= (elements.program as! HTMLTextAreaElement).value
+  return programText if isAssembly
+  programText |>= .replace /\n| /gu, ''
   // programText.length is wrong when there's high Unicode characters
   programLength := [programText...]#
   // Calculate the largest triangular number less than the length.
@@ -76,6 +79,8 @@ generateURL := :void =>
   url.hash = '#' + encodeURIComponent generateContracted()
   if elements.includeInput.checked
     url.searchParams.set 'i', (elements.stdin as! HTMLTextAreaElement).value
+  if elements.assembly.checked
+    url.searchParams.set 'a', '1'
   history.pushState {}, '', url
   elements.urlOut.textContent = url.href
   elements.urlOutBox.className = ''
@@ -143,10 +148,10 @@ createWorker := (name: string) => :Promise<void> =>
       elements.stdin.oninput = :void ->
         worker = undefined
         @oninput = null
-      elements.expand.disabled = false
-      elements.disassemble.disabled = false
-      elements.condense.disabled = false
-      elements.debug.disabled = false
+      elements.expand.disabled = isAssembly
+      elements.disassemble.disabled = isAssembly
+      elements.condense.disabled = isAssembly
+      elements.debug.disabled = isAssembly
       elements.runStop.textContent = 'Run!'
       elements.runStop.onclick = interpretProgram
 
@@ -184,10 +189,13 @@ createWorker := (name: string) => :Promise<void> =>
   
   promise
 
-interpretProgram := createWorker 'interpretProgram'
+interpretBase := createWorker 'interpretProgram'
 disassembleProgram := createWorker 'disassembleProgram'
 expandBase := createWorker 'expandInput'
 debugBase := createWorker 'debugProgram'
+interpretAssembly := createWorker 'interpretAssembly'
+
+interpretProgram := => if isAssembly then interpretAssembly() else interpretBase()
 
 expandInput := :Promise<void> =>
   await expandBase()
@@ -389,6 +397,7 @@ do
     elements.urlButton.onclick = generateURL
   elements.program.addEventListener 'input', hideUrl, { +passive }
   elements.includeInput.addEventListener 'change', hideUrl, { +passive }
+  elements.assembly.addEventListener 'change', hideUrl, { +passive }
   elements.stdin.addEventListener 'change', => hideUrl() if elements.includeInput.checked, { +passive }
 
   // Allow the header itself, or noninteractable children (e.g. the select icon)
@@ -436,6 +445,16 @@ do
       @ontouchcancel = null
       @ontouchend = null
 
+  (elements.assembly as! HTMLInputElement).addEventListener
+    'change'
+    :void ->
+      isAssembly = @checked
+      elements.expand.disabled = isAssembly
+      elements.disassemble.disabled = isAssembly
+      elements.condense.disabled = isAssembly
+      elements.debug.disabled = isAssembly
+    { +passive }
+
   width := elements.runStop.offsetWidth
   remSize := parseFloat getComputedStyle(document.body).fontSize
   elements.runStop.textContent = 'Run!'
@@ -452,6 +471,15 @@ do
     if inputParam? := params.get 'i'
       elements.stdin.value = inputParam
       elements.includeInput.checked = true
+    assemblyParam := params.get 'a'
+    if Number assemblyParam
+      isAssembly = true
   catch e
     console.error e
     elements.stderr.innerText = 'Error while loading program from URL.'
+  finally
+    elements.assembly.checked = isAssembly
+    elements.expand.disabled = isAssembly
+    elements.disassemble.disabled = isAssembly
+    elements.condense.disabled = isAssembly
+    elements.debug.disabled = isAssembly
