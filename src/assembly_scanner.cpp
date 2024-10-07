@@ -18,18 +18,18 @@ using std::string_view_literals::operator""sv;
     exit(EXIT_FAILURE);
 }
 
-const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::get_fragments() {
+const std::vector<instruction>& assembly_scanner::get_fragments() {
     if (m_fragments.has_value()) {
         return *m_fragments;
     }
 
-    m_fragments.emplace(std::vector<std::optional<std::vector<instruction>>>());
+    m_fragments.emplace(std::vector<instruction>());
 
     // We need to do two passes: one to resolve labels, and one to assign targets to jumps. During the first pass, the
     // fragments are actually constructed. However, jumps may not have valid targets yet, so we need some way to store
-    // the label's name inside a pair<size_t, size_t>. This code relies on the following assumption:
+    // the label's name inside an IP. This code relies on the following assumption:
     static_assert(
-        sizeof(NONNULL_PTR(const string)) <= 2 * sizeof(size_t), "Cannot fit string pointer inside pair of size_t"
+        sizeof(NONNULL_PTR(const string)) <= sizeof(IP), "Cannot fit string pointer inside IP"
     );
     // Using an ordered set over any other container so that references are not invalidated after insertion
     std::set<string> label_names;
@@ -41,15 +41,7 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
             iter = p.first;
         }
         NONNULL_PTR(const string) ptr = &*iter;
-        size_t bottom_half = reinterpret_cast<uintptr_t>(ptr) & SIZE_MAX;
-        size_t top_half =
-#if UINTPTR_MAX > SIZE_MAX
-            reinterpret_cast<uintptr_t>(ptr) >> (8 * sizeof(size_t))
-#else
-            SIZE_C(0)
-#endif
-            ;
-        return { top_half, bottom_half };
+        return reinterpret_cast<uintptr_t>(ptr) ;
     };
 
     // First pass
@@ -60,8 +52,7 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
             break;
         }
         line_end = m_program.find_first_of('\n', line_start);
-        string curr_line = m_program.substr(line_start, line_end - line_start);
-        string_view curr_slice = curr_line;
+        string_view curr_line = string_view(m_program).substr(line_start, line_end - line_start);
 
         // Unquoted semicolons are comments. Remove them.
         size_t i;
@@ -74,8 +65,7 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
             }
         }
         if (i < curr_line.size()) {
-            curr_line.erase(i);
-            curr_slice = curr_line;
+            curr_line.remove_suffix(curr_line.size() - i);
         }
         // If the line is only a comment, move on
         if (curr_line.empty()) {
@@ -86,8 +76,7 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
         if (i == string::npos) {
             continue;
         } else {
-            curr_line.erase(i + 1);
-            curr_slice = curr_line;
+            curr_line.remove_suffix(curr_line.size() - i - 1);
         }
 
         // Look for labels (non-whitespace in the first column)
@@ -99,14 +88,10 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
             if (i == string::npos) {
                 i = curr_line.size();
             }
-            string label = curr_line.substr(0, i);
+            string label(curr_line.substr(0, i));
 
             [[maybe_unused]] auto _0 = label_names.insert(label);
-            // Add a NOP for the label to point to
-            // FIXME: This is a hack
-            string_view slice = curr_slice.substr(0, i + 1);
-            add_instruction({ instruction::operation::NOP, instruction::argument() }, slice);
-            auto [_, inserted] = m_label_locations.insert({ label, get_current_location() });
+            auto [_, inserted] = m_label_locations.insert({ label, m_fragments->size() });
 
             if (!inserted) {
                 cerr << "Label '" << label << "' appears twice" << endl;
@@ -122,8 +107,7 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
         }
 
         // Remove leading whitespace, and label if there is one
-        curr_line.erase(0, i);
-        curr_slice.remove_prefix(i);
+        curr_line.remove_prefix(i);
 
         // Line should only be the opcode and, if there is one, the argument
         if (curr_line.size() < 3) {
@@ -141,18 +125,20 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
             case instruction::operation::JMP: {
                 size_t label_start = curr_line.find_first_not_of(WHITESPACE, 3);
                 instruction::argument arg;
-                string label = curr_line.substr(label_start);
-                arg.next = label_to_fake_location(label);
-                add_instruction({ opcode, arg }, curr_slice);
+                string label(curr_line.substr(label_start));
+                arg.next = { SIZE_C(0), label_to_fake_location(label) };
+                m_fragments->push_back({ opcode, arg });
+                m_slices.push_back(curr_line);
                 break;
             }
             case instruction::operation::BNG:
             case instruction::operation::TSP: {
                 size_t label_start = curr_line.find_first_not_of(WHITESPACE, 3);
                 instruction::argument arg;
-                string label = curr_line.substr(label_start);
-                arg.choice = { { get_current_location().first + 1, SIZE_C(0) }, label_to_fake_location(label) };
-                add_instruction({ opcode, arg }, curr_slice);
+                string label(curr_line.substr(label_start));
+                arg.choice = { { SIZE_C(0), m_fragments->size() + 1 }, { SIZE_C(0), label_to_fake_location(label) } };
+                m_fragments->push_back({ opcode, arg });
+                m_slices.push_back(curr_line);
                 break;
             }
             case instruction::operation::PSI:
@@ -163,7 +149,7 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
                     exit(EXIT_FAILURE);
                 }
 
-                string argument = curr_line.substr(arg_start);
+                string argument(curr_line.substr(arg_start));
                 int24_t arg_value;
                 // Should be in one of three formats:
                 // - 'c' (single UTF-8 character)
@@ -204,23 +190,23 @@ const std::vector<std::optional<std::vector<instruction>>>& assembly_scanner::ge
 
                 instruction::argument arg;
                 arg.number = arg_value;
-                add_instruction({ opcode, arg }, curr_slice);
+                m_fragments->push_back({ opcode, arg });
+                m_slices.push_back(curr_line);
                 break;
             }
             default:
-                add_instruction({ opcode, instruction::argument() }, curr_slice);
+                m_fragments->push_back({ opcode, instruction::argument() });
+                m_slices.push_back(curr_line);
                 break;
         }
     }
 
     // Second pass
-    for (auto& fragment : *m_fragments) {
-        for (auto& instr : *fragment) {
-            if (instr.m_op == instruction::operation::JMP) {
-                fake_location_to_real(instr.m_arg.next);
-            } else if (instr.m_op == instruction::operation::TSP || instr.m_op == instruction::operation::BNG) {
-                fake_location_to_real(instr.m_arg.choice.second);
-            }
+    for (auto& instr : *m_fragments) {
+        if (instr.m_op == instruction::operation::JMP) {
+            fake_location_to_real(instr.m_arg.next);
+        } else if (instr.m_op == instruction::operation::TSP || instr.m_op == instruction::operation::BNG) {
+            fake_location_to_real(instr.m_arg.choice.second);
         }
     }
 
@@ -231,64 +217,21 @@ void assembly_scanner::advance(IP& ip, std::function<bool()> go_left) {
     instruction i = at(ip);
 
     if (i.get_op() == instruction::operation::JMP) {
-        ip = i.get_arg().next;
+        ip = i.get_arg().next.second;
         return;
     }
 
-    const IP* to_left = i.second_if_branch();
+    const auto* to_left = i.second_if_branch();
     if (to_left != nullptr && go_left()) {
-        ip = *to_left;
+        ip = to_left->second;
+        return;
     }
 
-    ip.second++;
-    if (ip.second >= m_fragments->at(ip.first)->size()) {
-        ip.first++;
-        ip.second = 0;
-    }
+    ip++;
 }
 
-assembly_scanner::IP assembly_scanner::get_current_location() const {
-    size_t first = this->m_fragments->size();
-    size_t second = 0;
-    --first;
-    if (first != SIZE_MAX) {
-        const auto& fragment = this->m_fragments->at(first);
-        second = fragment->size();
-        if (second > 0) {
-            --second;
-        }
-    }
-    return { first, second };
-}
-
-void assembly_scanner::add_instruction(instruction&& i, const string_view& s) {
-    assert(m_fragments.has_value());
-    if (m_fragments->empty()) {
-        assert(m_slices.empty());
-
-        m_fragments->push_back(std::vector<instruction>{ std::move(i) });
-        m_slices.push_back({ s });
-    } else {
-        assert(!m_slices.empty());
-        auto& last = m_fragments->back();
-        assert(!last->empty());
-        if (last->back().is_exit() || last->back().first_if_branch()
-            || last->back().get_op() == instruction::operation::JMP) {
-            m_fragments->push_back(std::vector<instruction>{ std::move(i) });
-            m_slices.push_back({ s });
-        } else {
-            last->push_back(std::forward<instruction&&>(i));
-            m_slices.back().push_back(s);
-        }
-    }
-}
-
-void assembly_scanner::fake_location_to_real(IP& p) const {
-    uintptr_t reconstructed =
-#if UINTPTR_MAX > SIZE_MAX
-        (static_cast<uintptr_t>(p.first) << (8 * sizeof(size_t))) |
-#endif
-        static_cast<uintptr_t>(p.second);
+void assembly_scanner::fake_location_to_real(std::pair<size_t, size_t>& p) const {
+    uintptr_t reconstructed = static_cast<uintptr_t>(p.second);
     auto ptr = reinterpret_cast<NONNULL_PTR(const string)>(reconstructed);
     const string& str = *ptr;
     auto loc = m_label_locations.find(str);
@@ -296,7 +239,7 @@ void assembly_scanner::fake_location_to_real(IP& p) const {
         cerr << "Undeclared label '" << str << "'" << endl;
         exit(EXIT_FAILURE);
     }
-    p = loc->second;
+    p = { SIZE_C(0), loc->second };
 }
 
 #define DESTRINGIFY_NAME(op) \

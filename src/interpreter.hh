@@ -152,9 +152,8 @@ private:
 
     inline void split_thread(std::vector<thread<ProgramHolder>>& new_threads, const thread<ProgramHolder>& old_thread)
         const {
-        thread<ProgramHolder> new_thread_1 = old_thread;
-        new_thread_1.m_status = thread<ProgramHolder>::status::active;
-        thread<ProgramHolder> new_thread_2 = new_thread_1;
+        thread<ProgramHolder> new_thread_1 = old_thread.split_copy();
+        thread<ProgramHolder> new_thread_2 = old_thread.split_copy();
 
         m_program_holder.advance(new_thread_1.m_ip, []() { return true; });
         m_program_holder.advance(new_thread_2.m_ip, []() { return false; });

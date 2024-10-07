@@ -62,6 +62,13 @@ public:
 
     inline thread(const thread<program_walker>& other, direction d) noexcept : thread(other, d, other.m_stack) {}
 
+    inline thread<ProgramHolder> split_copy() const noexcept {
+        thread<ProgramHolder> other = *this;
+        other.m_status = status::active;
+        other.m_number = ++thread_count;
+        return other;
+    }
+
 #define EMPTY_PROTECT(name) \
     if (m_stack.empty() && m_flags.warnings) UNLIKELY { \
         std::cerr << "Warning: Attempt to " name " empty stack.\n"; \
@@ -466,7 +473,7 @@ public:
                 cerr << "Unrecognized opcode '";
                 print_unichar(static_cast<int24_t>(op), cerr);
                 pair<size_t, size_t> coords = m_program_holder->get_coords(m_ip);
-                cerr << "' (at (" << coords.first << ", " << coords.second << "))\n";
+                cerr << "' (at (" << coords.second << ", " << coords.first << "))\n";
                 thread<ProgramHolder>::flush_and_exit(EXIT_FAILURE);
             }
 #ifdef __clang__
