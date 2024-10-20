@@ -48,7 +48,7 @@ static constexpr const char* FLAGS_HELP =
     "\t                 \toperations. Incompatible with all other flags except\n"
     "\t                 \t--null.\n"
     "\t--assembly, -A   \tTake the input in the pseudo-assembly format.\n"
-    "\t                 \tIncompatible with --disassemble.\n\n"
+    "\t                 \tIncompatible with --disassemble and --compile.\n\n"
     "\t--expand, -e     \tSpace the program out to fit the triangle.\n"
     "\t                 \tIncompatible with all other flags except --null.\n"
     "\t--null, -z       \tRead the program until null terminator instead of EOF.";

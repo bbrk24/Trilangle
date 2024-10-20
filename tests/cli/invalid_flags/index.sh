@@ -6,7 +6,7 @@ invalid_flags=(
     # Not actually a flag
     -
     # various mode flags together
-    -Ae -ce -De -AD -Dc
+    -Ae -ce -De -AD -Dc -Ac
     # --assume-ascii without actually executing
     -ae -aD
     # --show-stack without --debug

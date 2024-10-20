@@ -33,7 +33,7 @@ struct flags {
         return !(
             (show_stack && !debug) || ((debug || warnings || pipekill || assembly) && disassemble)
             || (hide_nops && !disassemble) || (expand && (debug || warnings || pipekill || disassemble || assembly))
-            || (compile && (debug || warnings || pipekill || disassemble || expand))
+            || (compile && (debug || warnings || pipekill || disassemble || expand || assembly))
             || (assume_ascii && (expand || disassemble))
         );
     }
