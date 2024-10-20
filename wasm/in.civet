@@ -34,7 +34,6 @@ interval .= -1
 let step: =>
 decoder := new TextDecoder
 colors := new Colors
-isAssembly .= false
 
 // This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 // first access, but then saves it for fast access later.
@@ -51,7 +50,7 @@ clearOutput := :void =>
 
 generateContracted := :string =>
   programText .= (elements.program as! HTMLTextAreaElement).value
-  return programText if isAssembly
+  return programText if elements.assembly.checked
   programText |>= .replace /\n| /gu, ''
   // programText.length is wrong when there's high Unicode characters
   programLength := [programText...]#
@@ -148,10 +147,10 @@ createWorker := (name: string) => :Promise<void> =>
       elements.stdin.oninput = :void ->
         worker = undefined
         @oninput = null
-      elements.expand.disabled = isAssembly
-      elements.disassemble.disabled = isAssembly
-      elements.condense.disabled = isAssembly
-      elements.debug.disabled = isAssembly
+      elements.expand.disabled = elements.assembly.checked
+      elements.disassemble.disabled = elements.assembly.checked
+      elements.condense.disabled = elements.assembly.checked
+      elements.debug.disabled = elements.assembly.checked
       elements.runStop.textContent = 'Run!'
       elements.runStop.onclick = interpretProgram
 
@@ -195,7 +194,7 @@ expandBase := createWorker 'expandInput'
 debugBase := createWorker 'debugProgram'
 interpretAssembly := createWorker 'interpretAssembly'
 
-interpretProgram := => if isAssembly then interpretAssembly() else interpretBase()
+interpretProgram := => if elements.assembly.checked then interpretAssembly() else interpretBase()
 
 expandInput := :Promise<void> =>
   await expandBase()
@@ -448,11 +447,10 @@ do
   (elements.assembly as! HTMLInputElement).addEventListener
     'change'
     :void ->
-      isAssembly = @checked
-      elements.expand.disabled = isAssembly
-      elements.disassemble.disabled = isAssembly
-      elements.condense.disabled = isAssembly
-      elements.debug.disabled = isAssembly
+      elements.expand.disabled = @checked
+      elements.disassemble.disabled = @checked
+      elements.condense.disabled = @checked
+      elements.debug.disabled = @checked
     { +passive }
 
   width := elements.runStop.offsetWidth
@@ -473,13 +471,12 @@ do
       elements.includeInput.checked = true
     assemblyParam := params.get 'a'
     if Number assemblyParam
-      isAssembly = true
+      elements.assembly.checked = true
   catch e
     console.error e
     elements.stderr.innerText = 'Error while loading program from URL.'
   finally
-    elements.assembly.checked = isAssembly
-    elements.expand.disabled = isAssembly
-    elements.disassemble.disabled = isAssembly
-    elements.condense.disabled = isAssembly
-    elements.debug.disabled = isAssembly
+    elements.expand.disabled = elements.assembly.checked
+    elements.disassemble.disabled = elements.assembly.checked
+    elements.condense.disabled = elements.assembly.checked
+    elements.debug.disabled = elements.assembly.checked
