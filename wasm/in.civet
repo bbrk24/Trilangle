@@ -272,9 +272,8 @@ debugProgram := =>
 renderThreads := =>
   elements.threads.innerHTML = ''
   threads.forEach (thread, idx): void =>
-    highlightDiv := colors.getHighlightDiv(idx) ?? throw new TypeError(
+    highlightDiv := colors.getHighlightDiv(idx) ?? throw new TypeError
       "You haven't selected enough colors for that many threads!"
-    )
     tableRow := document.createElement 'tr'
     tableRow.style.backgroundColor = highlightDiv.style.getPropertyValue '--highlight-color'
     programRow := document.getElementById(`row-${thread.y}`)!
@@ -294,9 +293,9 @@ changeHighlightColor := (before: string | number, after: string): boolean =>
   return true unless threadNum?
   return false if threadNum < 0
   iter := document.evaluate `//td[text() = ${threadNum}]/..`,
-    document,
-    null,
-    XPathResult.ANY_TYPE,
+    document
+    null
+    XPathResult.ANY_TYPE
     null
   if node? := iter.iterateNext() as HTMLElement | null
     node.style.backgroundColor = after
@@ -376,7 +375,7 @@ toggleColorPicker := :void =>
 do
   window.version =
     comptime
-      { execSync } from 'node:child_process'
+      { execSync } from node:child_process
       execSync 'git describe --tags'
         .toString()
         .trimEnd()
