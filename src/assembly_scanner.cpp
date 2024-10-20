@@ -18,12 +18,10 @@ using std::string_view_literals::operator""sv;
     exit(EXIT_FAILURE);
 }
 
-const std::vector<instruction>& assembly_scanner::get_fragments() {
-    if (m_fragments.has_value()) {
-        return *m_fragments;
+const std::vector<instruction>& assembly_scanner::get_instructions() {
+    if (!m_instructions.empty()) {
+        return m_instructions;
     }
-
-    m_fragments.emplace(std::vector<instruction>());
 
     // We need to do two passes: one to resolve labels, and one to assign targets to jumps. During the first pass, the
     // fragments are actually constructed. However, jumps may not have valid targets yet, so we need some way to store
@@ -89,7 +87,7 @@ const std::vector<instruction>& assembly_scanner::get_fragments() {
             string label(curr_line.substr(0, i));
 
             [[maybe_unused]] auto _0 = label_names.insert(label);
-            auto [_, inserted] = m_label_locations.insert({ label, m_fragments->size() });
+            auto [_, inserted] = m_label_locations.insert({ label, m_instructions.size() });
 
             if (!inserted) {
                 cerr << "Label '" << label << "' appears twice" << endl;
@@ -125,7 +123,7 @@ const std::vector<instruction>& assembly_scanner::get_fragments() {
                 instruction::argument arg;
                 string label(curr_line.substr(label_start));
                 arg.next = { SIZE_C(0), label_to_fake_location(label) };
-                m_fragments->push_back({ opcode, arg });
+                m_instructions.push_back({ opcode, arg });
                 m_slices.push_back(curr_line);
                 break;
             }
@@ -134,8 +132,8 @@ const std::vector<instruction>& assembly_scanner::get_fragments() {
                 size_t label_start = curr_line.find_first_not_of(WHITESPACE, 3);
                 instruction::argument arg;
                 string label(curr_line.substr(label_start));
-                arg.choice = { { SIZE_C(0), m_fragments->size() + 1 }, { SIZE_C(0), label_to_fake_location(label) } };
-                m_fragments->push_back({ opcode, arg });
+                arg.choice = { { SIZE_C(0), m_instructions.size() + 1 }, { SIZE_C(0), label_to_fake_location(label) } };
+                m_instructions.push_back({ opcode, arg });
                 m_slices.push_back(curr_line);
                 break;
             }
@@ -188,19 +186,27 @@ const std::vector<instruction>& assembly_scanner::get_fragments() {
 
                 instruction::argument arg;
                 arg.number = arg_value;
-                m_fragments->push_back({ opcode, arg });
+                m_instructions.push_back({ opcode, arg });
                 m_slices.push_back(curr_line);
                 break;
             }
             default:
-                m_fragments->push_back({ opcode, instruction::argument() });
+                m_instructions.push_back({ opcode, instruction::argument() });
                 m_slices.push_back(curr_line);
                 break;
         }
     }
 
+    if (!m_instructions.empty()) {
+        const auto& last_instr = m_instructions.back();
+        if (!(last_instr.is_exit() || last_instr.m_op == instruction::operation::JMP)) {
+            cerr << "Program does not end in an exit instruction or loop" << endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+
     // Second pass
-    for (auto& instr : *m_fragments) {
+    for (auto& instr : m_instructions) {
         if (instr.m_op == instruction::operation::JMP) {
             fake_location_to_real(instr.m_arg.next);
         } else if (instr.m_op == instruction::operation::TSP || instr.m_op == instruction::operation::BNG) {
@@ -208,7 +214,7 @@ const std::vector<instruction>& assembly_scanner::get_fragments() {
         }
     }
 
-    return *m_fragments;
+    return m_instructions;
 }
 
 void assembly_scanner::advance(IP& ip, std::function<bool()> go_left) {

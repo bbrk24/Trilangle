@@ -20,7 +20,7 @@ inline void execute(const std::string& prg, flags f) {
 
     if (f.assembly) {
         assembly_scanner as(prg);
-        if (as.get_fragments().size() == 0) {
+        if (as.get_instructions().size() == 0) {
             empty_program();
         }
         interpreter i(as, f);
