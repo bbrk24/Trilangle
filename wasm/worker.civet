@@ -54,24 +54,25 @@ Module.'preInit' = =>
 Module.'onRuntimeInitialized' = halfReady
 Module.'noExitRuntime' = true
 
-callInterpreter := (warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1) => =>
+callInterpreter := (warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1, assembly: 0 | 1) => =>
   inputIndex = 0
   try
     await Module['ccall']
       'wasm_entrypoint'
       null
-      ['string', 'number', 'number', 'number']
-      [programText, warnings, disassemble, expand]
+      ['string', 'number', 'number', 'number', 'number']
+      [programText, warnings, disassemble, expand, assembly]
       async: true
   catch e
     if e? !<? ExitStatus
       postMessage [2, e.toString()]
   postMessage [0, null]
 
-signals.set 'interpretProgram', callInterpreter 0, 0, 0
-signals.set 'disassembleProgram', callInterpreter 1, 0, 0
-signals.set 'expandInput', callInterpreter 0, 1, 0
-signals.set 'debugProgram', callInterpreter 0, 0, 1
+signals.set 'interpretProgram', callInterpreter 0, 0, 0, 0
+signals.set 'disassembleProgram', callInterpreter 1, 0, 0, 0
+signals.set 'expandInput', callInterpreter 0, 1, 0, 0
+signals.set 'debugProgram', callInterpreter 0, 0, 1, 0
+signals.set 'interpretAssembly', callInterpreter 0, 0, 0, 1
 // @ts-expect-error __trilangle_resolve is set in library.civet
 signals.set 'step', => @.'__trilangle_resolve'()
 

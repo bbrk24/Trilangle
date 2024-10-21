@@ -11,8 +11,10 @@ struct flags {
     bool hide_nops : 1;
     bool expand : 1;
     bool null_terminated : 1;
+
     bool compile : 1;
     bool assume_ascii : 1;
+    bool assembly : 1;
 
     constexpr flags() noexcept :
         debug(false),
@@ -24,13 +26,14 @@ struct flags {
         expand(false),
         null_terminated(false),
         compile(false),
-        assume_ascii(false) {}
+        assume_ascii(false),
+        assembly(false) {}
 
     constexpr bool is_valid() const noexcept {
         return !(
-            (show_stack && !debug) || ((debug || warnings || pipekill) && disassemble) || (hide_nops && !disassemble)
-            || (expand && (debug || warnings || pipekill || disassemble))
-            || (compile && (debug || warnings || pipekill || disassemble || expand))
+            (show_stack && !debug) || ((debug || warnings || pipekill || assembly) && disassemble)
+            || (hide_nops && !disassemble) || (expand && (debug || warnings || pipekill || disassemble || assembly))
+            || (compile && (debug || warnings || pipekill || disassemble || expand || assembly))
             || (assume_ascii && (expand || disassemble))
         );
     }
