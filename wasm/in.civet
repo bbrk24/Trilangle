@@ -343,7 +343,7 @@ createColorDiv := (color: string, i: number): HTMLDivElement =>
 updateColorPicker := :void =>
   elements.colorPicker.innerHTML = ''
 
-  colors.allColors().forEach (el, i) =>
+  for each el, i of colors.allColors()
     elements.colorPicker.appendChild createColorDiv el, i
 
   // @ts-expect-error Let me assign to this

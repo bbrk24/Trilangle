@@ -63,9 +63,9 @@ callInterpreter := (warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1) => =>
       ['string', 'number', 'number', 'number']
       [programText, warnings, disassemble, expand]
       async: true
+  catch <? ExitStatus, null, undefined
   catch e
-    if e? !<? ExitStatus
-      postMessage [2, e.toString()]
+    postMessage [2, e.toString()]
   postMessage [0, null]
 
 signals.set 'interpretProgram', callInterpreter 0, 0, 0

@@ -14,6 +14,6 @@ mergeInto LibraryManager.library,
       postMessage [3, [thread_number, {
         'x': x,
         'y': y,
-        'stack': Array::map.call HEAP32[stack >> 2...(stack >> 2) + stack_depth], (<<8>>8)
+        'stack': Array::map.call HEAP32[stack >> 2..<(stack >> 2) + stack_depth], (<<8>>8)
       }]]
       new Promise (@.'__trilangle_resolve'=)
