@@ -15,7 +15,7 @@ declare var Module:
     argTypes: TArgTypes,
     args: { [K in keyof TArgTypes]: { string: string; number: number }[TArgTypes[K]] },
     options?: { readonly async?: TAsync }
-  ): TReturn | (if true < TAsync then Promise<TReturn>)
+  ): TReturn | (if true < TAsync then Promise TReturn)
 declare var FS:
   init(
     stdin: => (number | null),
@@ -63,9 +63,9 @@ callInterpreter := (warnings: 0 | 1, disassemble: 0 | 1, expand: 0 | 1) => =>
       ['string', 'number', 'number', 'number']
       [programText, warnings, disassemble, expand]
       async: true
-  catch <? ExitStatus, null, undefined
   catch e
-    postMessage [2, e.toString()]
+    if e? !<? ExitStatus
+      postMessage [2, e.toString()]
   postMessage [0, null]
 
 signals.set 'interpretProgram', callInterpreter 0, 0, 0

@@ -37,7 +37,7 @@ colors := new Colors
 
 // This is a clever little hack: elements.fooBar is the element with id="foo-bar". It uses document.getElementById on
 // first access, but then saves it for fast access later.
-elements := new Proxy<Record<string, HTMLElement & Record<string, ???>>> {}, get: (target, p) =>
+elements := new Proxy<Record string, HTMLElement & Record string, ???> {}, get: (target, p) =>
   if p <? 'string' and p !in target
     // @ts-expect-error Yes I know there's a type mismatch. It's the best I can come up with.
     target[p] = document.getElementById p.replace /[A-Z]/g, '-' + &.toLowerCase()
@@ -87,7 +87,7 @@ wasmCancel := :void =>
   worker = undefined
   resolve()
 
-isBufferFull: (buf: ArrayLike<number>) => boolean :=
+isBufferFull: (buf: ArrayLike number) => boolean :=
   (or)
     &# is 4
     ((&.0 + 256) & 0xf0) is 0xe0 and &# is 3
@@ -121,7 +121,7 @@ stderr := (char: number | null): void =>
   else
     char |> String.fromCharCode |> appendText
 
-createWorker := (name: string) => :Promise<void> =>
+createWorker := (name: string) => :Promise void =>
   threadCount .= -1
 
   clearOutput()
@@ -150,7 +150,7 @@ createWorker := (name: string) => :Promise<void> =>
       elements.runStop.textContent = 'Run!'
       elements.runStop.onclick = interpretProgram
 
-  worker.onmessage = (event: MessageEvent<MessageType>): void ->
+  worker.onmessage = (event: MessageEvent MessageType): void ->
     switch event.data
       [0, null]
         resolve()
@@ -189,7 +189,7 @@ disassembleProgram := createWorker 'disassembleProgram'
 expandBase := createWorker 'expandInput'
 debugBase := createWorker 'debugProgram'
 
-expandInput := :Promise<void> =>
+expandInput := :Promise void =>
   await expandBase()
   elements.program.value = elements.stdout.innerText
   elements.stdout.innerText = ''
