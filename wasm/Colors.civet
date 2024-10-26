@@ -85,7 +85,7 @@ class Colors
 
   get #() #entries#
 
-  [Symbol.toStringTag] = 'Colors'
+  :toStringTag = 'Colors'
 
   randomColor()
     interface Luv
