@@ -164,7 +164,7 @@ createWorker := (name: string) => :Promise void =>
       [3, [threadNum, thread]]
         threads[threadNum] = thread
         try
-          if threadCount is threads.reduce (1+), 0
+          if threadCount is (for count _ in threads)
             renderThreads()
           else
             step()
