@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@danielx/civet": "~0.8.10",
+        "@danielx/civet": "~0.8.16",
         "sass": "^1.79.0",
         "terser": "^5.27.2"
     },
@@ -22,7 +22,7 @@
         "build": "./build_wasm.sh"
     },
     "engines": {
-        "node": ">=20.10.0"
+        "node": ">=20.10.0 <22.0.0"
     },
     "engineStrict": true
 }
