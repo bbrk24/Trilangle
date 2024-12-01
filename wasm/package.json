@@ -13,8 +13,8 @@
         "eslint": "^8.57.0",
         "eslint-plugin-civet": "0.0.4",
         "express": "^5.0.0",
-        "stylelint": "^16.6.1",
-        "stylelint-config-standard-scss": "^13.0.0"
+        "stylelint": "^16.11.0",
+        "stylelint-config-standard-scss": "^14.0.0"
     },
     "scripts": {
         "start": "node -e \"(e => e().use(e.static('.')).listen(3000))(require('express'))\"",
