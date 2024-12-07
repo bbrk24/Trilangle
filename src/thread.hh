@@ -24,6 +24,8 @@ extern "C" void send_debug_info(
     CONST_C_STR instruction
 );
 
+int32_t read_int() noexcept;
+
 template<class ProgramHolder>
 class thread {
     template<class>
@@ -360,7 +362,7 @@ public:
 
                 break;
             case operation::GTI: {
-                m_stack.emplace_back(thread<ProgramHolder>::read_int());
+                m_stack.emplace_back(read_int());
                 break;
             }
             case operation::PTI:
@@ -497,8 +499,6 @@ protected:
     status m_status;
     flags m_flags;
 private:
-    static int32_t read_int() noexcept;
-
     [[noreturn]] static inline void flush_and_exit(int code) {
         std::cout << std::flush;
         std::cerr << std::flush;

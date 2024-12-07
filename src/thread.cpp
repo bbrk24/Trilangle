@@ -6,8 +6,7 @@ using std::cout;
 
 unsigned long thread_count;
 
-template<class ProgramHolder>
-int32_t thread<ProgramHolder>::read_int() noexcept {
+int32_t read_int() noexcept {
     int32_t i = -1;
 
     while (!(feof(stdin) || scanf("%" SCNi32, &i))) {
