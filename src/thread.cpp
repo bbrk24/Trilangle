@@ -1,8 +1,21 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+
 #include "thread.hh"
 
 using std::cout;
 
 unsigned long thread_count;
+
+template<class ProgramHolder>
+int32_t thread<ProgramHolder>::read_int() noexcept {
+    int32_t i = -1;
+
+    while (!(feof(stdin) || scanf("%" SCNi32, &i))) {
+        [[maybe_unused]] int _ = getchar();
+    }
+
+    return i;
+}
 
 #ifndef __EMSCRIPTEN__
 extern "C" void send_debug_info(

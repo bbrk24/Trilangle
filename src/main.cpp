@@ -1,5 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS 1
-
 #include "assembly_scanner.hh"
 #include "compiler.hh"
 #include "disassembler.hh"

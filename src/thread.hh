@@ -360,13 +360,7 @@ public:
 
                 break;
             case operation::GTI: {
-                int32_t i = -1;
-
-                while (!(feof(stdin) || scanf("%" SCNi32, &i))) {
-                    [[maybe_unused]] int _ = getchar();
-                }
-
-                m_stack.emplace_back(i);
+                m_stack.emplace_back(thread<ProgramHolder>::read_int());
                 break;
             }
             case operation::PTI:
@@ -503,6 +497,8 @@ protected:
     status m_status;
     flags m_flags;
 private:
+    static int32_t read_int() noexcept;
+
     [[noreturn]] static inline void flush_and_exit(int code) {
         std::cout << std::flush;
         std::cerr << std::flush;
