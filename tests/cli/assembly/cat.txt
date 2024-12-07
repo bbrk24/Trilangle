@@ -1,0 +1,8 @@
+start:
+    GTC
+    BNG end
+    PTC
+    POP
+    JMP start
+end:
+    EXT
