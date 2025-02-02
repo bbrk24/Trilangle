@@ -1,17 +1,17 @@
 {
     "dependencies": {
-        "@danielx/civet": "~0.8.16",
+        "@danielx/civet": "~0.9.6",
         "sass": "^1.79.0",
         "terser": "^5.27.2"
     },
     "devDependencies": {
-        "@eslint/js": "^9.12.0",
-        "@typescript-eslint/eslint-plugin": "^8.16.0",
-        "@typescript-eslint/parser": "^8.16.0",
+        "@eslint/js": "~9.14.0",
+        "@typescript-eslint/eslint-plugin": "^8.22.0",
+        "@typescript-eslint/parser": "^8.22.0",
         "@wasm-fmt/clang-format": ">19.1.0",
         "engine-check": "git@github.com:bbrk24/engine-check.git#6b7fa214f0d5c20508cdad796bd52db4fdcf182f",
-        "eslint": "^9.12.0",
-        "eslint-plugin-civet": "0.0.5",
+        "eslint": "~9.14.0",
+        "eslint-plugin-civet": "0.0.6",
         "express": "^5.0.0",
         "stylelint": "^16.11.0",
         "stylelint-config-standard-scss": "^14.0.0"
