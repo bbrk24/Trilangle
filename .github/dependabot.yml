@@ -15,6 +15,10 @@ updates:
         patterns:
           - eslint
           - '@eslint/js'
+      civet:
+        patterns:
+          - '@danielx/civet'
+          - eslint-plugin-civet
   - package-ecosystem: gitsubmodule
     directory: /
     schedule:
