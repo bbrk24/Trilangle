@@ -100,14 +100,10 @@ void thread::tick() {
         case status::idle:
             m_status = status::active;
             return;
-        case status::waiting:
-            return;
         case status::active:
             break;
         case status::terminated:
             unreachable("tick() should not be called on terminated thread");
-        case status::splitting:
-            unreachable("thread with m_status = splitting should be split");
     }
 
 #ifndef __EMSCRIPTEN__
@@ -437,37 +433,10 @@ void thread::tick() {
             break;
         }
         case THR_E:
-            switch (m_ip.dir) {
-                case direction::east:
-                    m_status = status::terminated;
-                    break;
-                case direction::west:
-                    m_status = status::splitting;
-                    break;
-                case direction::northeast:
-                case direction::southeast:
-                    m_status = status::waiting;
-                    break;
-                default:
-                    break;
-            }
-            break;
         case THR_W:
-            switch (m_ip.dir) {
-                case direction::west:
-                    m_status = status::terminated;
-                    break;
-                case direction::east:
-                    m_status = status::splitting;
-                    break;
-                case direction::northwest:
-                case direction::southwest:
-                    m_status = status::waiting;
-                    break;
-                default:
-                    break;
-            }
-            break;
+            cout << flush;
+            cerr << "Threading not supported" << std::endl;
+            exit(1);
         case GTM: {
             m_stack.push_back(get_time<trilangle_clock>());
             break;

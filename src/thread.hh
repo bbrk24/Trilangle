@@ -11,17 +11,15 @@ public:
     enum class status : char {
         active,      // Currently executing code
         idle,        // Inactive for a single tick due to e.g. a "skip" operation
-        waiting,     // Waiting for a second thread to merge with
-        splitting,   // Arrived at a thread split and waiting to be split in two
         terminated,  // The thread is no longer executing
     };
 
     // Currently only called with T = std::vector<int24_t> and T = const std::vector<int24_t>&.
     // Generic to allow both move- and copy-construction.
     template<typename T>
-    thread(const thread& other, direction d, T&& stack) noexcept :
+    thread(const thread& other, direction d, T& stack) noexcept :
         program_walker(other.m_program),
-        m_stack(std::forward<T>(stack)),
+        m_stack(stack),
         m_ip{ other.m_ip.coords, d },
         m_status(status::active),
         m_flags(other.m_flags),
@@ -33,9 +31,9 @@ public:
 
     void tick();
 protected:
-    inline thread(NONNULL_PTR(const program) p, flags f) noexcept :
+    inline thread(NONNULL_PTR(program) p, flags f) noexcept :
         program_walker(p),
-        m_stack(),
+        m_stack(p->m_code),
         m_ip{ { SIZE_C(0), SIZE_C(0) }, direction::southwest },
         m_status(status::active),
         m_flags(f),
@@ -43,7 +41,7 @@ protected:
 
     constexpr void advance() noexcept { program_walker::advance(m_ip, m_program->side_length()); }
 
-    std::vector<int24_t> m_stack;
+    std::vector<int24_t>& m_stack;
     NO_UNIQUE_ADDRESS instruction_pointer m_ip;
     status m_status;
     flags m_flags;

@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <iostream>
-#include "compiler.hh"
 #include "disassembler.hh"
 #include "interpreter.hh"
 
@@ -24,9 +23,6 @@ inline void execute(const std::string& prg, flags f) {
         d.write_state(std::cout);
     } else if (f.expand) {
         std::cout << p << std::flush;
-    } else if (f.compile) {
-        compiler c(&p, f);
-        c.write_state(std::cout);
     } else {
         interpreter i(&p, f);
         i.run();

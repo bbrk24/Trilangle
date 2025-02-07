@@ -43,10 +43,7 @@ static constexpr const char* FLAGS_HELP =
     "\t                 \tcode. Incompatible with --debug, --warnings, and\n"
     "\t                 \t--pipekill.\n"
     "\t--hide-nops, -n  \tDon't include NOPs in the disassembly. Requires\n"
-    "\t                 \t--disassemble.\n"
-    "\t--compile, -c    \tOutput C code for the program. Doesn't support all\n"
-    "\t                 \toperations. Incompatible with all other flags except\n"
-    "\t                 \t--null.\n\n"
+    "\t                 \t--disassemble.\n\n"
     "\t--expand, -e     \tSpace the program out to fit the triangle.\n"
     "\t                 \tIncompatible with all other flags except --null.\n"
     "\t--null, -z       \tRead the program until null terminator instead of EOF.";
@@ -57,7 +54,6 @@ static CONSTINIT_LAMBDA std::tuple<NONNULL_PTR(const char), char, void (*)(flags
     { "debug", 'd', [](flags& f) NOEXCEPT_T { f.debug = true; } },
     { "ascii", 'a', [](flags& f) NOEXCEPT_T { f.assume_ascii = true; } },
     { "expand", 'e', [](flags& f) NOEXCEPT_T { f.expand = true; } },
-    { "compile", 'c', [](flags& f) NOEXCEPT_T { f.compile = true; } },
     { "warnings", 'w', [](flags& f) NOEXCEPT_T { f.warnings = true; } },
     { "pipekill", 'f', [](flags& f) NOEXCEPT_T { f.pipekill = true; } },
     { "hide-nops", 'n', [](flags& f) NOEXCEPT_T { f.hide_nops = true; } },
