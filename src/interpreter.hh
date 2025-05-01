@@ -101,8 +101,10 @@ private:
         return thread<assembly_scanner>(first_thread, std::move(new_stack));
     }
 
-    inline std::vector<int24_t>
-    join_threads_work(thread<ProgramHolder>& first_thread, thread<ProgramHolder>& second_thread) {
+    inline std::vector<int24_t> join_threads_work(
+        thread<ProgramHolder>& first_thread,
+        thread<ProgramHolder>& second_thread
+    ) {
         int24_t first_stack_amount = first_thread.m_stack.back();
         first_thread.m_stack.pop_back();
 
@@ -150,8 +152,10 @@ private:
         return new_stack;
     }
 
-    inline void split_thread(std::vector<thread<ProgramHolder>>& new_threads, const thread<ProgramHolder>& old_thread)
-        const {
+    inline void split_thread(
+        std::vector<thread<ProgramHolder>>& new_threads,
+        const thread<ProgramHolder>& old_thread
+    ) const {
         thread<ProgramHolder> new_thread_1 = old_thread.split_copy();
         thread<ProgramHolder> new_thread_2 = old_thread.split_copy();
 

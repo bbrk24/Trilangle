@@ -29,6 +29,7 @@ IntegerLiteralSeparator:
   HexMinDigits: 6
 LineEnding: LF
 MaxEmptyLinesToKeep: 2
+PenaltyReturnTypeOnItsOwnLine: 219
 RemoveParentheses: ReturnStatement
 SpaceAfterTemplateKeyword: false
 WhitespaceSensitiveMacros:

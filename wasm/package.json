@@ -8,7 +8,7 @@
         "@eslint/js": "~9.14.0",
         "@typescript-eslint/eslint-plugin": "^8.22.0",
         "@typescript-eslint/parser": "^8.22.0",
-        "@wasm-fmt/clang-format": ">19.1.0",
+        "@wasm-fmt/clang-format": "^20.1.2",
         "engine-check": "git@github.com:bbrk24/engine-check.git#6b7fa214f0d5c20508cdad796bd52db4fdcf182f",
         "eslint": "~9.14.0",
         "eslint-plugin-civet": "0.0.6",
