@@ -18,7 +18,7 @@ jobs:
           - aarch64
     name: Verify C++ Build with clang on ${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Invoke clang
         shell: bash
         run: >+
@@ -37,7 +37,7 @@ jobs:
             disp_arch: arm64
     name: Verify C++ Build with MSVC on ${{ matrix.disp_arch }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ilammy/msvc-dev-cmd@v1.13.0
         with:
           arch: ${{ matrix.cmd_arch }}

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Run Unit Tests
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
       - name: Compile and run unit tests
@@ -33,7 +33,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Run CLI Tests for ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build and run tests
         shell: bash
         run: "./clitest.sh\n"
@@ -41,7 +41,7 @@ jobs:
     runs-on: windows-latest
     name: Run CLI Tests for Windows
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ilammy/msvc-dev-cmd@v1.13.0
       - name: Compile C++ sources
         shell: pwsh
