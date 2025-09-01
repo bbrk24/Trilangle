@@ -87,7 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: "mkdir artifacts/\n"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: artifacts/
       - name: Flatten artifacts directory
