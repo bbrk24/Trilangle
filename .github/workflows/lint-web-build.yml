@@ -15,7 +15,7 @@ jobs:
     name: Lint with JS Tools
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: ^22.11
       - name: npm lint
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: ^22.11
       - name: Run build script
