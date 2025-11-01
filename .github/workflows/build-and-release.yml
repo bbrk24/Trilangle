@@ -18,7 +18,7 @@ jobs:
 
           g++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++23 -o "Release/trilangle-${tag}-ubuntu"
           src/*.cpp
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: trilangle-ubuntu
           path: Release/
@@ -41,7 +41,7 @@ jobs:
 
           clang++ -O3 -DNDEBUG -DVERSION=$tag -flto -fno-rtti -std=gnu++20 -target "$(clang -dumpmachine | sed -E
           's/^\w+-/${{ matrix.arch }}-/')" -o "Release/trilangle-${tag}-macos-${{ matrix.arch }}" src/*.cpp
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: trilangle-macos-${{ matrix.arch }}
           path: Release/
@@ -73,7 +73,7 @@ jobs:
 
           cl .\src\*.cpp /O2 /EHsc /GL /GR- /DNDEBUG /DVERSION=%tag% /std:c++20 /MT /link
           /out:Release\trilangle-%tag%-windows-${{ matrix.disp_arch }}.exe
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: trilangle-windows-${{ matrix.disp_arch }}
           path: Release/
@@ -87,7 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: "mkdir artifacts/\n"
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: artifacts/
       - name: Flatten artifacts directory
