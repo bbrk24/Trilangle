@@ -107,7 +107,7 @@ button:disabled {
 }
 
 #url-out {
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     max-width: 100%;
 }
 
@@ -140,7 +140,7 @@ input[type="color"],
 #color-picker:not([hidden]) {
     display: grid;
     grid-template-columns: repeat(auto-fill, 5.6em);
-    grid-gap: 0.5em;
+    gap: 0.5em;
 
     button {
         margin: auto 0.25em;

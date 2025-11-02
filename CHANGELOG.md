@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. See [Keep a
 ### Changed
 
 - Fixed C++23 support
+- Changed some CSS property names to no longer reference deprecated properties
 
 ## [1.8.3] - 2024-09-16
 
