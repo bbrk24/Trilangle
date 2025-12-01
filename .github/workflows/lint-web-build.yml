@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint with JS Tools
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: ^22.11
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Verify wasm build
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: numworks/setup-emscripten@bbc4f5e15974bc13e69fdadecfd1858ecb1c4dbb
       - uses: actions/setup-node@v6
         with:
