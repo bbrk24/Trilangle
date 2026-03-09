@@ -1,8 +1,9 @@
 {
     "dependencies": {
-        "@danielx/civet": "~0.10.3",
+        "@danielx/civet": "~0.11.4",
         "sass": "^1.79.0",
-        "terser": "^5.27.2"
+        "terser": "^5.27.2",
+        "typescript-eslint": "^8.57.0"
     },
     "devDependencies": {
         "@eslint/js": "~9.14.0",
@@ -22,7 +23,7 @@
         "build": "./build_wasm.sh"
     },
     "engines": {
-        "node": "^20.10.0 || >=21.1.0"
+        "node": "^20.19.0 || ^22.13.0 || >=24"
     },
     "engineStrict": true
 }
