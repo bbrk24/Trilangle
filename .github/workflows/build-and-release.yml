@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build for Ubuntu
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Compile C++ sources
         shell: bash
         run: >
@@ -31,7 +31,7 @@ jobs:
           - aarch64
     name: Build for macOS ${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Compile C++ sources
         shell: bash
         run: >
@@ -60,7 +60,7 @@ jobs:
             disp_arch: arm64
     name: Build for Windows ${{ matrix.disp_arch }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ilammy/msvc-dev-cmd@v1.13.0
         with:
           arch: ${{ matrix.cmd_arch }}
@@ -85,7 +85,7 @@ jobs:
       - build-mac
       - build-windows
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: "mkdir artifacts/\n"
       - uses: actions/download-artifact@v6
         with:
