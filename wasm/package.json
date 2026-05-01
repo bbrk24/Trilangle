@@ -12,7 +12,7 @@
         "@wasm-fmt/clang-format": "^20.1.2",
         "engine-check": "git@github.com:bbrk24/engine-check.git#6b7fa214f0d5c20508cdad796bd52db4fdcf182f",
         "eslint": "~9.14.0",
-        "eslint-plugin-civet": "0.0.6",
+        "eslint-plugin-civet": "0.1.0",
         "express": "^5.0.0",
         "stylelint": "^17.4.0",
         "stylelint-config-standard-scss": "^17.0.0"
