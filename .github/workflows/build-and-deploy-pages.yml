@@ -36,7 +36,7 @@ jobs:
           mkdir ../Release
           mv *.css index.js worker.js ldworker.js Colors.js *.wasm ../Release/
           cp *.html favicon.ico ../Release/
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: Release/
   deploy-pages:
@@ -51,6 +51,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         with:
           error_count: 1
